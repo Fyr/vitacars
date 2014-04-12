@@ -584,9 +584,7 @@ Grid = function(config) {
 
 	this.bindCheckAll = function() {
 		$('.grid-chbx-checkAll', $self).change(function(){
-			console.log('grid-chbx-checkAll');
 			var allChecked = this.checked;
-			console.log($self.get(0));
 			$('.grid-chbx-row', $self).each(function(){
 				this.checked = allChecked;
 				var tr = $(this).parent().parent();
