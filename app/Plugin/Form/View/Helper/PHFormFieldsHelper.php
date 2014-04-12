@@ -26,7 +26,7 @@ class PHFormFieldsHelper extends AppHelper {
 	
 	private function _inputOptions($field) {
 		$aDefaultOptions = array(
-			FieldTypes::STRING => array('class' => 'input-large', 'type' => 'text'),
+			FieldTypes::STRING => array('class' => 'input-xlarge', 'type' => 'text'),
 			FieldTypes::INT => array('class' => 'input-medium', 'type' => 'text')
 		);
 		$key = ($field['key']) ? $field['key'] : 'value';
