@@ -38,6 +38,12 @@ class PHTableGridHelper extends AppHelper {
 		);
 		return compact('table', 'row', 'checked');
 	}
+	
+	public function getDefaultColumns($modelName) {
+		$aCols = $this->viewVar('_paginate.'.$modelName.'._columns');
+		$aKeys = Hash::extract($aCols, '{n}.key');
+		return array_combine($aKeys, $aCols);
+	}
 
 	public function render($modelName, $options = array()) {
 		$this->Html->css(array('/Table/css/grid', '/Icons/css/icons'), array('inline' => false));
@@ -53,6 +59,9 @@ class PHTableGridHelper extends AppHelper {
 		$defaults = Hash::get($this->paginate, '_defaults');
 		$options = Hash::merge($this->_getDefaults($modelName), $options);
 		
+		$options['columns'] = (isset($options['columns'])) ? $options['columns'] : $this->getDefaultColumns($modelName);
+		$options['data'] = (isset($options['data'])) ? $options['data'] : $this->paginate['_rowset'];
+		
 		// Т.к. я добавил ключи в $actions, для JS их надо выкосить
 		$actions = $options['actions'];
 		foreach($actions as $type => $array) {
@@ -65,8 +74,8 @@ class PHTableGridHelper extends AppHelper {
 $(document).ready(function(){
 	var config = {
 		container: "#'.$container_id.'",
-		columns: '.json_encode($this->paginate['_columns']).',
-		data: '.json_encode($this->paginate['_rowset']).',
+		columns: '.json_encode(array_values($options['columns'])).',
+		data: '.json_encode($options['data']).',
 		paging: '.json_encode($paging).',
 		settings: {model: "'.$modelName.'", baseURL: "'.$options['baseURL'].'"},
 		defaults: '.json_encode($defaults).',
