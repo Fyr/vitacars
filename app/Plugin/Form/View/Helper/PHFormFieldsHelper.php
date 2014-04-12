@@ -41,14 +41,20 @@ class PHFormFieldsHelper extends AppHelper {
 	
 	public function render($form, $values) {
 		$html = '';
-		$_values = array_combine(
-			Hash::extract($values, '{n}.PMFormValue.field_id'), 
-			Hash::extract($values, '{n}.PMFormValue.value')
-		);
-		$_ids = array_combine(
-			Hash::extract($values, '{n}.PMFormValue.field_id'), 
-			Hash::extract($values, '{n}.PMFormValue.id')
-		);
+		$_values = array();
+		if ($values) {
+			$_values = array_combine(
+				Hash::extract($values, '{n}.PMFormValue.field_id'), 
+				Hash::extract($values, '{n}.PMFormValue.value')
+			);
+		}
+		$_ids = array();
+		if ($values) {
+			$_ids = array_combine(
+				Hash::extract($values, '{n}.PMFormValue.field_id'), 
+				Hash::extract($values, '{n}.PMFormValue.id')
+			);
+		}
 		foreach($form as $i => $row) {
 			$field = $row['FormField'];
 			$value = Hash::get($_values, $field['id']);
