@@ -1,0 +1,236 @@
+msgid "Username"
+msgstr "Пользователь"
+
+msgid "Invalid username or password, try again"
+msgstr "Неправильное имя пользователя или пароль"
+
+msgid "Static Pages"
+msgstr "Стат.страницы"
+
+msgid "News"
+msgstr "Новости"
+
+msgid "Categories"
+msgstr "Категории"
+
+msgid "Tech.params"
+msgstr "Тех.параметры"
+
+msgid "Tech-params"
+msgstr "Тех.параметры"
+
+msgid "Products"
+msgstr "Продукция"
+
+msgid "Slider"
+msgstr "Слайдер"
+
+msgid "Settings"
+msgstr "Настройки"
+
+msgid "Home"
+msgstr "Главная"
+
+msgid "Products catalogue"
+msgstr "Каталог продукции"
+
+msgid "About us"
+msgstr "О нас"
+
+msgid "Contacts"
+msgstr "Контакты"
+
+msgid "You must log in to access this page"
+msgstr "Вы должны авторизоваться"
+
+msgid "Your session has been expired. Please, relogin to perform this action"
+msgstr "Авторизация истекла. Пож-ста, авторизуйтесь снова"
+
+msgid "Save"
+msgstr "Сохранить"
+
+msgid "Back"
+msgstr "Назад"
+
+msgid "Apply"
+msgstr "Применить"
+
+msgid "Upload files..."
+msgstr "Загрузка файлов..."
+
+msgid "Set as main"
+msgstr "Назначить осн."
+
+msgid "Delete"
+msgstr "Удалить"
+
+msgid "Original image"
+msgstr "Оригинальное изображение"
+
+msgid "Uploaded"
+msgstr "Загружено"
+
+msgid "File name"
+msgstr "Имя файла"
+
+msgid "File size"
+msgstr "Размер файла"
+
+msgid "Resolution"
+msgstr "Разрешение"
+
+msgid "Enlarge"
+msgstr "Увеличить"
+
+msgid "Links"
+msgstr "Ссылки"
+
+msgid "Original size"
+msgstr "Оригинальный размер"
+
+msgid "For editor"
+msgstr "Для редактора"
+
+msgid "Resize"
+msgstr "Изменить размеры"
+
+msgid "Width"
+msgstr "Ширина"
+
+msgid "Height"
+msgstr "Высота"
+
+msgid "Media URL"
+msgstr "Media URL"
+
+msgid "Add record"
+msgstr "Добавить запись"
+
+msgid "Show filter settings"
+msgstr "Показать настройки фильтра"
+
+msgid "Edit record"
+msgstr "Редактировать запись"
+
+msgid "Delete record"
+msgstr "Удалить запись"
+
+msgid "Delete checked records"
+msgstr "Удалить помеченные записи"
+
+msgid "Dashboard"
+msgstr "Главная"
+
+msgid "User name"
+msgstr "Имя пользователя"
+
+msgid "Password"
+msgstr "Пароль"
+
+msgid "Remember me"
+msgstr "Запомнить"
+
+msgid "Login"
+msgstr "Вход"
+
+msgid "Utils"
+msgstr "Утилиты"
+
+msgid "Generate static labels"
+msgstr "Сгенерировать стат.метки"
+
+msgid "Clean image cache"
+msgstr "Очистить кэш изображений"
+
+msgid "Processing query..."
+msgstr "Обработка запроса..."
+
+msgid "Subcategory"
+msgstr "Подкатегория"
+
+msgid "CMS Development"
+msgstr "Разработка CMS"
+
+msgid "Admin Home Page"
+msgstr "Главная страница Админа"
+
+msgid "Open Home page of Front-end in a new tab"
+msgstr "Открыть главную страницу сайта в новой вкладке"
+
+msgid "Go to Site"
+msgstr "Перейти к сайту"
+
+msgid "Log out"
+msgstr "Выход"
+
+msgid "Category"
+msgstr "Категория"
+
+msgid "Articles"
+msgstr "Статьи"
+
+msgid "Static pages"
+msgstr "Стат.страницы"
+
+msgid "Subcategories"
+msgstr "Подкатегории"
+
+msgid "Create Article"
+msgstr "Создать Статью"
+
+msgid "Create Static page"
+msgstr "Создать Cтат.страницу"
+
+msgid "Create News article"
+msgstr "Создать Новость"
+
+msgid "Create Category"
+msgstr "Создать Категорию"
+
+msgid "Create Subcategory"
+msgstr "Создать Подкатегорию"
+
+msgid "Create Product"
+msgstr "Создать Продукт"
+
+msgid "Edit Article"
+msgstr "Редактировать Статью"
+
+msgid "Edit Static page"
+msgstr "Редактировать Стат.страницу"
+
+msgid "Edit News article"
+msgstr "Редактировать Новость"
+
+msgid "Edit Category"
+msgstr "Редактировать Категорию"
+
+msgid "Edit Subcategory"
+msgstr "Редактировать Подкатегорию"
+
+msgid "Edit Product"
+msgstr "Редактировать Продукт"
+
+msgid "Spam protection"
+msgstr "Защита от спама"
+
+msgid "Send"
+msgstr "Отправить"
+
+msgid "General"
+msgstr "Общее"
+
+msgid "Title"
+msgstr "Название"
+
+msgid "Price"
+msgstr "Цена"
+
+msgid "Teaser"
+msgstr "Анонс"
+
+msgid "Published"
+msgstr "Опубликовано"
+
+msgid "Featured"
+msgstr "Особое"
