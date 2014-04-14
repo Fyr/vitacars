@@ -13,7 +13,7 @@ class PMFormValue extends AppModel {
 		return $this->getObjectList($object_type, $object_id);
 	}
 	
-	public function saveForm($object_type, $object_id = '', $form_id, $data) {
+	public function saveForm($object_type, $object_id = '', $form_id, $data = array()) {
 		foreach($data as $_data) {
 			$this->clear();
 			$this->save(array_merge($_data, compact('object_type', 'object_id', 'form_id')));

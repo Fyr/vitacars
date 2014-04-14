@@ -11,6 +11,9 @@ class MediaHelper extends AppHelper {
 	}
 	
 	function imageUrl($mediaRow, $size) {
+		if (!(isset($mediaRow['Media']) && $mediaRow['Media'] && isset($mediaRow['Media']['id']) && $mediaRow['Media']['id']) ) {
+			return '';
+		}
 		$media = $mediaRow['Media'];
 		return $this->MediaPath->getImageUrl($media['object_type'], $media['id'], $size, $media['file'].$media['ext']);
 	}

@@ -3,7 +3,7 @@ App::uses('AdminController', 'Controller');
 class AdminProductsController extends AdminController {
     public $name = 'AdminProducts';
     public $components = array('Table.PCTableGrid', 'Article.PCArticle');
-    public $uses = array('Category', 'Subcategory', 'Product', 'Form.PMForm', 'Form.PMFormValue');
+    public $uses = array('Product', 'Form.PMForm', 'Form.PMFormValue', 'Form.FormField', 'Category', 'Subcategory');
     public $helpers = array('ObjectType', 'Form.PHFormFields');
     
     public function beforeRender() {
@@ -11,22 +11,38 @@ class AdminProductsController extends AdminController {
     	$this->set('objectType', $this->Product->objectType);
     }
     
+    private function _getParamRelation($fieldID) {
+    	
+    }
+    
     public function index() {
+    	
+    	$aParams = $this->FormField->find('all');
+    	$aLabels = array();
+    	$aFields = array();
+    	$hasOne = array();
+    	foreach($aParams as $i => $_field) {
+    		$i++;
+    		$alias = 'Param'.$i;
+    		$hasOne[$alias] = array(
+				'className' => 'Form.PMFormValue',
+				'foreignKey' => 'object_id',
+				'conditions' => array($alias.'.field_id' => $_field['FormField']['id'])
+			);
+			$aFields[] = $alias.'.value';
+			$aLabels[$alias.'.value'] = $_field['FormField']['label'];
+    	}
+    	$this->set('aLabels', $aLabels);
+    	$this->Product->bindModel(array('hasOne' => $hasOne), false);
         $this->paginate = array(
-           	'fields' => array('id', 'created', 'title', 'teaser', 'published')
+           	'fields' => array_merge(array('title', 'code', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext'), $aFields)
         );
-        $this->PCTableGrid->paginate('Product');
+        $aRowset = $this->PCTableGrid->paginate('Product');
+        $this->set('aRowset', $aRowset);
     }
     
 	public function edit($id = 0) {
 		$this->loadModel('Media.Media');
-		
-		$this->set('aCategories', $this->Category->getOptions('Category'));
-		$this->set('aSubcategories', $this->Subcategory->find('all', array(
-			'fields' => array('id', 'object_id', 'title', 'Category.id', 'Category.title'),
-			'order' => 'object_id'
-		)));
-		
 		if (!$id) {
 			$this->request->data('Product.object_type', $this->Product->objectType);
 		}
@@ -34,15 +50,13 @@ class AdminProductsController extends AdminController {
 		if ($lSaved) {
 			if ($this->request->is('put')) {
 				// save product params only for updated product
-				$form = $this->PMForm->getObject('Subcategory', $this->request->data('Subcategory.id'));
-				$this->PMFormValue->saveForm('ProductParam', $id, $form['PMForm']['id'], $this->request->data('PMFormValue'));
+				$this->PMFormValue->saveForm('ProductParam', $id, 1, $this->request->data('PMFormValue'));
 			}
 			$baseRoute = array('action' => 'index');
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
 		}
 		
-		$subcat_id = $this->request->data('Subcategory.id');
-		$this->set('form', $this->PMForm->getFields('Subcategory', $subcat_id));
+		$this->set('form', $this->PMForm->getFields('ProductParams', 1));
 		$this->set('formValues', $this->PMFormValue->getValues('ProductParam', $id));
 	}
 }

@@ -2,7 +2,7 @@
 App::uses('AdminController', 'Controller');
 class AdminFieldsController extends AdminController {
     public $name = 'AdminFields';
-    public $uses = array('Form.FormField');
+    public $uses = array('Form.FormField', 'Form.PMFormKey');
     
     public function beforeRender() {
     	parent::beforeRender();
@@ -24,6 +24,9 @@ class AdminFieldsController extends AdminController {
 			$this->request->data('FormField.object_type', 'SubcategoryParam');
 			if ($this->FormField->save($this->request->data)) {
 				$id = $this->FormField->id;
+				if ($this->request->is('post')) {
+					$this->PMFormKey->save(array('form_id' => 1, 'field_id' => $id));
+				}
 				$baseRoute = array('action' => 'index');
 				return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
 			}

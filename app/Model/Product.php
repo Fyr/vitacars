@@ -4,16 +4,7 @@ App::uses('Article', 'Article.Model');
 App::uses('Media', 'Media.Model');
 App::uses('Category', 'Model');
 class Product extends Article {
-	/*
-	public $belongsTo = array(
-		'Category' => array(
-			'foreignKey' => 'cat_id'
-		),
-		'Subcategory' => array(
-			'foreignKey' => 'subcat_id'
-		),
-	);
-	*/
+	
 	public $hasOne = array(
 		'Media' => array(
 			'foreignKey' => 'object_id',

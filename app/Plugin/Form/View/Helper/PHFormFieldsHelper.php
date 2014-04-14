@@ -61,7 +61,7 @@ class PHFormFieldsHelper extends AppHelper {
 			$html.= $this->PHForm->input('PMFormValue.value', array_merge(
 				$this->_options($i, 'value'), $this->_inputOptions($field), array('value' => $value)
 			));
-			if ($value) {
+			if (isset($_values[$field['id']])) {
 				$html.= $this->PHForm->hidden('PMFormValue.id', array_merge(
 					$this->_options($i, 'id'), array('value' => Hash::get($_ids, $field['id']))
 				));

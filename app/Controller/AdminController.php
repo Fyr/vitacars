@@ -51,9 +51,8 @@ class AdminController extends AppController {
 		$model = $this->request->query('model');
 		if ($model) {
 			$this->loadModel($model);
-			list($plugin, $model) = explode('.',$model);
-			if (!$model) {
-			    $model = $plugin;
+			if (strpos($model, '.') !== false) {
+				list($plugin, $model) = explode('.',$model);
 			}
 			$this->{$model}->delete($id);
 		}
