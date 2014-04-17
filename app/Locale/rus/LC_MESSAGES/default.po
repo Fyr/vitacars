@@ -234,3 +234,21 @@ msgstr "Опубликовано"
 
 msgid "Featured"
 msgstr "Особое"
+
+msgid "Create Parameter"
+msgstr "Создать параметр"
+
+msgid "Edit Parameter"
+msgstr "Редактировать параметр"
+
+msgid "Field Type"
+msgstr "Тип поля"
+
+msgid "Label"
+msgstr "Метка"
+
+msgid "Fieldset"
+msgstr "Группа полей"
+
+msgid "Required"
+msgstr "Обязательно"

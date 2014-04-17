@@ -12,7 +12,7 @@ class ObjectTypeHelper extends AppHelper {
                 'Category' => __('Categories'),
                 'Subcategory' => __('Subcategories'),
                 'Product' => __('Products'),
-                'FormField' => __('Tech.params for subcategories')
+                'FormField' => __('Tech.params')
             ), 
             'create' => array(
                 'Article' => __('Create Article'),

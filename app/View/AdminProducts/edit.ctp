@@ -11,7 +11,7 @@
 		'Text' => $this->element('Article.edit_body')
     );
     if ($id) {
-    	$aTabs['Tech-params'] = $this->PHFormFields->render($form, $formValues);// $this->element('Form.show_form_fields', array('form' => $form));
+    	$aTabs['Tech-params'] = $this->PHFormFields->render($form, $formValues);
         $aTabs['Media'] = $this->element('Media.edit', array('object_type' => $objectType, 'object_id' => $id));
     }
 	echo $this->element('admin_tabs', compact('aTabs'));

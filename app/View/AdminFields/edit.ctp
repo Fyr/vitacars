@@ -19,7 +19,7 @@
 function FieldType_onChange(e) {
 	var $options = $('#FormFieldOptions').closest('.control-group');
 	$options.hide();
-	if ($(e).val() == <?=$FormField__SELECT?>) {
+	if ($(e).val() == <?=$FormField__SELECT?> || $(e).val() == <?=FormField__MULTISELECT?>) {
 		$options.show();
 	}
 }
