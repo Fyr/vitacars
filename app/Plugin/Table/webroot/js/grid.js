@@ -325,6 +325,10 @@ Grid = function(config) {
 		html+= '</th>';
 		return html;
 	}
+	
+	this.getFilterID = function(col) {
+		return col.key.replace(/\./g, '-');
+	}
 
 	this.renderFilterBoolean = function(col, val) {
 		options = {'': '- any -', '1': 'yes', '0': 'no'};
@@ -341,7 +345,16 @@ Grid = function(config) {
 	}
 
 	this.renderFilterString = function(col, val) {
-		return '<input type="text" class="big-input grid-filter-input" rel="tooltip" name="' + self.getFilterName(col) + '" value="' + val + '" title="* - Any characters">';
+		return Format.tag('input', {
+			id: 'grid-filter-' + self.getFilterID(col),
+			type: 'text', 
+			class: 'big-input grid-filter-input', 
+			rel: 'tooltip', 
+			name: self.getFilterName(col),
+			value: val,
+			title: '* - Any characters'
+		});
+		// return '<input type="text" class="big-input grid-filter-input" rel="tooltip" name="' + self.getFilterName(col) + '" value="' + val + '" title="* - Any characters">';
 	}
 
 	this.renderFilterSelect = function(col, options, val) {

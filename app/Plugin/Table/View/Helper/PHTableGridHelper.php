@@ -71,6 +71,7 @@ class PHTableGridHelper extends AppHelper {
 		$html = '
 <span id="'.$container_id.'"></span>
 <script type="text/javascript">
+var '.$container_id.' = null;
 $(document).ready(function(){
 	var config = {
 		container: "#'.$container_id.'",
@@ -81,7 +82,7 @@ $(document).ready(function(){
 		defaults: '.json_encode($defaults).',
 		actions: '.json_encode($actions).'
 	};
-	var '.$container_id.' = new Grid(config);
+	'.$container_id.' = new Grid(config);
 });
 </script>
 ';
