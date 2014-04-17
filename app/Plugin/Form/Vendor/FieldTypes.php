@@ -12,21 +12,23 @@ class FieldTypes {
 	const URL = 10;
 	const UPLOAD_FILE = 11;
 	const EDITOR = 12;
+	const MULTISELECT = 13;
 	
 	static public function getTypes() {
 		return array(
-			self::STRING => __('String'),
-			self::INT => __('Integer'),
-			self::FLOAT => __('Float'),
-			self::DATE => __('Date'),
-			self::DATETIME => __('Datetime'),
-			self::TEXTAREA => __('Textarea'),
-			self::CHECKBOX => __('Checkbox'),
-			self::SELECT => __('Select'),
-			self::EMAIL => __('Email'),
-			self::URL => __('URL'),
-			self::UPLOAD_FILE => __('Upload file'),
-			self::EDITOR => __('Editor')
+			self::STRING => __d('form', 'String'),
+			self::INT => __d('form', 'Integer'),
+			self::FLOAT => __d('form', 'Float'),
+			self::DATE => __d('form', 'Date'),
+			self::DATETIME => __d('form', 'Datetime'),
+			self::TEXTAREA => __d('form', 'Textarea'),
+			self::CHECKBOX => __d('form', 'Checkbox'),
+			self::SELECT => __d('form', 'Select'),
+			self::MULTISELECT => __d('form', 'Multi-select'),
+			self::EMAIL => __d('form', 'Email'),
+			self::URL => __d('form', 'URL'),
+			self::UPLOAD_FILE => __d('form', 'Upload file'),
+			self::EDITOR => __d('form', 'Editor')
 		);
 	}
 }

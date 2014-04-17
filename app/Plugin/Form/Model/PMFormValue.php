@@ -16,6 +16,9 @@ class PMFormValue extends AppModel {
 	public function saveForm($object_type, $object_id = '', $form_id, $data = array()) {
 		foreach($data as $_data) {
 			$this->clear();
+			if (is_array($_data['value'])) {
+				$_data['value'] = implode(',', $_data['value']);
+			}
 			$this->save(array_merge($_data, compact('object_type', 'object_id', 'form_id')));
 		}
 	}

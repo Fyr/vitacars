@@ -24,10 +24,17 @@ class PHFormFieldsHelper extends AppHelper {
 		);
 	}
 	
+	private function _getSelectOptions($options) {
+		$_options = explode(',', str_replace(array("\r\n", "\n", "<br>", "<br/>", "<br />"), ',', $options));
+		return array_combine($_options, $_options);
+	}
+	/*
 	private function _inputOptions($field) {
+		// fdebug($field);
 		$aDefaultOptions = array(
 			FieldTypes::STRING => array('class' => 'input-xlarge', 'type' => 'text'),
-			FieldTypes::INT => array('class' => 'input-medium', 'type' => 'text')
+			FieldTypes::INT => array('class' => 'input-medium', 'type' => 'text'),
+			FieldTypes::MULTISELECT => array('options' => $this->_getSelectOptions($field['options']), 'multiple' => true),
 		);
 		$key = ($field['key']) ? $field['key'] : 'value';
 		
@@ -37,6 +44,30 @@ class PHFormFieldsHelper extends AppHelper {
 		}
 		
 		return $options; // array_merge($this->_options($i, $key), $options);
+	}
+	*/
+	private function _renderInput($field, $value, $i) {
+		$aDefaultOptions = array(
+			FieldTypes::STRING => array('class' => 'input-xlarge', 'type' => 'text'),
+			FieldTypes::INT => array('class' => 'input-medium', 'type' => 'text'),
+			FieldTypes::SELECT => array('options' => $this->_getSelectOptions($field['options'])),
+			FieldTypes::MULTISELECT => array('options' => $this->_getSelectOptions($field['options']), 'multiple' => true),
+		);
+		$key = ($field['key']) ? $field['key'] : 'value';
+		
+		if ($field['field_type'] == FieldTypes::MULTISELECT) {
+			$value = explode(',', $value);
+		}
+		
+		$options = array_merge(
+			$this->_options($i, 'value'),
+			array('value' => $value, 'label' => array('text' => $field['label'], 'class' => 'control-label'))
+		);
+		
+		if (isset($aDefaultOptions[$field['field_type']])) {
+			$options = array_merge($aDefaultOptions[$field['field_type']], $options);
+		}
+		return $this->PHForm->input('PMFormValue.value', $options);
 	}
 	
 	public function render($form, $values) {
@@ -58,9 +89,15 @@ class PHFormFieldsHelper extends AppHelper {
 		foreach($form as $i => $row) {
 			$field = $row['FormField'];
 			$value = Hash::get($_values, $field['id']);
-			$html.= $this->PHForm->input('PMFormValue.value', array_merge(
-				$this->_options($i, 'value'), $this->_inputOptions($field), array('value' => $value)
-			));
+			/*
+			if ($field['id'] == 6) {
+				fdebug($field);
+				fdebug(array_merge(
+					$this->_options($i, 'value'), $this->_inputOptions($field), array('value' => $value)
+				));
+			}
+			*/
+			$html.= $this->_renderInput($field, $value, $i);
 			if (isset($_values[$field['id']])) {
 				$html.= $this->PHForm->hidden('PMFormValue.id', array_merge(
 					$this->_options($i, 'id'), array('value' => Hash::get($_ids, $field['id']))
