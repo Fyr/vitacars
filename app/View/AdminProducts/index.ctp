@@ -55,8 +55,9 @@
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
-	$('#filterByNumber input').val($('#grid-filter-Param2-value').val().replace(/\*/g, ''));
-	
+	if ($('#grid-filter-Param2-value').val()) {
+		$('#filterByNumber input').val($('#grid-filter-Param2-value').val().replace(/\*/g, ''));
+	}
 	$('#filterByNumber input').keypress(function(event){
 		if (event.which == 13) {
 			event.preventDefault();
