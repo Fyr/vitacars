@@ -252,3 +252,34 @@ msgstr "Группа полей"
 
 msgid "Required"
 msgstr "Обязательно"
+
+msgid "Password Confirm"
+msgstr "Подтверждение"
+
+msgid "Active"
+msgstr "Активен"
+
+msgid "Users"
+msgstr "Пользователи"
+
+msgid "Create User"
+msgstr "Создать Пользователя"
+
+msgid "Edit User"
+msgstr "Редактировать Пользователя"
+
+msgid "Field is mandatory"
+msgstr "Поле обязательно для заполнения"
+
+msgid "The name must be between 5 and 15 characters"
+msgstr "Имя должно быть от 5 до 15 символов"
+
+msgid "That name has already been taken"
+msgstr "Такое имя уже существует"
+
+msgid "The password must be between 5 and 15 characters"
+msgstr "Пароль должен быть от 5 до 15 символов"
+
+msgid "Your password and its confirmation do not match"
+msgstr "Пароль и подтверждение пароля не совпадают"
+

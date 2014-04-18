@@ -12,7 +12,8 @@ class ObjectTypeHelper extends AppHelper {
                 'Category' => __('Categories'),
                 'Subcategory' => __('Subcategories'),
                 'Product' => __('Products'),
-                'FormField' => __('Tech.params')
+                'FormField' => __('Tech.params'),
+                'User' => __('Users')
             ), 
             'create' => array(
                 'Article' => __('Create Article'),
@@ -21,7 +22,8 @@ class ObjectTypeHelper extends AppHelper {
                 'Category' => __('Create Category'),
                 'Subcategory' => __('Create Subcategory'),
                 'Product' => __('Create Product'),
-                'FormField' => __('Create Parameter')
+                'FormField' => __('Create Parameter'),
+                'User' => __('Create User')
             ),
             'edit' => array(
                 'Article' => __('Edit Article'),
@@ -30,7 +32,7 @@ class ObjectTypeHelper extends AppHelper {
                 'Category' => __('Edit Category'),
                 'Subcategory' => __('Edit Subcategory'),
                 'Product' => __('Edit Product'),
-                'FormField' => __('Edit Parameter')
+                'User' => __('Edit User')
             )
         );
         return $Titles;

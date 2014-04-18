@@ -11,10 +11,6 @@ class AdminProductsController extends AdminController {
     	$this->set('objectType', $this->Product->objectType);
     }
     
-    private function _getParamRelation($fieldID) {
-    	
-    }
-    
     public function index() {
     	
     	$aParams = $this->FormField->find('all');

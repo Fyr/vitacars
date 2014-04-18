@@ -14,6 +14,17 @@ class PHFormHelper extends FormHelper {
 			'between' => '<div class="controls">',
 			'after' => '</div>'
 		);
+		
+		// Fix validation errors translation
+		foreach($this->validationErrors as $model => $fields) {
+			if (is_array($fields)) {
+				foreach($fields as $field => $messages) {
+					foreach($messages as $i => $msg) {
+						$this->validationErrors[$model][$field][$i] = __($msg);
+					}
+				}
+			}
+		}
 		return parent::create($model, $options);
 	}
 

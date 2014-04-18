@@ -16,6 +16,7 @@ class AdminController extends AppController {
 			// 'Category' => array('label' => __('Categories'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Category')),
 			'Forms' => array('label' => __('Tech.params'), 'href' => array('controller' => 'AdminFields', 'action' => 'index')),
 			'Products' => array('label' => __('Products'), 'href' => array('controller' => 'AdminProducts', 'action' => 'index')),
+			'Users' => array('label' => __('Users'), 'href' => array('controller' => 'AdminUsers', 'action' => 'index')),
 			// 'slider' => array('label' => __('Slider'), 'href' => array('controller' => 'AdminSlider', 'action' => 'index')),
 			// 'settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index'))
 		);
@@ -26,6 +27,13 @@ class AdminController extends AppController {
 	    $this->currMenu = $this->_getCurrMenu();
 	    $this->currLink = $this->currMenu;
 	}
+	
+	/*
+	public function beforeRender() {
+		parent::beforeRender();
+		$this->set('currUser', $this->Auth->);
+	}
+	*/
 
 	public function index() {
 		$this->redirect(array('controller' => 'AdminProducts'));

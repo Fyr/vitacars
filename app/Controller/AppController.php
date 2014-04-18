@@ -19,8 +19,8 @@ class AppController extends Controller {
 	}
 	
     public function isAuthorized($user) {
-	    // fdebug("App:isAuthorized!\r\n");
-		return true;
+    	$this->set('currUser', $user);
+		return Hash::get($user, 'active');
 	}
 	
 	public function beforeRender() {
