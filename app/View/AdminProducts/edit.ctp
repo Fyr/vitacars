@@ -10,10 +10,12 @@
         'General' => $this->element('/AdminContent/admin_edit_'.$objectType),
 		'Text' => $this->element('Article.edit_body')
     );
+    
     if ($id) {
     	$aTabs['Tech-params'] = $this->PHFormFields->render($form, $formValues);
         $aTabs['Media'] = $this->element('Media.edit', array('object_type' => $objectType, 'object_id' => $id));
     }
+    
 	echo $this->element('admin_tabs', compact('aTabs'));
 	echo $this->element('Form.form_actions', array('backURL' => $this->Html->url(array('action' => 'index'))));
     echo $this->PHForm->end();

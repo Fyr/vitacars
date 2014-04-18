@@ -16,11 +16,11 @@ class PHFormHelper extends FormHelper {
 		);
 		
 		// Fix validation errors translation
-		foreach($this->validationErrors as $model => $fields) {
+		foreach($this->validationErrors as $_model => $fields) {
 			if (is_array($fields)) {
 				foreach($fields as $field => $messages) {
 					foreach($messages as $i => $msg) {
-						$this->validationErrors[$model][$field][$i] = __($msg);
+						$this->validationErrors[$_model][$field][$i] = __($msg);
 					}
 				}
 			}
