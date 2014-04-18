@@ -1,5 +1,8 @@
 <div class="span8 offset2">
 <?
+	$this->Html->css(array('bootstrap-multiselect'), array('inline' => false));
+	$this->Html->script(array('vendor/bootstrap-multiselect'), array('inline' => false));
+	
     $id = $this->request->data('Product.id');
     $title = $this->ObjectType->getTitle(($id) ? 'edit' : 'create', $objectType);
 ?>
@@ -21,3 +24,11 @@
     echo $this->PHForm->end();
 ?>
 </div>
+<script type="text/javascript">
+$(document).ready(function(){
+	$('#PMFormValueValue_2').multiselect({
+		nonSelectedText: 'Выберите мотор',
+		nSelectedText: 'выбрано'
+	});
+});
+</script>

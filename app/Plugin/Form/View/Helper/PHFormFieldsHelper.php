@@ -24,7 +24,7 @@ class PHFormFieldsHelper extends AppHelper {
 		);
 	}
 	
-	private function _getSelectOptions($options) {
+	public function getSelectOptions($options) {
 		$_options = explode(',', str_replace(array("\r\n", "\n", "<br>", "<br/>", "<br />"), ',', $options));
 		return array_combine($_options, $_options);
 	}
@@ -34,7 +34,7 @@ class PHFormFieldsHelper extends AppHelper {
 		$aDefaultOptions = array(
 			FieldTypes::STRING => array('class' => 'input-xlarge', 'type' => 'text'),
 			FieldTypes::INT => array('class' => 'input-medium', 'type' => 'text'),
-			FieldTypes::MULTISELECT => array('options' => $this->_getSelectOptions($field['options']), 'multiple' => true),
+			FieldTypes::MULTISELECT => array('options' => $this->getSelectOptions($field['options']), 'multiple' => true),
 		);
 		$key = ($field['key']) ? $field['key'] : 'value';
 		
@@ -50,8 +50,8 @@ class PHFormFieldsHelper extends AppHelper {
 		$aDefaultOptions = array(
 			FieldTypes::STRING => array('class' => 'input-xlarge', 'type' => 'text'),
 			FieldTypes::INT => array('class' => 'input-medium', 'type' => 'text'),
-			FieldTypes::SELECT => array('options' => $this->_getSelectOptions($field['options'])),
-			FieldTypes::MULTISELECT => array('options' => $this->_getSelectOptions($field['options']), 'multiple' => true),
+			FieldTypes::SELECT => array('options' => $this->getSelectOptions($field['options'])),
+			FieldTypes::MULTISELECT => array('options' => $this->getSelectOptions($field['options']), 'multiple' => true),
 		);
 		$key = ($field['key']) ? $field['key'] : 'value';
 		

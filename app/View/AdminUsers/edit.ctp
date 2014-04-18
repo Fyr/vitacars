@@ -6,7 +6,7 @@
     echo $this->PHForm->create('User');
 	$aTabs = array(
 		'General' => $this->element('/AdminUsers/admin_edit_User'),
-		//'Rights' => ''//$this->element('Article.edit_body')
+		'Rights' => $this->element('/AdminUsers/admin_edit_UserRights'),
 	);
 	echo $this->element('admin_tabs', compact('aTabs'));
 	echo $this->element('Form.form_actions', array('backURL' => $this->Html->url(array('action' => 'index'))));

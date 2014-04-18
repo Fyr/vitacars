@@ -2,7 +2,7 @@
 App::uses('AdminController', 'Controller');
 class AdminUsersController extends AdminController {
     public $name = 'AdminUsers';
-    public $uses = array('User');
+    public $uses = array('User', 'Form.FormField');
     
     public function beforeRender() {
     	parent::beforeRender();
@@ -31,5 +31,10 @@ class AdminUsersController extends AdminController {
 			$user['User']['password'] = '';
 			$this->request->data = $user;
 		}
+		$this->paginate = array(
+    		'fields' => array('field_type', 'label', 'fieldset', 'required'),
+    		'limit' => 100
+    	);
+    	$this->PCTableGrid->paginate('FormField');
     }
 }
