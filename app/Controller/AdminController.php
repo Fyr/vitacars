@@ -24,6 +24,9 @@ class AdminController extends AppController {
 	}
 	
 	public function beforeFilter() {
+		if (AuthComponent::user('username') !== 'admin') {
+			unset($this->aNavBar['Users']);
+		}
 	    $this->currMenu = $this->_getCurrMenu();
 	    $this->currLink = $this->currMenu;
 	}

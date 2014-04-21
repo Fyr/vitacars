@@ -77,6 +77,9 @@ MediaGrid = function(config) {
 		
 	this.renderThumb = function(rowData) {
 		var _class = 'img-rounded pull-left thumb';
+		if (self.getValue(self.settings.model + '.media_type', rowData) != 'image') {
+			_class+= ' non-image';
+		}
 		if (self.getValue(self.settings.model + '.main', rowData)) {
 			_class+= ' main-thumb';
 		}

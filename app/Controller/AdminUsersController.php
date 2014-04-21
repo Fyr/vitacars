@@ -4,6 +4,14 @@ class AdminUsersController extends AdminController {
     public $name = 'AdminUsers';
     public $uses = array('User', 'Form.FormField');
     
+    public function isAuthorized($user) {
+    	if ($user['username'] != 'admin') {
+    		$this->redirect('/admin/');
+    		return false;
+    	}
+    	return parent::isAuthorized($user);
+	}
+    
     public function beforeRender() {
     	parent::beforeRender();
     	$this->set('objectType', 'User');
@@ -20,6 +28,9 @@ class AdminUsersController extends AdminController {
 		if ($this->request->is('post') || $this->request->is('put')) {
 			if ($id) {
 				$this->request->data('User.id', $id);
+				if (!$this->request->data('User.password')) {
+					unset($this->request->data['User']['password']);
+				}
 			}
 			if ($this->User->save($this->request->data)) {
 				$id = $this->User->id;

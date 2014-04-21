@@ -82,7 +82,7 @@ class MediaPath {
     	if (!$size) {
     		$size = 'noresize';
     	}
-		return '/media/router/index/'.$type.'/'.$id.'/'.$size.'/'.$filename;
+		return '/media/router/index/'.strtolower($type).'/'.$id.'/'.$size.'/'.$filename;
     }
 
     /**
@@ -95,7 +95,7 @@ class MediaPath {
      */
     function getRawUrl($type, $id, $filename) {
     	$page = floor($id/100);
-    	return '/files/'.$type.'/'.$page.'/'.$id.'/'.rawurlencode($filename);
+    	return '/files/'.strtolower($type).'/'.$page.'/'.$id.'/'.rawurlencode($filename);
     }
 
 }

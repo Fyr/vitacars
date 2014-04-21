@@ -72,7 +72,14 @@ class Media extends AppModel {
         $aRows = $this->find('all', array('conditions' => $findData, 'order' => $order));
         foreach($aRows as &$_row) {
             $row = $_row['Media'];
-            $_row['Media']['image'] = $this->PHMedia->getImageUrl($row['object_type'], $row['id'], '100x80', $row['file'].$row['ext']);
+            if ($row['media_type'] == 'image') {
+            	$_row['Media']['image'] = $this->PHMedia->getImageUrl($row['object_type'], $row['id'], '100x80', $row['file'].$row['ext']);
+            } elseif ($row['ext'] == '.pdf') {
+            	$_row['Media']['image'] = '/media/img/pdf.png';
+            } else {
+            	$_row['Media']['image'] = '/media/img/'.$row['media_type'].'.png';
+            }
+            $_row['Media']['url_download'] = $this->PHMedia->getRawUrl($row['object_type'], $row['id'], $row['file'].$row['ext']);
         }
         return $aRows;
     }
