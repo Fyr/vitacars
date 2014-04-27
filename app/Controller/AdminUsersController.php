@@ -5,7 +5,7 @@ class AdminUsersController extends AdminController {
     public $uses = array('User', 'Form.FormField');
     
     public function isAuthorized($user) {
-    	if ($user['username'] != 'admin') {
+    	if (!$this->isAdmin()) {
     		$this->redirect('/admin/');
     		return false;
     	}

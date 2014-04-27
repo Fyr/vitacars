@@ -3,7 +3,15 @@ App::uses('AdminController', 'Controller');
 class AdminFieldsController extends AdminController {
     public $name = 'AdminFields';
     public $uses = array('Form.FormField', 'Form.PMFormKey');
-    
+
+	public function beforeFilter() {
+		if (!$this->isAdmin()) {
+			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
+			return;
+		}
+		parent::beforeFilter();
+	}
+
     public function beforeRender() {
     	parent::beforeRender();
     	$this->set('objectType', 'FormField');

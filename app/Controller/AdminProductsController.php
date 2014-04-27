@@ -40,6 +40,15 @@ class AdminProductsController extends AdminController {
         $this->paginate = array(
            	'fields' => array_merge(array('title', 'code', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext'), $aFields)
         );
+        
+        if (!$this->isAdmin()) {
+        	if (!isset($this->request->named['Param2.value'])) {
+        		$this->request->params['named']['Param2.value'] = '-';
+        	} else {
+        		$number = sprintf('%08d', trim(str_replace('*', '', $this->request->named['Param2.value'])));
+        		$this->request->params['named']['Param2.value'] = '*'.$number.'*';
+        	}
+        }
         $aRowset = $this->PCTableGrid->paginate('Product');
         $this->set('aRowset', $aRowset);
         
@@ -48,6 +57,9 @@ class AdminProductsController extends AdminController {
     }
     
 	public function edit($id = 0) {
+		if (!$this->isAdmin()) {
+			$this->redirect(array('action' => 'index'));
+		}
 		$this->loadModel('Media.Media');
 		if (!$id) {
 			$this->request->data('Product.object_type', $this->Product->objectType);

@@ -6,8 +6,15 @@
     $createURL = $this->Html->url(array('action' => 'edit', 0));
     $createTitle = $this->ObjectType->getTitle('create', $objectType);
     $actions = $this->PHTableGrid->getDefaultActions($objectType);
-    $actions['table']['add']['href'] = $createURL;
-    $actions['table']['add']['label'] = $createTitle;
+    if ($isAdmin) {
+    	$actions['table']['add']['href'] = $createURL;
+    	$actions['table']['add']['label'] = $createTitle;
+    } else {
+    	// unset($actions['table']);
+    	$actions['table'] = array();
+    	$actions['row'] = array();
+    	$actions['checked'] = array();
+    }
     
     $columns = array_merge(
     	array('Product.image' => array(
@@ -40,15 +47,23 @@
 ?>
 <?=$this->element('admin_title', compact('title'))?>
 <div class="">
+<?
+	if ($isAdmin) {
+?>
 	<a class="btn btn-primary" href="<?=$createURL?>">
 		<i class="icon-white icon-plus"></i> <?=$createTitle?>
 	</a>
+<?
+	}
+?>
 	<div style="margin-top: 10px;">
 		Фильтр:
 <?
-	$options = $this->PHformFields->getSelectOptions(Hash::get($paramMotor, 'FormField.options'));
-	$options = array('label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'options' => $options, 'div' => array('class' => 'inline'));
-	echo $this->PHForm->input('motor', $options);
+	if ($isAdmin) {
+		$options = $this->PHformFields->getSelectOptions(Hash::get($paramMotor, 'FormField.options'));
+		$options = array('label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'options' => $options, 'div' => array('class' => 'inline'));
+		echo $this->PHForm->input('motor', $options);
+	}
 ?>
 		<div id="filterByNumber" class="input-append">
 			<input class="span2" type="text" onfocus="this.select()" placeholder="Введите номер запчасти" style="width: 200px;">

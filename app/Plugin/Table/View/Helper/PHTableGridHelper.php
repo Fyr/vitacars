@@ -3,7 +3,8 @@ App::uses('AppHelper', 'View/Helper');
 class PHTableGridHelper extends AppHelper {
     public $helpers = array('Paginator', 'Html');
     private $paginate;
-        
+    
+    /*
     private function _getDefaults($modelName, $options = array()) {
         $defaulOptions = array(
             'baseURL' => $this->Html->url(array('')),
@@ -11,7 +12,7 @@ class PHTableGridHelper extends AppHelper {
         );
         return $defaulOptions;
     }
-
+	*/
     /**
      * Used to reassign Grid actions.
      *
@@ -57,7 +58,8 @@ class PHTableGridHelper extends AppHelper {
 			'count' => $this->Paginator->counter(array('model' => $modelName, 'format' => __('Shown {:start}-{:end} of {:count} records'))),
 		);
 		$defaults = Hash::get($this->paginate, '_defaults');
-		$options = Hash::merge($this->_getDefaults($modelName), $options);
+		$options['baseURL'] = (isset($options['baseURL'])) ? $options['baseURL'] : $this->Html->url(array(''));
+		$options['actions'] = (isset($options['actions'])) ? $options['actions'] : $this->getDefaultActions($modelName);
 		
 		$options['columns'] = (isset($options['columns'])) ? $options['columns'] : $this->getDefaultColumns($modelName);
 		$options['data'] = (isset($options['data'])) ? $options['data'] : $this->paginate['_rowset'];

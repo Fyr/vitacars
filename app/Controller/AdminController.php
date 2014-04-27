@@ -3,11 +3,12 @@ App::uses('AppController', 'Controller');
 class AdminController extends AppController {
 	public $name = 'Admin';
 	public $layout = 'admin';
+	// public $components = array();
 	public $uses = array();
 
 	public function _beforeInit() {
 	    // auto-add included modules - did not included if child controller extends AdminController
-	    $this->components = array_merge(array('Core.PCAuth', 'Table.PCTableGrid'), $this->components);
+	    $this->components = array_merge(array('Auth', 'Core.PCAuth', 'Table.PCTableGrid'), $this->components);
 	    $this->helpers = array_merge(array('Html', 'Table.PHTableGrid', 'Form.PHForm'), $this->helpers);
 	    
 		$this->aNavBar = array(
@@ -24,19 +25,22 @@ class AdminController extends AppController {
 	}
 	
 	public function beforeFilter() {
-		if (AuthComponent::user('username') !== 'admin') {
+		if (!$this->isAdmin()) {
 			unset($this->aNavBar['Users']);
+			unset($this->aNavBar['Forms']);
 		}
 	    $this->currMenu = $this->_getCurrMenu();
 	    $this->currLink = $this->currMenu;
 	}
 	
-	/*
 	public function beforeRender() {
 		parent::beforeRender();
-		$this->set('currUser', $this->Auth->);
+		$this->set('isAdmin', $this->isAdmin());
 	}
-	*/
+	
+	public function isAdmin() {
+		return AuthComponent::user('id') == 1;
+	}
 
 	public function index() {
 		$this->redirect(array('controller' => 'AdminProducts'));
