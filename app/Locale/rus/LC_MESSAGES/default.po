@@ -283,3 +283,5 @@ msgstr "Пароль должен быть от 5 до 15 символов"
 msgid "Your password and its confirmation do not match"
 msgstr "Пароль и подтверждение пароля не совпадают"
 
+msgid "Sort Order"
+msgstr "Сортировка"

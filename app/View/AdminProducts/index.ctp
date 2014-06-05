@@ -39,9 +39,8 @@
     		$this->Media->imageUrl($row, 'noresize'),
     		array('escape' => false, 'class' => 'fancybox', 'rel' => 'gallery')
     	) : '';
-    	
-    	if (Hash::check($row, 'Param3.value')) {
-    		$row['Param3']['value'] = str_replace(',', ' ', $row['Param3']['value']);
+    	if (Hash::check($row, $paramMotor.'.value')) {
+    		$row[$paramMotor]['value'] = str_replace(',', ' ', $row[$paramMotor]['value']);
     	}
     }
 ?>
@@ -60,7 +59,7 @@
 		Фильтр:
 <?
 	if ($isAdmin) {
-		$options = $this->PHformFields->getSelectOptions(Hash::get($paramMotor, 'FormField.options'));
+		$options = $this->PHformFields->getSelectOptions(Hash::get($motorOptions, 'FormField.options'));
 		$options = array('label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'options' => $options, 'div' => array('class' => 'inline'));
 		echo $this->PHForm->input('motor', $options);
 	}
@@ -85,12 +84,12 @@
 <script type="text/javascript">
 $(document).ready(function(){
 	
-	var filterNum = $('#grid-filter-Param2-value').val();
+	var filterNum = $('#grid-filter-<?=$paramDetail?>-value').val();
 	if (filterNum) {
 		$('#filterByNumber input').val(filterNum.replace(/\*/g, ''));
 	}
 	
-	var filterMotor = $('#grid-filter-Param3-value').val();
+	var filterMotor = $('#grid-filter-<?=$paramMotor?>-value').val();
 	if (filterMotor) {
 		$('#motor').val(filterMotor.slice(1, -1).split('*'));
 	}
@@ -126,10 +125,10 @@ $(document).ready(function(){
 
 function submitFilter() {
 	var filterNum = $('#filterByNumber input').val();
-	$('#grid-filter-Param2-value').val((filterNum) ? '*' + filterNum + '*' : '');
+	$('#grid-filter-<?=$paramDetail?>-value').val((filterNum) ? '*' + filterNum + '*' : '');
 	
 	var filterMotor = $('#motor').val();
-	$('#grid-filter-Param3-value').val((filterMotor) ? '*' + filterMotor.join('*') + '*' : '');
+	$('#grid-filter-<?=$paramMotor?>-value').val((filterMotor) ? '*' + filterMotor.join('*') + '*' : '');
 	
 	grid_Product.submitFilter();
 }

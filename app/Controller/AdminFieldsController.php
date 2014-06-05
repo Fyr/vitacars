@@ -19,7 +19,8 @@ class AdminFieldsController extends AdminController {
     
     public function index() {
     	$this->paginate = array(
-    		'fields' => array('id', 'field_type', 'label', 'fieldset', 'required')
+    		'fields' => array('id', 'field_type', 'label', 'fieldset', 'required', 'sort_order'),
+    		'order' => array('FormField.sort_order' => 'asc')
     	);
     	$this->PCTableGrid->paginate('FormField');
     }

@@ -9,6 +9,7 @@
     echo $this->PHForm->input('label', array('class' => 'input-medium'));
     echo $this->PHForm->input('fieldset', array('class' => 'input-medium'));
     echo $this->PHForm->input('options');
+    echo $this->PHForm->input('sort_order');
     echo $this->PHForm->input('required');
     echo $this->element('admin_content_end');
 	echo $this->element('Form.form_actions', array('backURL' => $this->Html->url(array('action' => 'index'))));
@@ -19,7 +20,7 @@
 function FieldType_onChange(e) {
 	var $options = $('#FormFieldOptions').closest('.control-group');
 	$options.hide();
-	if ($(e).val() == <?=$FormField__SELECT?> || $(e).val() == <?=FormField__MULTISELECT?>) {
+	if ($(e).val() == <?=$FormField__SELECT?> || $(e).val() == <?=$FormField__MULTISELECT?>) {
 		$options.show();
 	}
 }

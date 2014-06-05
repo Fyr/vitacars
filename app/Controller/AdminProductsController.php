@@ -1,6 +1,9 @@
 <?php
 App::uses('AdminController', 'Controller');
 class AdminProductsController extends AdminController {
+	const NUM_DETAIL = 5;
+	const MOTOR = 6;
+	
     public $name = 'AdminProducts';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
     public $uses = array('Product', 'Form.PMForm', 'Form.PMFormValue', 'Form.FormField', 'User');
@@ -18,10 +21,12 @@ class AdminProductsController extends AdminController {
     
     public function index() {
     	$field_rights = $this->_getFieldRights();
-    	$aParams = $this->FormField->find('all');
+    	$aParams = $this->FormField->find('all', array('order' => 'sort_order'));
     	$aLabels = array();
     	$aFields = array();
     	$hasOne = array();
+    	$paramMotor = 0;
+    	$paramDetail = 0;
     	foreach($aParams as $i => $_field) {
     		$i++;
 	    	if (!$field_rights || in_array($_field['FormField']['id'], $field_rights)) {
@@ -33,6 +38,14 @@ class AdminProductsController extends AdminController {
 				);
 				$aFields[] = $alias.'.value';
 				$aLabels[$alias.'.value'] = $_field['FormField']['label'];
+				
+				if ($_field['FormField']['id'] == self::MOTOR) {
+					$paramMotor = 'Param'.$i;
+					$this->set('paramMotor', $paramMotor);
+				} else if ($_field['FormField']['id'] == self::NUM_DETAIL) {
+					$paramDetail = 'Param'.$i;
+					$this->set('paramDetail', $paramDetail);
+				}
     		}
     	}
     	$this->set('aLabels', $aLabels);
@@ -42,18 +55,18 @@ class AdminProductsController extends AdminController {
         );
         
         if (!$this->isAdmin()) {
-        	if (!isset($this->request->named['Param2.value'])) {
-        		$this->request->params['named']['Param2.value'] = '-';
+        	if (!isset($this->request->named[$paramDetail.'.value'])) {
+        		$this->request->params['named'][$paramDetail.'.value'] = '-';
         	} else {
-        		$number = sprintf('%08d', trim(str_replace('*', '', $this->request->named['Param2.value'])));
-        		$this->request->params['named']['Param2.value'] = '*'.$number.'*';
+        		$number = sprintf('%08d', trim(str_replace('*', '', $this->request->named[$paramDetail.'.value'])));
+        		$this->request->params['named'][$paramDetail.'.value'] = '*'.$number.'*';
         	}
         }
         $aRowset = $this->PCTableGrid->paginate('Product');
         $this->set('aRowset', $aRowset);
         
         $field = $this->FormField->findByLabel('Мотор');
-        $this->set('paramMotor', $field);
+        $this->set('motorOptions', $field);
     }
     
 	public function edit($id = 0) {
