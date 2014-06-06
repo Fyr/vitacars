@@ -28,10 +28,10 @@ Configure::write('Recaptcha.publicKey', RECAPTCHA_PUBLIC_KEY);
 Configure::write('Recaptcha.privateKey', RECAPTCHA_PRIVATE_KEY);
 
 define('DOMAIN_NAME', 'vitacars.dev');
-define('DOMAIN_TITLE', 'VitaCars.dev');
+define('DOMAIN_TITLE', 'vitacars.dev');
 
 define('AUTH_ERROR', __('Invalid username or password, try again'));
-define('TEST_ENV', $_SERVER['SERVER_ADDR'] == '192.168.1.22');
+define('TEST_ENV', $_SERVER['SERVER_ADDR'] == '192.168.1.31');
 
 define('EMAIL_ADMIN', 'fyr.work@gmail.com');
 define('EMAIL_ADMIN_CC', 'fyr.work@gmail.com');
@@ -39,7 +39,5 @@ define('EMAIL_ADMIN_CC', 'fyr.work@gmail.com');
 define('PATH_FILES_UPLOAD', $_SERVER['DOCUMENT_ROOT'].'/files/');
 
 function fdebug($data, $logFile = 'tmp.log', $lAppend = true) {
-	if (TEST_ENV) {
 		file_put_contents($logFile, mb_convert_encoding(print_r($data, true), 'cp1251', 'utf8'), ($lAppend) ? FILE_APPEND : null);
-	}
 }
