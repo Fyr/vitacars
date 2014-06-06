@@ -25,6 +25,6 @@ function FieldType_onChange(e) {
 	}
 }
 $(document).ready(function(){
-	FieldType_onChange($('#FormFieldFieldType').val());
+	FieldType_onChange($('#FormFieldFieldType'));
 });
 </script>
