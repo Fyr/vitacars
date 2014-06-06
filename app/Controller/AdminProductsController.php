@@ -53,18 +53,35 @@ class AdminProductsController extends AdminController {
         $this->paginate = array(
            	'fields' => array_merge(array('title', 'code', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext'), $aFields)
         );
-        
+
         if (!$this->isAdmin()) {
         	if (!isset($this->request->named[$paramDetail.'.value'])) {
         		$this->request->params['named'][$paramDetail.'.value'] = '-';
         	} else {
-        		$number = sprintf('%08d', trim(str_replace('*', '', $this->request->named[$paramDetail.'.value'])));
-        		$this->request->params['named'][$paramDetail.'.value'] = '*'.$number.'*';
+        		//$number = sprintf('%08d', trim(str_replace('*', '', $this->request->named[$paramDetail.'.value'])));
+        		//$this->request->params['named'][$paramDetail.'.value'] = '*'.$number.'*';
         	}
+        }
+     
+        if (isset($this->request->named[$paramDetail.'.value'])) {
+            $clear = str_replace('*', '', $this->request->params['named'][$paramDetail.'.value']);
+            $numbers = explode(' ', $clear);
+            $ors = array();
+            $order = array();
+            foreach ($numbers as $key_ => $value_) {
+                if (trim($value_) != ''){
+                    $ors[] = array($paramDetail.'.value LIKE' => '%'.trim($value_).'%');
+                    $order[$paramDetail.'.value LIKE %'.trim($value_).'%'] = 'DESC';
+                    //$order['Product.title'] = 'DESC';
+                }
+            }
+            $this->paginate['conditions'] = array('OR' => $ors);
+            $this->paginate['order'] = $order;
+            unset($this->request->params['named'][$paramDetail.'.value']);
         }
         $aRowset = $this->PCTableGrid->paginate('Product');
         $this->set('aRowset', $aRowset);
-        
+
         $field = $this->FormField->findByLabel('Мотор');
         $this->set('motorOptions', $field);
     }
