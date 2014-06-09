@@ -285,3 +285,21 @@ msgstr "Пароль и подтверждение пароля не совпа�
 
 msgid "Sort Order"
 msgstr "Сортировка"
+
+msgid "Upload CSV"
+msgstr "Загрузить CSV"
+
+msgid "Import CSV file"
+msgstr "Импорт CSV файла"
+
+msgid "Select file"
+msgstr "Выберите файл"
+
+msgid "Error file upload"
+msgstr "Ошибка загрузки файла"
+
+msgid "File successfully downloaded and read"
+msgstr "Файл успешно загружен и прочитан"
+
+msgid "Print selected records"
+msgstr "Распечатать выделенные строки"

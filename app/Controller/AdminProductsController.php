@@ -51,7 +51,7 @@ class AdminProductsController extends AdminController {
     	$this->set('aLabels', $aLabels);
     	$this->Product->bindModel(array('hasOne' => $hasOne), false);
         $this->paginate = array(
-           	'fields' => array_merge(array('title', 'code', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext'), $aFields)
+           	'fields' => array_merge(array('title', 'code', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext', 'count'), $aFields)
         );
 
         if (!$this->isAdmin()) {
@@ -72,7 +72,6 @@ class AdminProductsController extends AdminController {
                 if (trim($value_) != ''){
                     $ors[] = array($paramDetail.'.value LIKE' => '%'.trim($value_).'%');
                     $order[$paramDetail.'.value LIKE %'.trim($value_).'%'] = 'DESC';
-                    //$order['Product.title'] = 'DESC';
                 }
             }
             $this->paginate['conditions'] = array('OR' => $ors);
