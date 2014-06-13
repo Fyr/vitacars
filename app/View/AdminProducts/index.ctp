@@ -9,6 +9,10 @@
     if ($isAdmin) {
     	$actions['table']['add']['href'] = $createURL;
     	$actions['table']['add']['label'] = $createTitle;
+        $actions['checked']['add']['href'] = $this->Html->url(array('action' => 'printXls'));
+        $actions['checked']['add']['label'] = __('Print selected records');
+        $actions['checked']['add']['icon'] = 'icon-color icon-print';
+        $actions['checked']['add']['onclick'] = 'sendToPrint();return false;';
     } else {
     	// unset($actions['table']);
     	$actions['table'] = array();
@@ -133,3 +137,4 @@ function submitFilter() {
 	grid_Product.submitFilter();
 }
 </script>
+<form id="printXls" method="post" action="<?= $this->Html->url(array('controller' => 'AdminProducts', 'action' => 'printXls')) ?>"><input type="hidden" name="aID" /></form>

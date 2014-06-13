@@ -8,6 +8,7 @@ class AdminProductsController extends AdminController {
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
     public $uses = array('Product', 'Form.PMForm', 'Form.PMFormValue', 'Form.FormField', 'User');
     public $helpers = array('ObjectType', 'Form.PHFormFields');
+    private $paramDetail;
     
     public function beforeRender() {
     	parent::beforeRender();
@@ -19,14 +20,14 @@ class AdminProductsController extends AdminController {
     	return ($field_rights) ? explode(',', $field_rights) : array();
     }
     
-    public function index() {
-    	$field_rights = $this->_getFieldRights();
+    private function _processParams() {
+        $field_rights = $this->_getFieldRights();
     	$aParams = $this->FormField->find('all', array('order' => 'sort_order'));
     	$aLabels = array();
     	$aFields = array();
     	$hasOne = array();
     	$paramMotor = 0;
-    	$paramDetail = 0;
+    	$this->paramDetail = 0;
     	foreach($aParams as $i => $_field) {
     		$i++;
 	    	if (!$field_rights || in_array($_field['FormField']['id'], $field_rights)) {
@@ -43,8 +44,8 @@ class AdminProductsController extends AdminController {
 					$paramMotor = 'Param'.$i;
 					$this->set('paramMotor', $paramMotor);
 				} else if ($_field['FormField']['id'] == self::NUM_DETAIL) {
-					$paramDetail = 'Param'.$i;
-					$this->set('paramDetail', $paramDetail);
+					$this->paramDetail = 'Param'.$i;
+					$this->set('paramDetail', $this->paramDetail);
 				}
     		}
     	}
@@ -53,31 +54,54 @@ class AdminProductsController extends AdminController {
         $this->paginate = array(
            	'fields' => array_merge(array('title', 'code', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext', 'count'), $aFields)
         );
-
+        
         if (!$this->isAdmin()) {
-        	if (!isset($this->request->named[$paramDetail.'.value'])) {
-        		$this->request->params['named'][$paramDetail.'.value'] = '-';
+        	if (!isset($this->request->named[$this->paramDetail.'.value'])) {
+        		$this->request->params['named'][$this->paramDetail.'.value'] = '-';
         	} else {
-        		//$number = sprintf('%08d', trim(str_replace('*', '', $this->request->named[$paramDetail.'.value'])));
-        		//$this->request->params['named'][$paramDetail.'.value'] = '*'.$number.'*';
+        		//$number = sprintf('%08d', trim(str_replace('*', '', $this->request->named[$this->paramDetail.'.value'])));
+        		//$this->request->params['named'][$this->paramDetail.'.value'] = '*'.$number.'*';
         	}
         }
      
-        if (isset($this->request->named[$paramDetail.'.value'])) {
-            $clear = str_replace('*', '', $this->request->params['named'][$paramDetail.'.value']);
+        if (isset($this->request->named[$this->paramDetail.'.value'])) {
+            $clear = str_replace('*', '', $this->request->params['named'][$this->paramDetail.'.value']);
             $numbers = explode(' ', $clear);
             $ors = array();
             $order = array();
             foreach ($numbers as $key_ => $value_) {
                 if (trim($value_) != ''){
-                    $ors[] = array($paramDetail.'.value LIKE' => '%'.trim($value_).'%');
-                    $order[$paramDetail.'.value LIKE %'.trim($value_).'%'] = 'DESC';
+                    $ors[] = array($this->paramDetail.'.value LIKE' => '%'.trim($value_).'%');
+                    $order[$this->paramDetail.'.value LIKE %'.trim($value_).'%'] = 'DESC';
+                    //$order['Product.title'] = 'DESC';
                 }
             }
             $this->paginate['conditions'] = array('OR' => $ors);
             $this->paginate['order'] = $order;
-            unset($this->request->params['named'][$paramDetail.'.value']);
+            unset($this->request->params['named'][$this->paramDetail.'.value']);
         }
+        
+    }
+    
+    public function printXls() {
+        if($this->request->data('aID')){
+            $this->layout = 'print_xls';
+            $this->_processParams();
+            $aID = explode(',', $this->request->data('aID'));
+
+            $this->paginate['conditions'] = array('Product.id' => $aID);
+            $this->paginate['order'] = array('FIND_IN_SET (Product.id, \''.$this->request->data('aID').'\')');
+
+            $aRowset = $this->PCTableGrid->paginate('Product');
+            $this->set('aRowset', $aRowset);
+        } else {
+            $this->redirect(array('action' => 'index'));
+        }
+    }
+
+    public function index() {
+    	$this->_processParams();
+
         $aRowset = $this->PCTableGrid->paginate('Product');
         $this->set('aRowset', $aRowset);
 

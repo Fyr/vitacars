@@ -150,7 +150,7 @@ Grid = function(config) {
 				if (typeof(self.actions[i][j].class) == 'undefined') {
 					self.actions[i][j].class = '';
 				}
-
+                                
 				if (typeof(self.actions[i][j].href) == 'undefined') {
 					if (self.actions[i][j].class == 'icon-edit') {
 						self.actions[i][j].href = self.settings.baseURL + '/edit/{$id}';
@@ -518,7 +518,8 @@ Grid = function(config) {
 		for(var i = 0; i < self.actions.checked.length; i++) {
 			var action = self.actions.checked[i];
 			var label = (action.icon) ? '<i class="' + action.icon + '"></i>' + action.label : action.label;
-			html+= '<li><a class="' + action.class + '" href="' + action.href + '">' + label + '</a></li>';
+			//html+= '<li><a class="' + action.class + '" href="' + action.href + '">' + label + '</a></li>';
+                        html+= '<li>' + Format.tag('a', {class: action.class, href: action.href, onclick: action.onclick}, label) + '</li>';
 		}
 		html+= '</ul>';
 		html+= '</div></div>';
@@ -768,6 +769,6 @@ Grid = function(config) {
 		// console.log(self.getURL());
 		window.location.href = self.getURL();
 	}
-
+                
 	self.init(config);
 }

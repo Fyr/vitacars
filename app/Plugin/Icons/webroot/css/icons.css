@@ -19,6 +19,9 @@
 .icon-color.icon-delete {
 	background-image: url("/Icons/img/del.gif") !important;
 }
+.icon-color.icon-print {
+	background-image: url("/Icons/img/print.png") !important;
+}
 .icon-color.icon-add {
 	background-image: url("/Icons/img/add.gif") !important;
 }
