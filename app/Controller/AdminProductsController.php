@@ -72,12 +72,11 @@ class AdminProductsController extends AdminController {
             foreach ($numbers as $key_ => $value_) {
                 if (trim($value_) != ''){
                     $ors[] = array($this->paramDetail.'.value LIKE' => '%'.trim($value_).'%');
-                    $order[$this->paramDetail.'.value LIKE %'.trim($value_).'%'] = 'DESC';
-                    //$order['Product.title'] = 'DESC';
+                    $order[] = $this->paramDetail.'.value LIKE \'%'.trim($value_).'%\' DESC';
                 }
             }
             $this->paginate['conditions'] = array('OR' => $ors);
-            $this->paginate['order'] = $order;
+            $this->paginate['order'] = implode(', ', $order);
             unset($this->request->params['named'][$this->paramDetail.'.value']);
         }
         

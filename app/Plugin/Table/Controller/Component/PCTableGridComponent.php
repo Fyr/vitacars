@@ -131,8 +131,13 @@ class PCTableGridComponent extends Component {
 		$order = $this->_getDefaultOrder();
 		$limit = self::LIMIT;
 		$this->paginate = Hash::merge(array('order' => $order, 'limit' => $limit), $this->paginate);
-		list($sort) = array_keys($this->paginate['order']);
-		list($direction) = array_values($this->paginate['order']);
+                if (is_array($this->paginate['order'])) {
+                    list($sort) = array_keys($this->paginate['order']);
+                    list($direction) = array_values($this->paginate['order']);
+                } else {
+                    $sort = $this->paginate['order']; 
+                    $direction;
+                }
 		$this->paginate['_defaults'] = compact('sort', 'direction', 'limit');
 	}
 
