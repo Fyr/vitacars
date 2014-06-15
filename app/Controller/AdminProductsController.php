@@ -52,9 +52,9 @@ class AdminProductsController extends AdminController {
 				} else if ($_field['FormField']['id'] == self::NUM_DETAIL) {
 					$this->paramDetail = 'Param'.$i;
 					$this->set('paramDetail', $this->paramDetail);
-				} else if ($_field['FormField']['formula']) {
-                                        $this->formula = Hash::merge($this->formula, array('Param'.$i => $_field['FormField']['formula']));
-                                }
+				} else if (isset($_field['FormField']['formula']) && $_field['FormField']['formula']) {
+					$this->formula = Hash::merge($this->formula, array('Param'.$i => $_field['FormField']['formula']));
+				}
     		}
     	}
     	$this->set('aLabels', $aLabels);
