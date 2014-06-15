@@ -7,8 +7,10 @@
     echo $this->element('admin_content');
     echo $this->PHForm->input('field_type', array('options' => $aFieldTypes, 'onchange' => 'FieldType_onChange(this)'));
     echo $this->PHForm->input('label', array('class' => 'input-medium'));
+    echo $this->PHForm->input('key', array('class' => 'input-medium'));
     echo $this->PHForm->input('fieldset', array('class' => 'input-medium'));
     echo $this->PHForm->input('options');
+    echo $this->PHForm->input('formula');
     echo $this->PHForm->input('sort_order');
     echo $this->PHForm->input('required');
     echo $this->element('admin_content_end');
@@ -19,10 +21,14 @@
 <script type="text/javascript">
 function FieldType_onChange(e) {
 	var $options = $('#FormFieldOptions').closest('.control-group');
+        var $formula = $('#FormFieldFormula').closest('.control-group');
 	$options.hide();
+        $formula.hide();
 	if ($(e).val() == <?=$FormField__SELECT?> || $(e).val() == <?=$FormField__MULTISELECT?>) {
 		$options.show();
-	}
+	} else if ($(e).val() == 14) {
+                $formula.show();
+        }
 }
 $(document).ready(function(){
 	FieldType_onChange($('#FormFieldFieldType'));

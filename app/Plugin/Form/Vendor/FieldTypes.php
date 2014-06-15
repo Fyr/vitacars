@@ -13,6 +13,7 @@ class FieldTypes {
 	const UPLOAD_FILE = 11;
 	const EDITOR = 12;
 	const MULTISELECT = 13;
+        const FORMULA = 14;
 	
 	static public function getTypes() {
 		return array(
@@ -28,7 +29,8 @@ class FieldTypes {
 			self::EMAIL => __d('form', 'Email'),
 			self::URL => __d('form', 'URL'),
 			self::UPLOAD_FILE => __d('form', 'Upload file'),
-			self::EDITOR => __d('form', 'Editor')
+			self::EDITOR => __d('form', 'Editor'),
+                        self::FORMULA => __d('form', 'Formula')
 		);
 	}
 }

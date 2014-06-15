@@ -247,6 +247,12 @@ msgstr "Тип поля"
 msgid "Label"
 msgstr "Метка"
 
+msgid "Key"
+msgstr "Ключ"
+
+msgid "Formula"
+msgstr "Формула"
+
 msgid "Fieldset"
 msgstr "Группа полей"
 

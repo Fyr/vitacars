@@ -31,3 +31,5 @@ msgstr "Загрузка файла"
 msgid "Editor"
 msgstr "Текст.редактор"
 
+msgid "Formula"
+msgstr "Формула"
