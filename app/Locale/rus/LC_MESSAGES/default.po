@@ -309,3 +309,6 @@ msgstr "Файл успешно загружен и прочитан"
 
 msgid "Print selected records"
 msgstr "Распечатать выделенные строки"
+
+msgid "Count"
+msgstr "Количество"

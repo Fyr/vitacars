@@ -11,6 +11,11 @@ class FormField extends AppModel {
                 'rule' => '/^[A-Z]+[0-9]+ [\+\-\*\/] [0-9]+$/',
                 'allowEmpty' => true,
                 'message' => 'Неверный формат формулы. Пример: A1 * 100. Допускаются занки + - * /'
+            ),
+            'sort_order' => array(
+                'rule' => '/^[0-9]+$/',
+                'allowEmpty' => false,
+                'message' => 'Введите сортировку'
             )
         );
 	public function beforeDelete($cascade = true) {

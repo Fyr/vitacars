@@ -52,8 +52,8 @@ class AdminProductsController extends AdminController {
 				} else if ($_field['FormField']['id'] == self::NUM_DETAIL) {
 					$this->paramDetail = 'Param'.$i;
 					$this->set('paramDetail', $this->paramDetail);
-				} else if (isset($_field['FormField']['formula']) && $_field['FormField']['formula']) {
-					$this->formula = Hash::merge($this->formula, array('Param'.$i => $_field['FormField']['formula']));
+				} else if (isset($_field['FormField']['options']) && $_field['FormField']['options'] && $_field['FormField']['field_type'] == 14) {
+					$this->formula = Hash::merge($this->formula, array('Param'.$i => unserialize($_field['FormField']['options'])));
 				}
     		}
     	}
@@ -172,7 +172,7 @@ class AdminProductsController extends AdminController {
 		$fields = $this->PMForm->getFields('ProductParams', 1);
 		$fieldsAvail = array();
 		foreach($fields as $_field) {
-			if (!$field_rights || in_array($_field['FormField']['id'], $field_rights)) {
+			if ((!$field_rights || in_array($_field['FormField']['id'], $field_rights)) && $_field['FormField']['field_type'] != 14) {
 				$fieldsAvail[] = $_field;
 			}
 		}

@@ -30,6 +30,11 @@ class AdminFieldsController extends AdminController {
 			if ($id) {
 				$this->request->data('FormField.id', $id);
 			}
+                        /* Если существует формула, то запишем ее как options */
+                        if ($this->request->data('FormField.formula')) {
+                            $this->request->data('FormField.options', serialize($this->request->data('FormField.formula')));
+                        }
+
 			$this->request->data('FormField.object_type', 'SubcategoryParam');
 			if ($this->FormField->save($this->request->data)) {
 				$id = $this->FormField->id;
@@ -41,6 +46,10 @@ class AdminFieldsController extends AdminController {
 			}
 		} elseif ($id) {
 			$field = $this->FormField->findById($id);
+                        if ($field['FormField']['field_type'] == 14) {
+                            $field['FormField']['formula'] = unserialize($field['FormField']['options']);
+                            $field['FormField']['options'] = '';
+                        }
 			$this->request->data = array_merge($this->request->data, $field);
 		}
 		
@@ -49,5 +58,6 @@ class AdminFieldsController extends AdminController {
 		$this->set('aFieldTypes', FieldTypes::getTypes());
 		$this->set('FormField__SELECT', FieldTypes::SELECT);
 		$this->set('FormField__MULTISELECT', FieldTypes::MULTISELECT);
+                $this->set('FormField__FORMULA', FieldTypes::FORMULA);
     }
 }

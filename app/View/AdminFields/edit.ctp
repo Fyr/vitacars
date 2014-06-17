@@ -10,7 +10,7 @@
     echo $this->PHForm->input('key', array('class' => 'input-medium'));
     echo $this->PHForm->input('fieldset', array('class' => 'input-medium'));
     echo $this->PHForm->input('options');
-    echo $this->PHForm->input('formula');
+    echo $this->PHForm->input('formula', array('id' => 'FormFieldFormula'));
     echo $this->PHForm->input('sort_order');
     echo $this->PHForm->input('required');
     echo $this->element('admin_content_end');
@@ -26,7 +26,7 @@ function FieldType_onChange(e) {
         $formula.hide();
 	if ($(e).val() == <?=$FormField__SELECT?> || $(e).val() == <?=$FormField__MULTISELECT?>) {
 		$options.show();
-	} else if ($(e).val() == 14) {
+	} else if ($(e).val() == <?=$FormField__FORMULA?>) {
                 $formula.show();
         }
 }
