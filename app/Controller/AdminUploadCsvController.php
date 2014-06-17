@@ -19,10 +19,9 @@ class AdminUploadCsvController extends AdminController {
     
     public function upload() {
         if($_FILES['csv_file']['name']){
-            $filename = $_SERVER['DOCUMENT_ROOT'].DS.'files'.DS.date('Ymdhis').'_'.$_FILES['csv_file']['name'];
-            if (move_uploaded_file($_FILES['csv_file']['tmp_name'],$filename)) {
+            $fileCsv = file($_FILES['csv_file']['tmp_name']);
+            if ($fileCsv) {
                 // обработка файла
-                $fileCsv = file($filename);
                 unset($fileCsv[0]);
                 $csv = array();
                 foreach ($fileCsv as $key => $value) {
@@ -47,8 +46,6 @@ class AdminUploadCsvController extends AdminController {
                     }
                 }
                 $this->Session->setFlash(__('File successfully downloaded and read'));
-                // удаляем файл после его чтения
-                unlink($filename);
             } else {
                 $this->Session->setFlash(__('Error file upload'));
             }
