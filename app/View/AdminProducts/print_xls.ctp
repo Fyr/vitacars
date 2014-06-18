@@ -20,7 +20,6 @@
                 <tr>
                     <th>Название</th>
                     <th>Код</th>
-                    <th>Количество</th>
                     <?php
                     for ($i=1;$i<=count($aLabels);$i++) {
                         echo '<th>'.$aLabels['Param'.$i.'.value'].'</th>';
@@ -33,7 +32,6 @@
             <tr class="row">
                 <td><?= $Product['Product']['title'] ?></td>
                 <td><?= $Product['Product']['code'] ?></td>
-                <td><?= $Product['Product']['count'] ?></td>
                 <?php
                     for ($i=1;$i<=count($aLabels);$i++) {
                         if ($i == 4) {

@@ -52,7 +52,7 @@ class AdminUploadCsvController extends AdminController {
                     }
                 }
                 foreach ($usedNumbers as $key => $value) {
-                    /* Обновляем поле количество */
+                    /* Найдем ID продукта по номеру */
                     $productId = $this->FormValues->find('first', array(
                         'fields' => array('object_id', 'id'), 
                         'conditions' => array(
@@ -61,12 +61,8 @@ class AdminUploadCsvController extends AdminController {
                         )
                     ));
                     if ($productId) {
-                        /* Изменим кол-во */
-                        $this->Article->save(array('id' => $productId['FormValues']['object_id'], 'count' => $usedNumbers[$key][1]));
-                    
-                        /* Изменим кол-во по данным с ключами */
+			/* Изменим кол-во по данным с ключами */
                         unset($keys[0]);
-                        unset($keys[1]);
                         foreach ($keys as $key_ => $value_) {
                             $field_id = $this->FormField->find('first', array(
                                 'fields' => array('id'), 
