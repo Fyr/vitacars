@@ -15,11 +15,14 @@
         $actions['checked']['add']['onclick'] = 'sendToPrint();return false;';
     } else {
     	// unset($actions['table']);
+        unset($actions['checked'][0]);
     	$actions['table'] = array();
     	$actions['row'] = array();
-    	$actions['checked'] = array();
+    	$actions['checked']['add']['href'] = $this->Html->url(array('action' => 'printXls'));
+        $actions['checked']['add']['label'] = __('Print selected records');
+        $actions['checked']['add']['icon'] = 'icon-color icon-print';
+        $actions['checked']['add']['onclick'] = 'sendToPrint();return false;';
     }
-    
     $columns = array_merge(
     	array('Product.image' => array(
     		'key' => 'Product.image', 'label' => 'Фото', 'align' => 'center', 
