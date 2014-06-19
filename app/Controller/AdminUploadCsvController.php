@@ -68,12 +68,13 @@ class AdminUploadCsvController extends AdminController {
                                 'fields' => array('id'), 
                                 'conditions' => array('key' => $value_)
                             ));
-                            if ($field_id ) {
+                            if ($field_id) {
                                 $row = $this->FormValues->find('first', array(
                                     'fields' => array('id'),
                                     'conditions' => array('field_id' => $field_id['FormField']['id'], 'object_id' => $productId['FormValues']['object_id'])
 				));
 				if (!$row) {
+				    $this->FormValues->create();
 				    $this->FormValues->save(array(
 					'object_type' => 'ProductParam', 
 					'object_id' => $productId['FormValues']['object_id'], 
