@@ -57,7 +57,7 @@ class AdminUploadCsvController extends AdminController {
                         'fields' => array('object_id', 'id'), 
                         'conditions' => array(
                             'field_id' => 5,
-                            'value LIKE' => '%'.$key.'%'
+                            'value LIKE' => '%'.trim($key).'%'
                         )
                     ));
                     if ($productId) {
@@ -71,8 +71,19 @@ class AdminUploadCsvController extends AdminController {
                             if ($field_id ) {
                                 $row = $this->FormValues->find('first', array(
                                     'fields' => array('id'),
-                                    'conditions' => array('field_id' => $field_id['FormField']['id'], 'object_id' => $productId['FormValues']['object_id'])));
-                                $this->FormValues->save(array('id' => $row['FormValues']['id'], 'value' => $usedNumbers[$key][$key_]));
+                                    'conditions' => array('field_id' => $field_id['FormField']['id'], 'object_id' => $productId['FormValues']['object_id'])
+				));
+				if (!$row) {
+				    $this->FormValues->save(array(
+					'object_type' => 'ProductParam', 
+					'object_id' => $productId['FormValues']['object_id'], 
+					'value' => $usedNumbers[$key][$key_],
+					'form_id' => 1,
+					'field_id' => $field_id['FormField']['id']
+				    ));
+				} else {
+				    $this->FormValues->save(array('id' => $row['FormValues']['id'], 'value' => $usedNumbers[$key][$key_]));
+				}
                             }
                         }
                     }
