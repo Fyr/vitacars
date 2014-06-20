@@ -41,7 +41,18 @@
 	<section class="table-column container-fluid">
 		<div class="row-fluid">
 			<div class="span12">
-				<?=$this->Session->flash()?>
+				<!--div class="span8 offset2" style="height:1px;min-height:1px;"></div-->
+<?
+	$class = 'info';
+	if ($message = $this->Session->flash('success')) {
+		$class = 'success';
+	} elseif ($message = $this->Session->flash('error')) {
+		$class = 'error';
+	} else {
+		$message = $this->Session->flash();
+	}
+?>
+				<?=$this->element('/AdminUI/admin_flash', compact('message', 'class'))?>
     			<?=$this->fetch('content')?>
     		</div>
     	</div>

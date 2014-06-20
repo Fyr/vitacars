@@ -30,7 +30,7 @@ class FieldTypes {
 			self::URL => __d('form', 'URL'),
 			self::UPLOAD_FILE => __d('form', 'Upload file'),
 			self::EDITOR => __d('form', 'Editor'),
-                        self::FORMULA => __d('form', 'Formula')
+			self::FORMULA => __d('form', 'Formula')
 		);
 	}
 }

@@ -1,8 +1,7 @@
 <?php
 App::uses('AdminController', 'Controller');
+App::uses('Product', 'Model');
 class AdminProductsController extends AdminController {
-	const NUM_DETAIL = 5;
-	const MOTOR = 6;
 	
     public $name = 'AdminProducts';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
@@ -46,10 +45,10 @@ class AdminProductsController extends AdminController {
 				$aFields[] = $alias.'.value';
 				$aLabels[$alias.'.value'] = $_field['FormField']['label'];
 				
-				if ($_field['FormField']['id'] == self::MOTOR) {
+				if ($_field['FormField']['id'] == Product::MOTOR) {
 					$paramMotor = 'Param'.$i;
 					$this->set('paramMotor', $paramMotor);
-				} else if ($_field['FormField']['id'] == self::NUM_DETAIL) {
+				} else if ($_field['FormField']['id'] == Product::NUM_DETAIL) {
 					$this->paramDetail = 'Param'.$i;
 					$this->set('paramDetail', $this->paramDetail);
 				} else if (isset($_field['FormField']['options']) && $_field['FormField']['options'] && $_field['FormField']['field_type'] == 14) {

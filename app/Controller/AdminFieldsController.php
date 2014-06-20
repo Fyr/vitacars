@@ -58,6 +58,6 @@ class AdminFieldsController extends AdminController {
 		$this->set('aFieldTypes', FieldTypes::getTypes());
 		$this->set('FormField__SELECT', FieldTypes::SELECT);
 		$this->set('FormField__MULTISELECT', FieldTypes::MULTISELECT);
-                $this->set('FormField__FORMULA', FieldTypes::FORMULA);
+		$this->set('FormField__FORMULA', FieldTypes::FORMULA);
     }
 }

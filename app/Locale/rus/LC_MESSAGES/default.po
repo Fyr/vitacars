@@ -304,8 +304,14 @@ msgstr "Выберите файл"
 msgid "Error file upload"
 msgstr "Ошибка загрузки файла"
 
-msgid "File successfully downloaded and read"
-msgstr "Файл успешно загружен и прочитан"
+msgid "Incorrect file content"
+msgstr "Ошибка содержимого файла (Нет данных)"
+
+msgid "Incorrect file format (Line %s)"
+msgstr "Ошибка формата файла (строка %s)"
+
+msgid "File have been successfully uploaded"
+msgstr "Файл успешно загружен"
 
 msgid "Print selected records"
 msgstr "Распечатать выделенные строки"
