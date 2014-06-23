@@ -2,10 +2,11 @@
 App::uses('AdminController', 'Controller');
 App::uses('Product', 'Model');
 App::uses('PMFormValue', 'Form.Model');
+App::uses('FormField', 'Form.Model');
 class AdminUploadCsvController extends AdminController {
     public $name = 'AdminUploadCsv';
     public $layout = 'admin';
-    public $uses = array('Product', 'Form.PMFormValue');
+    public $uses = array('Product', 'Form.PMFormValue', 'Form.FormField');
     
     const CSV_DIV = ';';
     private $errLine = 0;
@@ -52,7 +53,7 @@ class AdminUploadCsvController extends AdminController {
 			$aData[] = array_combine($keys, $_row);
 		}
 		
-		return $aData;
+		return array('keys' => $keys, 'data' => $aData);
 	}
 	
 	/**
@@ -96,9 +97,23 @@ class AdminUploadCsvController extends AdminController {
 	 *
 	 * @param array $aParams
 	 */
-	private function _updateParams($aParams) {
+	private function _updateParams($keys, $aParams) {
+		// Считать инфу о колонках
+		array_shift($keys); // исключить 1й ключ из обрабатываемой строки (номер детали)
+		$aKeys = array();
+		$aRowKeys = $this->FormField->find('all', array('conditions' => array('FormField.key' => $keys)));
+		foreach($aRowKeys as $keyInfo) {
+			$keyInfo = $keyInfo['FormField'];
+			$aKeys[$keyInfo['key']] = $keyInfo;
+		}
+		
+		// перед сохранением очистить столбцы
+		$this->PMFormValue->updateAll(array('value' => 0), array(
+			'FormField.key' => $keys
+		));
+		
 		foreach($aParams as $object_id => $row) {
-			foreach($row as $counter => $val) {
+			foreach($row as $counter => $value) {
 				$param = $this->PMFormValue->find('first', array(
 					'fields' => array('id'),
 					'conditions' => array(
@@ -106,9 +121,17 @@ class AdminUploadCsvController extends AdminController {
 						'FormField.key' => $counter
 					)
 				));
-				$data = array('value' => $val);
+				$data = array('value' => $value);
 				if ($id = Hash::get($param, 'PMFormValue.id')) {
 					$data['id'] = $id;
+				} else {
+					// если запись не найдена - добавить ее с полной инфой
+					$object_type = 'ProductParam';
+					$form_id = 1;
+					$field_id = $aKeys[$counter]['id'];
+					
+					$data = compact('object_type', 'object_id', 'form_id', 'field_id', 'value');
+					$this->PMFormValue->create();
 				}
 				$this->PMFormValue->save($data);
 			}
@@ -122,7 +145,7 @@ class AdminUploadCsvController extends AdminController {
 			}
 			
 			$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
-			$this->_updateParams($this->_getCounters($aData));
+			$this->_updateParams($aData['keys'], $this->_getCounters($aData['data']));
 			
 			$this->Session->setFlash(__('File have been successfully uploaded'), 'default', array(), 'success');
 		} catch (Exception $e) {
@@ -130,8 +153,9 @@ class AdminUploadCsvController extends AdminController {
 		}
 		
 		// Получить данные для редиректа
-		list($numberKey) = array_keys($aData[0]);
-		$aNumbers = Hash::extract($aData, '{n}.'.$numberKey);
+		// list($numberKey) = array_keys($aData['data'][0]);
+		$numberKey = $aData['keys'][0];
+		$aNumbers = Hash::extract($aData['data'], '{n}.'.$numberKey);
 		
 		$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Param3.value' => '*'.implode(' ', $aNumbers).'*'));
 	}

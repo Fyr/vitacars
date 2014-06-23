@@ -295,6 +295,9 @@ msgstr "Сортировка"
 msgid "Upload CSV"
 msgstr "Загрузить CSV"
 
+msgid "Upload"
+msgstr "Загрузить"
+
 msgid "Import CSV file"
 msgstr "Импорт CSV файла"
 
