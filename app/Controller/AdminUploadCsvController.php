@@ -109,7 +109,7 @@ class AdminUploadCsvController extends AdminController {
 		}
 		
 		// перед сохранением очистить столбцы
-		$this->PMFormValue->updateAll(array('value' => null), array(
+		$this->PMFormValue->updateAll(array('value' => '\'&nbsp;\''), array(
 			'FormField.key' => $keys
 		));
 		
@@ -135,6 +135,7 @@ class AdminUploadCsvController extends AdminController {
 					
 				}
 				$this->PMFormValue->create();
+				$data['value'] = $data['value'] ? $data['value'] : '&nbsp;'; //?????
 				$this->PMFormValue->save($data);
 				fdebug(array('save', $data));
 			}
