@@ -65,25 +65,26 @@ class AdminUploadCsvController extends AdminController {
 		$aParams = array();
 		foreach($aData as $row) {
 			list($number) = array_values($row);
-			$param = $this->PMFormValue->find('first', array(
+			$params = $this->PMFormValue->find('all', array(
 				'fields' => array('object_id'),
 				'conditions' => array(
 					'field_id' => Product::NUM_DETAIL,
 					'value LIKE ' => '%'.trim($number).'%'
 				)
 			));
-			
-			$object_id = Hash::get($param, 'PMFormValue.object_id');
-			if ($object_id) {
-				if (!isset($aParams[$object_id])) {
-					$aParams[$object_id] = array();
-				}
-				array_shift($row); // исключить 1й ключ из обрабатываемой строки (номер детали)
-				foreach($row as $counter => $count) {
-					if (isset($aParams[$object_id][$counter])) {
-						$aParams[$object_id][$counter]+= intval($count);
-					} else {
-						$aParams[$object_id][$counter] = intval($count);
+			array_shift($row); // исключить 1й ключ из обрабатываемой строки (номер детали)
+			foreach($params as $param) {
+				$object_id = Hash::get($param, 'PMFormValue.object_id');
+				if ($object_id) {
+					if (!isset($aParams[$object_id])) {
+						$aParams[$object_id] = array();
+					}
+					foreach($row as $counter => $count) {
+						if (isset($aParams[$object_id][$counter])) {
+							$aParams[$object_id][$counter]+= intval($count);
+						} else {
+							$aParams[$object_id][$counter] = intval($count);
+						}
 					}
 				}
 			}
@@ -108,7 +109,7 @@ class AdminUploadCsvController extends AdminController {
 		}
 		
 		// перед сохранением очистить столбцы
-		$this->PMFormValue->updateAll(array('value' => 0), array(
+		$this->PMFormValue->updateAll(array('value' => null), array(
 			'FormField.key' => $keys
 		));
 		
@@ -131,9 +132,11 @@ class AdminUploadCsvController extends AdminController {
 					$field_id = $aKeys[$counter]['id'];
 					
 					$data = compact('object_type', 'object_id', 'form_id', 'field_id', 'value');
-					$this->PMFormValue->create();
+					
 				}
+				$this->PMFormValue->create();
 				$this->PMFormValue->save($data);
+				fdebug(array('save', $data));
 			}
 		}
 	}
@@ -147,17 +150,17 @@ class AdminUploadCsvController extends AdminController {
 			$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
 			$this->_updateParams($aData['keys'], $this->_getCounters($aData['data']));
 			
+			// Получить данные для редиректа
+			// list($numberKey) = array_keys($aData['data'][0]);
+			$numberKey = $aData['keys'][0];
+			$aNumbers = Hash::extract($aData['data'], '{n}.'.$numberKey);
+			
 			$this->Session->setFlash(__('File have been successfully uploaded'), 'default', array(), 'success');
+			$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Param3.value' => '*'.implode(' ', $aNumbers).'*'));
 		} catch (Exception $e) {
 			$this->Session->setFlash(__($e->getMessage(), $this->errLine), 'default', array(), 'error');
+			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'index'));
 		}
-		
-		// Получить данные для редиректа
-		// list($numberKey) = array_keys($aData['data'][0]);
-		$numberKey = $aData['keys'][0];
-		$aNumbers = Hash::extract($aData['data'], '{n}.'.$numberKey);
-		
-		$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Param3.value' => '*'.implode(' ', $aNumbers).'*'));
 	}
     
 	/*
