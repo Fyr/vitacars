@@ -141,7 +141,7 @@ class AdminProductsController extends AdminController {
                                 $aRowset[$key][$key_]['value'] = $aRowset[$key][$key__]['value'] / $dataFormula[3];
                             }
                             $aRowset[$key][$key_]['value'] = round($aRowset[$key][$key_]['value'], 2);
-			    $aRowset[$key][$key_]['value'] = str_replace(' ', SEPARATOR_DEICHARGE, number_format($aRowset[$key][$key_]['value'], 2, SEPARATOR_DECIMAL, ' '));
+			    $aRowset[$key][$key_]['value'] = str_replace(' ', SEPARATOR_DEICHARGE, number_format($aRowset[$key][$key_]['value'], 0, SEPARATOR_DECIMAL, ' '));
                         }
                     }
                 }
