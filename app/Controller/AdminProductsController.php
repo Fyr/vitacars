@@ -177,6 +177,13 @@ class AdminProductsController extends AdminController {
 			}
 		}
 		$this->set('form', $fieldsAvail);
-		$this->set('formValues', $this->PMFormValue->getValues('ProductParam', $id));
+		$formValues = $this->PMFormValue->getValues('ProductParam', $id);
+		// delete space
+		foreach ($formValues as $key => $value) {
+		    if ($formValues[$key]['PMFormValue']['value'] == '&nbsp;') {
+			$formValues[$key]['PMFormValue']['value'] = '';
+		    }
+		}
+		$this->set('formValues', $formValues);
 	}
 }
