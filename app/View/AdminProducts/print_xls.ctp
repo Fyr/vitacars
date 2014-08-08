@@ -1,6 +1,6 @@
 <html>
   <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf8">
+    <meta http-equiv="content-type" content="text/html; charset=windows-1251">
     <style type="text/css">
             td {
                 vertical-align: middle;
@@ -18,11 +18,11 @@
         <table>
             <thead>
                 <tr>
-                    <th>РќР°Р·РІР°РЅРёРµ</th>
-                    <th>РљРѕРґ</th>
+                    <th>Название</th>
+                    <th>Код</th>
                     <?php
                     for ($i=1;$i<=count($aLabels);$i++) {
-                        echo '<th>'.$aLabels['Param'.$i.'.value'].'</th>';
+                        echo '<th>'.iconv("UTF-8",  "CP1251", $aLabels['Param'.$i.'.value']).'</th>';
                     }
                     ?>
                 </tr>
@@ -30,14 +30,14 @@
             <tbody>
             <?php foreach ($aRowset as $Product) : ?>
             <tr class="row">
-                <td><?= $Product['Product']['title'] ?></td>
-                <td><?= $Product['Product']['code'] ?></td>
+                <td><?= iconv("UTF-8",  "CP1251", $Product['Product']['title'] )?></td>
+                <td><?= iconv("UTF-8",  "CP1251", $Product['Product']['code']) ?></td>
                 <?php
                     for ($i=1;$i<=count($aLabels);$i++) {
                         if ($i == 4) {
-                            echo '<td>'.str_replace(' ', ', ', $Product['Param'.$i]['value']).'</td>';
+                            echo '<td>'.iconv("UTF-8",  "CP1251", str_replace(' ', ', ', $Product['Param'.$i]['value'])).'</td>';
                         } else {
-                            echo '<td>'.$Product['Param'.$i]['value'].'</td>';
+                            echo '<td>'.iconv("UTF-8",  "CP1251", $Product['Param'.$i]['value']).'</td>';
                         }
                     }
                 ?>
