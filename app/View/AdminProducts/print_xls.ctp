@@ -18,31 +18,35 @@
         <table>
             <thead>
                 <tr>
-                    <th>Название</th>
-                    <th>Код</th>
-                    <?php
-                    for ($i=1;$i<=count($aLabels);$i++) {
-                        echo '<th>'.iconv("UTF-8",  "CP1251", $aLabels['Param'.$i.'.value']).'</th>';
-                    }
-                    ?>
+                    <th><?=mb_convert_encoding('РќР°Р·РІР°РЅРёРµ', "CP1251", "UTF-8")?></th>
+                    <th><?=mb_convert_encoding('РљРѕРґ', "CP1251", "UTF-8")?></th>
+<?php
+    for ($i = 1; $i <= count($aLabels); $i++) {
+        echo '<th>&nbsp;'.mb_convert_encoding($aLabels['Param'.$i.'.value'], "CP1251", "UTF-8").'</th>';
+    }
+?>
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($aRowset as $Product) : ?>
+<?php 
+	foreach ($aRowset as $Product) { 
+?>
             <tr class="row">
-                <td><?= iconv("UTF-8",  "CP1251", $Product['Product']['title'] )?></td>
-                <td><?= iconv("UTF-8",  "CP1251", $Product['Product']['code']) ?></td>
-                <?php
-                    for ($i=1;$i<=count($aLabels);$i++) {
-                        if ($i == 4) {
-                            echo '<td>'.iconv("UTF-8",  "CP1251", str_replace(' ', ', ', $Product['Param'.$i]['value'])).'</td>';
-                        } else {
-                            echo '<td>'.iconv("UTF-8",  "CP1251", $Product['Param'.$i]['value']).'</td>';
-                        }
-                    }
-                ?>
+                <td>&nbsp;<?= mb_convert_encoding($Product['Product']['title'], "CP1251", "UTF-8")?></td>
+                <td>&nbsp;<?= mb_convert_encoding($Product['Product']['code'], "CP1251", "UTF-8") ?></td>
+<?php
+		for ($i = 1; $i <= count($aLabels); $i++) {
+            if ($i == 3) {
+                echo '<td>&nbsp;'.mb_convert_encoding(str_replace(' ', ', ', $Product['Param'.$i]['value']), "CP1251", "UTF-8").'</td>';
+            } else {
+                echo '<td>&nbsp;'.mb_convert_encoding($Product['Param'.$i]['value'], "CP1251", "UTF-8").'</td>';
+            }
+        }
+?>
             </tr>
-            <?php endforeach; ?>
+<?php 
+	}
+?>
             </tbody>
         </table>
     </body>
