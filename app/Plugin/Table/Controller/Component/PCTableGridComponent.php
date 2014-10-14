@@ -8,7 +8,7 @@ App::uses('Component', 'Controller');
 class PCTableGridComponent extends Component {
 	public $components = array('Paginator');
 
-	const LIMIT = 1000;
+	const LIMIT = 100;
 	
 	private $_;
 	private $model, $paginate = array(), $defaults = array();

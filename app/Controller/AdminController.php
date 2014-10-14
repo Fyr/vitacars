@@ -14,13 +14,17 @@ class AdminController extends AppController {
 		$this->aNavBar = array(
 			// 'Page' => array('label' => __('Static Pages'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Page')),
 			// 'News' => array('label' => __('News'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'News')),
-			// 'Category' => array('label' => __('Categories'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Category')),
-			'Forms' => array('label' => __('Tech.params'), 'href' => array('controller' => 'AdminFields', 'action' => 'index')),
-			'Products' => array('label' => __('Products'), 'href' => array('controller' => 'AdminProducts', 'action' => 'index')),
+			'Products' => array('label' => __('Products'), 'href' => '', 'submenu' => array(
+				'Category' => array('label' => __('Categories'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Category')),
+				'Brands' => array('label' => __('Brands'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Brand')),
+				'Forms' => array('label' => __('Tech.params'), 'href' => array('controller' => 'AdminFields', 'action' => 'index')),
+				'Products' => array('label' => __('Products'), 'href' => array('controller' => 'AdminProducts', 'action' => 'index')),
+			)),
 			'Users' => array('label' => __('Users'), 'href' => array('controller' => 'AdminUsers', 'action' => 'index')),
 			// 'slider' => array('label' => __('Slider'), 'href' => array('controller' => 'AdminSlider', 'action' => 'index')),
 			// 'settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index'))
-                        'CSV' => array('label' => __('Upload CSV'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index'))
+			'CSV' => array('label' => __('Upload CSV'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index')),
+			'Export' => array('label' => __('Data export'), 'href' => array('controller' => 'AdminExport', 'action' => 'index'))
 		);
 		$this->aBottomLinks = $this->aNavBar;
 	}
@@ -29,7 +33,7 @@ class AdminController extends AppController {
 		if (!$this->isAdmin()) {
 			unset($this->aNavBar['Users']);
 			unset($this->aNavBar['Forms']);
-                        unset($this->aNavBar['CSV']);
+			unset($this->aNavBar['CSV']);
 		}
 	    $this->currMenu = $this->_getCurrMenu();
 	    $this->currLink = $this->currMenu;

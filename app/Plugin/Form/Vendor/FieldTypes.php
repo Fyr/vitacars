@@ -13,7 +13,7 @@ class FieldTypes {
 	const UPLOAD_FILE = 11;
 	const EDITOR = 12;
 	const MULTISELECT = 13;
-        const FORMULA = 14;
+	const FORMULA = 14;
 	
 	static public function getTypes() {
 		return array(

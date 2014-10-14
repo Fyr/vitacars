@@ -1,5 +1,11 @@
 <?
 class MediaPath {
+	
+	private $basePath = PATH_FILES_UPLOAD;
+	
+	function setBasePath($path) {
+		$this->basePath = $path;
+	}
 
     function getSizeInfo($size) {
     	$_ret = array();
@@ -67,7 +73,7 @@ class MediaPath {
     }
     
     function getTypePath($type) {
-        return PATH_FILES_UPLOAD.strtolower($type).'/';
+        return $this->basePath.strtolower($type).'/';
     }
 
     /**

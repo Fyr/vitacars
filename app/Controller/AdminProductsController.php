@@ -5,7 +5,7 @@ class AdminProductsController extends AdminController {
 	
     public $name = 'AdminProducts';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
-    public $uses = array('Product', 'Form.PMForm', 'Form.PMFormValue', 'Form.FormField', 'User');
+    public $uses = array('Product', 'Form.PMForm', 'Form.PMFormValue', 'Form.FormField', 'User', 'Category', 'Subcategory', 'Brand');
     public $helpers = array('ObjectType', 'Form.PHFormFields');
     private $paramDetail;
     
@@ -34,9 +34,9 @@ class AdminProductsController extends AdminController {
     		$i++;
 	    	if (!$field_rights || in_array($_field['FormField']['id'], $field_rights)) {
 	    		$alias = 'Param'.$i;
-                        if ($_field['FormField']['key']) {
-                            $this->keys = Hash::merge($this->keys, array($alias => $_field['FormField']['key']));
-                        }
+                if ($_field['FormField']['key']) {
+                    $this->keys = Hash::merge($this->keys, array($alias => $_field['FormField']['key']));
+                }
 	    		$hasOne[$alias] = array(
 					'className' => 'Form.PMFormValue',
 					'foreignKey' => 'object_id',
@@ -155,6 +155,7 @@ class AdminProductsController extends AdminController {
 			$this->redirect(array('action' => 'index'));
 		}
 		$this->loadModel('Media.Media');
+		$this->loadModel('Seo.Seo');
 		if (!$id) {
 			$this->request->data('Product.object_type', $this->Product->objectType);
 		}
@@ -164,6 +165,14 @@ class AdminProductsController extends AdminController {
 				// save product params only for updated product
 				$this->PMFormValue->saveForm('ProductParam', $id, 1, $this->request->data('PMFormValue'));
 			}
+			$this->request->data('Seo.object_type', $this->Product->objectType);
+			$this->request->data('Seo.object_id', $id);
+			$seo = $this->Seo->getObject($this->Product->objectType, $id);
+			if ($seo) {
+				$this->request->data('Seo.id', $seo['Seo']['id']);
+			}
+			$this->Seo->save($this->request->data);
+			
 			$baseRoute = array('action' => 'index');
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
 		}
@@ -185,5 +194,27 @@ class AdminProductsController extends AdminController {
 		    }
 		}
 		$this->set('formValues', $formValues);
+		
+		/*
+		$subcategories = $this->Subcategory->find('all');
+		fdebug($subcategories);
+		$aCategoryOptions = array();
+		foreach($subcategories as $subcat) {
+			$catID = $subcat['Category']['id'];
+			$aCategoryOptions[$catID][] = $subcat;
+		}
+		$this->set('aCategoryOptions', $aCategoryOptions);
+		*/
+		$this->set('aCategories', $this->Category->getOptions('Category'));
+		$this->set('aSubcategories', $this->Subcategory->find('all', array(
+			'fields' => array('id', 'object_id', 'title', 'Category.id', 'Category.title'),
+			'order' => 'object_id'
+		)));
+		
+		$seo = $this->Seo->getObject($this->Product->objectType, $id);
+		if ($seo) {
+			$this->request->data('Seo', $seo['Seo']);
+		}
+		$this->set('aBrandOptions', $this->Brand->getOptions());
 	}
 }

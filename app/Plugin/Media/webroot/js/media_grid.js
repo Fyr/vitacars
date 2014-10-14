@@ -122,7 +122,7 @@ MediaGrid = function(config) {
 	}
 	
 	this.getImageURL = function(rowData, size) {
-		return '/media/router/index/' + rowData.object_type + '/' + rowData.id + '/' + size + '/' + rowData.file + rowData.ext;
+		return '/media/router/index/' + rowData.object_type.toLowerCase() + '/' + rowData.id + '/' + size + '/' + rowData.file + rowData.ext;
 	}
 	
 	this.bindInfo = function(rowData) {

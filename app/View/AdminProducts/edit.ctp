@@ -16,6 +16,7 @@
     
     if ($id) {
     	$aTabs['Tech-params'] = $this->PHFormFields->render($form, $formValues);
+    	$aTabs['SEO'] = $this->element('Seo.edit');
         $aTabs['Media'] = $this->element('Media.edit', array('object_type' => $objectType, 'object_id' => $id));
     }
     

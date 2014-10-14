@@ -56,9 +56,9 @@
 				<div class="media-urls">
 				{% if (o.media_type == 'image') { %}
 				<?=__d('media', 'Original size')?>:<br/>
-				<input type="text" id="media-url-orig" value="/media/router/index/{%=o.object_type%}/{%=o.id%}/noresize/{%=o.file%}{%=o.ext%}" readonly="readonly" onfocus="this.select()"/>
+				<input type="text" id="media-url-orig" value="/media/router/index/{%=(o.object_type).toLowerCase()%}/{%=o.id%}/noresize/{%=o.file%}{%=o.ext%}" readonly="readonly" onfocus="this.select()"/>
 				<?=__d('media', 'For editor')?>:<br/>
-				<input type="text" id="media-url-editor" value="/media/router/index/{%=o.object_type%}/{%=o.id%}/400x/{%=o.file%}{%=o.ext%}" readonly="readonly" onfocus="this.select()" />
+				<input type="text" id="media-url-editor" value="/media/router/index/{%=(o.object_type).toLowerCase()%}/{%=o.id%}/400x/{%=o.file%}{%=o.ext%}" readonly="readonly" onfocus="this.select()" />
 				{% } %}
 				<?=__d('media', 'For download')?>:<br/>
 				<input type="text" id="media-url-download" value="{%=o.url_download%}" readonly="readonly" onfocus="this.select()" />

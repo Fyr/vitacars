@@ -19,6 +19,9 @@
     if ($objectType == 'Subcategory' && $objectID) {
     	// $aTabs['Tech-params'] = $this->element('/AdminContent/admin_edit_Params');
     }
+    if (in_array($objectType, array('Category', 'Subcategory', 'Brand'))) {
+    	$aTabs['SEO'] = $this->element('Seo.edit');
+    }
     if ($id) {
         $aTabs['Media'] = $this->element('Media.edit', array('object_type' => $objectType, 'object_id' => $id));
     }

@@ -16,6 +16,12 @@ msgstr "Категории"
 msgid "Tech.params"
 msgstr "Тех.параметры"
 
+msgid "Create tech.param"
+msgstr "Создать тех.параметр"
+
+msgid "Edit tech.param"
+msgstr "Редактировать тех.параметр"
+
 msgid "Tech-params"
 msgstr "Тех.параметры"
 
@@ -318,3 +324,24 @@ msgstr "Файл успешно загружен"
 
 msgid "Print selected records"
 msgstr "Распечатать выделенные строки"
+
+msgid "Brands"
+msgstr "Бренды"
+
+msgid "Create Brand"
+msgstr "Создать Бренд"
+
+msgid "Edit Brand"
+msgstr "Редактировать Бренд"
+
+msgid "Brand"
+msgstr "Бренд"
+
+msgid "Count"
+msgstr "Кол-во"
+
+msgid "Exported"
+msgstr "Экспорт данных"
+
+msgid "Data export"
+msgstr "Экспорт данных"

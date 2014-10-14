@@ -37,6 +37,8 @@ define('EMAIL_ADMIN', 'fyr.work@gmail.com');
 define('EMAIL_ADMIN_CC', 'fyr.work@gmail.com');
 
 define('PATH_FILES_UPLOAD', $_SERVER['DOCUMENT_ROOT'].'/files/');
+define('PATH_FILES_UPLOAD_BY', 'D:\Projects\agromotors.dev\wwwroot\app\webroot\files\\');
+define('PATH_FILES_UPLOAD_RU', 'D:\Projects\agromotors.dev\wwwroot\app\webroot\files_ru\\');
 
 define('SEPARATOR_DEICHARGE', '&nbsp;');
 define('SEPARATOR_DECIMAL', ',');

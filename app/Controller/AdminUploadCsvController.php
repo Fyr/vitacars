@@ -137,7 +137,6 @@ class AdminUploadCsvController extends AdminController {
 				$this->PMFormValue->create();
 				$data['value'] = $data['value'] ? $data['value'] : '&nbsp;'; //?????
 				$this->PMFormValue->save($data);
-				fdebug(array('save', $data));
 			}
 		}
 	}

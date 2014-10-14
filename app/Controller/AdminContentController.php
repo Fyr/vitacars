@@ -3,7 +3,7 @@ App::uses('AdminController', 'Controller');
 class AdminContentController extends AdminController {
     public $name = 'AdminContent';
     public $components = array('Article.PCArticle');
-    public $uses = array('Category', 'Form.FormField', 'Form.PMForm');
+    public $uses = array('Category', 'Subcategory', 'Brand', 'Form.FormField', 'Form.PMForm');
     public $helpers = array('ObjectType');
     
     public function index($objectType, $objectID = '') {
@@ -21,7 +21,10 @@ class AdminContentController extends AdminController {
         	'Subcategory' => array(
         		'conditions' => array('Subcategory.object_id' => $objectID),
         		'fields' => array('id', 'title')
-        	)
+        	),
+        	'Brand' => array(
+        		'fields' => array('id', 'title')
+        	),
         );
         
         $data = $this->PCArticle->setModel($objectType)->index();
@@ -61,8 +64,19 @@ class AdminContentController extends AdminController {
 					$formID = $form['PMForm']['id'];
 				}
 				
-				// Bind fields for saved form
-				$this->PMForm->bindFields($formID, explode(',', $this->request->data('FormKey.field_id')));
+				// по моему это не нужно
+				$fields = $this->request->data('FormKey.field_id');
+				$this->PMForm->bindFields($formID, ($fields) ? explode(',', $fields) : array());
+			}
+			if (in_array($objectType, array('Category', 'Subcategory', 'Brand'))) {
+				$this->loadModel('Seo.Seo');
+				$this->request->data('Seo.object_type', $objectType);
+				$this->request->data('Seo.object_id', $id);
+				$seo = $this->Seo->getObject($objectType, $id);
+				if ($seo) {
+					$this->request->data('Seo.id', $seo['Seo']['id']);
+				}
+				$this->Seo->save($this->request->data);
 			}
 			$baseRoute = array('action' => 'index', $objectType, $objectID);
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
@@ -71,7 +85,7 @@ class AdminContentController extends AdminController {
 		$this->currMenu = $objectType;
 		if ($objectType == 'Subcategory' && $objectID) {
         	$this->set('category', $this->Category->findById($objectID));
-        	$this->currMenu = 'Cetegory';
+        	$this->currMenu = 'Category';
         	
 			$this->paginate = array(
 	    		'fields' => array('field_type', 'label', 'fieldset', 'required'),
@@ -85,6 +99,16 @@ class AdminContentController extends AdminController {
 	    		$formKeys = $this->PMForm->getFormKeys(Hash::get($form, 'PMForm.id'));
 	    	}
 	    	$this->set('formKeys', $formKeys);
+		}
+		
+		if ($id && in_array($objectType, array('Category', 'Subcategory', 'Brand'))) {
+			$this->loadModel('Seo.Seo');
+			$seo = $this->Seo->getObject($objectType, $id);
+			if ($seo) {
+				$this->request->data('Seo', $seo['Seo']);
+			}
+			// $this->request->data('Seo.title', Hash::get($seo, 'Seo.title');
+				
 		}
 	}
 }

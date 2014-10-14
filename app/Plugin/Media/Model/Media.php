@@ -16,6 +16,10 @@ class Media extends AppModel {
     }
     */
     
+    public function getPHMedia() {
+    	return $this->PHMedia;
+    }
+    
     /**
      * Uploades media file into auto-created folder
      *
@@ -24,6 +28,7 @@ class Media extends AppModel {
      *                      file.ext - final name of file
      */
     public function uploadMedia($data) {
+    	$this->clear();
 		$this->save($data);
 		$id = $this->id;
 		
@@ -39,26 +44,37 @@ class Media extends AppModel {
 		    mkdir($path, self::MKDIR_MODE);
 		}
 		$path = $this->PHMedia->getPath($object_type, $id);
-		mkdir($path, self::MKDIR_MODE);
+		if (!file_exists($path)) {
+			mkdir($path, self::MKDIR_MODE);
+		}
 		
-		// TODO: handle rename error
-		$res = rename($tmp_name, $path.$file.$ext);
+		if (isset($real_name)) {
+			copy($real_name, $path.$file.$ext);
+			$res = false;
+		} else {
+			// TODO: handle rename error
+			$res = rename($tmp_name, $path.$file.$ext);
+		}
 		if ($res) {
 		    // remove auto-thumb
 		    $path = pathinfo($tmp_name);
 		    @unlink($path['dirname'].'/thumbnail/'.$path['basename']);
 		}
 		
-		// Save original image resolution and file size
-		$file = $this->PHMedia->getFileName($object_type, $id, null, $file.$ext);
+		if (!isset($media_type) || $media_type == 'image') {
+			// Save original image resolution and file size
+			$file = $this->PHMedia->getFileName($object_type, $id, null, $file.$ext);
+			
+			App::uses('Image', 'Media.Vendor');
+			$image = new Image();
+			$image->load($file);
+			$this->save(array('id' => $id, 'orig_w' => $image->getSizeX(), 'orig_h' => $image->getSizeY(), 'orig_fsize' => filesize($file)));
+			
+			// Set main image if it was first image
+			$this->initMain($object_type, $object_id);
+		}
 		
-		App::uses('Image', 'Media.Vendor');
-		$image = new Image();
-		$image->load($file);
-		$this->save(array('id' => $id, 'orig_w' => $image->getSizeX(), 'orig_h' => $image->getSizeY(), 'orig_fsize' => filesize($file)));
-		
-		// Set main image if it was first image
-		$this->initMain($object_type, $object_id);
+		return $id;
     }
     
     /**
@@ -71,22 +87,22 @@ class Media extends AppModel {
     public function getList($findData = array(), $order = array('Media.main' => 'DESC', 'Media.id' => 'DESC')) {
         $aRows = $this->find('all', array('conditions' => $findData, 'order' => $order));
         foreach($aRows as &$_row) {
-            $row = $_row['Media'];
+            $row = $_row[$this->alias];
             if ($row['media_type'] == 'image') {
-            	$_row['Media']['image'] = $this->PHMedia->getImageUrl($row['object_type'], $row['id'], '100x80', $row['file'].$row['ext']);
+            	$_row[$this->alias]['image'] = $this->PHMedia->getImageUrl($row['object_type'], $row['id'], '100x80', $row['file'].$row['ext']);
             } elseif ($row['ext'] == '.pdf') {
-            	$_row['Media']['image'] = '/media/img/pdf.png';
+            	$_row[$this->alias]['image'] = '/media/img/pdf.png';
             } else {
-            	$_row['Media']['image'] = '/media/img/'.$row['media_type'].'.png';
+            	$_row[$this->alias]['image'] = '/media/img/'.$row['media_type'].'.png';
             }
-            $_row['Media']['url_download'] = $this->PHMedia->getRawUrl($row['object_type'], $row['id'], $row['file'].$row['ext']);
+            $_row[$this->alias]['url_download'] = $this->PHMedia->getRawUrl($row['object_type'], $row['id'], $row['file'].$row['ext']);
         }
         return $aRows;
     }
     
     /*
     public function typeOf($mediaRow) {
-        return (isset($mediaRow['Media']) && isset($mediaRow['Media']['media_type'])) ? $mediaRow['Media']['media_type'] : '';
+        return (isset($mediaRow[$this->alias]) && isset($mediaRow[$this->alias]['media_type'])) ? $mediaRow[$this->alias]['media_type'] : '';
     }
     */
 	
@@ -105,7 +121,7 @@ class Media extends AppModel {
 			$this->updateAll(array('main' => 0), $conditions);
 		} else {
 			$media = $this->findById($id);
-			$this->setMain($id, $media['Media']['object_type'], $media['Media']['object_id']);
+			$this->setMain($id, $media[$this->alias]['object_type'], $media[$this->alias]['object_id']);
 			return;
 		}
 		$this->save(array('id' => $id, 'main' => 1));
@@ -124,8 +140,8 @@ class Media extends AppModel {
 		));
 		if ($media) {
 			// we have some media records but no main 
-			if (!$media['Media']['main']) {
-				$media['Media']['main'] = 1;
+			if (!$media[$this->alias]['main']) {
+				$media[$this->alias]['main'] = 1;
 				$this->save($media);
 			}
 		} // no records
@@ -141,7 +157,7 @@ class Media extends AppModel {
 		App::uses('Path', 'Core.Vendor');
 		
 		$media = $this->findById($this->id);
-		$path = $this->PHMedia->getPath($media['Media']['object_type'], $this->id);
+		$path = $this->PHMedia->getPath($media[$this->alias]['object_type'], $this->id);
 
 		if (file_exists($path)) {
 			// remove all files in folder

@@ -48,7 +48,7 @@ class PCArticleComponent extends Component {
 	}
 	
 	public function edit($id = 0, $lSaved = false) {
-		$aFlags = array('published', 'featured');
+		$aFlags = array('published', 'featured', 'active');
 		$article = $this->model()->findById($id);
 		if ($this->_->request->is('post') || $this->_->request->is('put')) {
 			if ($id && !$this->_->request->data($this->field('id'))) {
@@ -66,7 +66,6 @@ class PCArticleComponent extends Component {
 			}
 			$this->_->request->data = array_merge($this->_->request->data, $article);
 		} elseif ($id) {
-
 			// Set up flags
 			foreach($aFlags as $field) {
 				if ($article[$this->model()->alias][$field]) {
