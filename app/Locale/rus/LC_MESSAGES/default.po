@@ -345,3 +345,6 @@ msgstr "Экспорт данных"
 
 msgid "Data export"
 msgstr "Экспорт данных"
+
+msgid "Slug"
+msgstr "Адрес страницы"

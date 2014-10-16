@@ -1,11 +1,11 @@
 function article_onChangeTitle() {
 	if (!slug_EditMode) {
-		$('#ArticleSlug').val(translit($('#ArticleTitle').val()));
+		$('#ArticlePageId').val(translit($('#ArticleTitle').val()));
 	}
 }
 
 function article_onChangeSlug() {
-	slug_EditMode = ($('#ArticleSlug').val() && true);
+	slug_EditMode = ($('#ArticlePageId').val() && true);
 }
 
 function translit(str) {
