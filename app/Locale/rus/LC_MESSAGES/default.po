@@ -348,3 +348,21 @@ msgstr "Экспорт данных"
 
 msgid "Slug"
 msgstr "Адрес страницы"
+
+msgid "Sorting"
+msgstr "Сортировка"
+
+msgid "Title rus"
+msgstr "Название (RUS)"
+
+msgid "Motor"
+msgstr "Мотор"
+
+msgid "Detail num"
+msgstr "Номер детали"
+
+msgid "Code"
+msgstr "Код"
+
+msgid "On stock"
+msgstr "На складе"

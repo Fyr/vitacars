@@ -25,11 +25,3 @@
     echo $this->PHForm->end();
 ?>
 </div>
-<script type="text/javascript">
-$(document).ready(function(){
-	$('#PMFormValueValue_2').multiselect({
-		nonSelectedText: 'Выберите мотор',
-		nSelectedText: 'выбрано'
-	});
-});
-</script>

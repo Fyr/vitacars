@@ -16,11 +16,11 @@ class AdminContentController extends AdminController {
         		'fields' => array('id', 'created', 'title', 'teaser', 'featured', 'published')
         	),
         	'Category' => array(
-        		'fields' => array('id', 'title')
+        		'fields' => array('id', 'title', 'sorting')
         	),
         	'Subcategory' => array(
         		'conditions' => array('Subcategory.object_id' => $objectID),
-        		'fields' => array('id', 'title')
+        		'fields' => array('id', 'title', 'sorting')
         	),
         	'Brand' => array(
         		'fields' => array('id', 'title')

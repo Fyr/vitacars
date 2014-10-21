@@ -48,9 +48,6 @@ class AdminProductsController extends AdminController {
 				if ($_field['FormField']['id'] == Product::MOTOR) {
 					$paramMotor = 'Param'.$i;
 					$this->set('paramMotor', $paramMotor);
-				} else if ($_field['FormField']['id'] == Product::NUM_DETAIL) {
-					$this->paramDetail = 'Param'.$i;
-					$this->set('paramDetail', $this->paramDetail);
 				} else if (isset($_field['FormField']['options']) && $_field['FormField']['options'] && $_field['FormField']['field_type'] == 14) {
 					$this->formula = Hash::merge($this->formula, array('Param'.$i => unserialize($_field['FormField']['options'])));
 				}
@@ -59,32 +56,32 @@ class AdminProductsController extends AdminController {
     	$this->set('aLabels', $aLabels);
     	$this->Product->bindModel(array('hasOne' => $hasOne), false);
         $this->paginate = array(
-           	'fields' => array_merge(array('title', 'code', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext'), $aFields)
+           	'fields' => array_merge(array('title', 'title_rus', 'detail_num', 'code', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext'), $aFields)
         );
         
         if (!$this->isAdmin()) {
-        	if (!isset($this->request->named[$this->paramDetail.'.value'])) {
-        		$this->request->params['named'][$this->paramDetail.'.value'] = '-';
+        	if (!isset($this->request->named['Product.detail_num'])) {
+        		$this->request->params['named']['Product.detail_num'] = '~';
         	} else {
         		//$number = sprintf('%08d', trim(str_replace('*', '', $this->request->named[$this->paramDetail.'.value'])));
         		//$this->request->params['named'][$this->paramDetail.'.value'] = '*'.$number.'*';
         	}
         }
      
-        if (isset($this->request->named[$this->paramDetail.'.value'])) {
-            $clear = str_replace('*', '', $this->request->params['named'][$this->paramDetail.'.value']);
+        if (isset($this->request->named['Product.detail_num'])) {
+            $clear = str_replace('*', '', $this->request->params['named']['Product.detail_num']);
             $numbers = explode(' ', $clear);
             $ors = array();
             $order = array();
             foreach ($numbers as $key_ => $value_) {
                 if (trim($value_) != ''){
-                    $ors[] = array($this->paramDetail.'.value LIKE' => '%'.trim($value_).'%');
-                    $order[] = $this->paramDetail.'.value LIKE \'%'.trim($value_).'%\' DESC';
+                    $ors[] = array('Product.detail_num LIKE "%'.trim($value_).'%"');
+                    $order[] = 'Product.detail_num LIKE "%'.trim($value_).'%" DESC';
                 }
             }
             $this->paginate['conditions'] = array('OR' => $ors);
             $this->paginate['order'] = implode(', ', $order);
-            unset($this->request->params['named'][$this->paramDetail.'.value']);
+            unset($this->request->params['named']['Product.detail_num']);
         }
         
     }

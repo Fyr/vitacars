@@ -42,6 +42,7 @@
     		$this->Media->imageUrl($row, 'noresize'),
     		array('escape' => false, 'class' => 'fancybox', 'rel' => 'gallery')
     	) : '';
+    	$row['Product']['detail_num'] = str_replace(' ', '<br />', $row['Product']['detail_num']);
     	if (Hash::check($row, $paramMotor.'.value')) {
     		$row[$paramMotor]['value'] = str_replace(',', ' ', $row[$paramMotor]['value']);
     	}
@@ -62,13 +63,13 @@
 		Фильтр:
 <?
 	if ($isAdmin) {
-		$options = $this->PHformFields->getSelectOptions(Hash::get($motorOptions, 'FormField.options'));
+		$options = $this->PHFormFields->getSelectOptions(Hash::get($motorOptions, 'FormField.options'));
 		$options = array('label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'options' => $options, 'div' => array('class' => 'inline'));
 		echo $this->PHForm->input('motor', $options);
 	}
 ?>
 		<div id="filterByNumber" class="input-append">
-			<input class="span2" type="text" onfocus="this.select()" placeholder="Введите номер запчасти" style="width: 200px;">
+			<input class="span2" type="text" name="" onfocus="this.select()" placeholder="Введите номер запчасти" style="width: 200px;">
 			<button class="btn" type="button"><i class="icon icon-search"></i> Найти</button>
 		</div>
 		<button id="clearFilter" class="btn" type="button"><i class="icon icon-remove"></i> Очистить</button>
@@ -87,7 +88,7 @@
 <script type="text/javascript">
 $(document).ready(function(){
 	
-	var filterNum = $('#grid-filter-<?=$paramDetail?>-value').val();
+	var filterNum = $('#grid-filter-Product-detail_num').val();
 	if (filterNum) {
 		$('#filterByNumber input').val(filterNum.replace(/\*/g, ''));
 	}
@@ -128,7 +129,7 @@ $(document).ready(function(){
 
 function submitFilter() {
 	var filterNum = $('#filterByNumber input').val();
-	$('#grid-filter-<?=$paramDetail?>-value').val((filterNum) ? '*' + filterNum + '*' : '');
+	$('#grid-filter-Product-detail_num').val((filterNum) ? '*' + filterNum + '*' : '');
 	
 	var filterMotor = $('#motor').val();
 	$('#grid-filter-<?=$paramMotor?>-value').val((filterMotor) ? '*' + filterMotor.join('*') + '*' : '');
