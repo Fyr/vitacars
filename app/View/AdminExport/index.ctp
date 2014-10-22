@@ -7,6 +7,5 @@
 		echo '&nbsp;&nbsp;'.$object_type.': '.$_count.'<br />';
 	}
 ?>
-Всего: <?=$count.' '.__('records')?> 
 <?=$this->element('admin_content_end')?>
 </div>

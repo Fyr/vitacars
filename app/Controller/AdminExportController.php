@@ -5,8 +5,8 @@ App::uses('FieldTypes', 'Form.Vendor');
 class AdminExportController extends AdminController {
     public $name = 'AdminExport';
     public $uses = array(
-    	'Category', 'Subcategory', 'Article.Article', 'Media.Media', 'SiteArticle', 'Form.FormField', 'Form.FormValues',
-    	'ExportArticle', 'ExportMedia', 'ExportParams', 'ExportParamsObjects', 'ExportParamsValues'
+    	'Category', 'Subcategory', 'Article.Article', 'Media.Media', 'SiteArticle', 'Form.FormField', 'Form.FormValues', 'Seo.Seo',
+    	'ExportArticle', 'ExportMedia', 'ExportParams', 'ExportParamsObjects', 'ExportParamsValues', 'ExportSeo'
     );
     
     private $aTypes = array(
@@ -71,6 +71,7 @@ class AdminExportController extends AdminController {
     	$this->xParam = $this->ExportParams;
     	$this->xParamObject = $this->ExportParamsObjects;
     	$this->xParamValue = $this->ExportParamsValues;
+    	$this->xSeo = $this->ExportSeo;
     	
     	fdebug('', 'export.log', false); // чистим лог
     	foreach(array('agromotors_by') as $dataSource) { // , 'agromotors_ru'
@@ -83,12 +84,15 @@ class AdminExportController extends AdminController {
 	    	}
 	    	$this->xMedia->setBasePath(($dataSource == 'agromotors_ru') ? PATH_FILES_UPLOAD_RU : PATH_FILES_UPLOAD_BY);
 	    	
+	    	$counter = array('Media' => 0, 'Product' => 0, 'Brand' => 0, 'Category' => 0, 'Subcategory' => 0, 'ParamsValues' => 0, 'Seo' => 0);
+	    	
 	    	fdebug('Очистка БД...', 'export.log');
 	    	$this->xMedia->deleteAll(array('object_type' => 'Article'), true, true);
 	    	$this->xArticle->deleteAll(true);
 	    	$this->xParam->deleteAll(true);
 	    	$this->xParamObject->deleteAll(true);
 	    	$this->xParamValue->deleteAll(true);
+	    	$this->xSeo->deleteAll(true);
 	    	fdebug('ОК'."\r\n", 'export.log');
 	    	
 	    	fdebug('Экспорт статей...', 'export.log');
@@ -98,15 +102,12 @@ class AdminExportController extends AdminController {
 	    	$page = 1;
 	    	$limit = 10;
 	    	$order = 'SiteArticle.id'; // !!!  БД не может по другому те же ID записать
-	    	$counter = array('Media' => 0, 'Product' => 0);
+	    	
 	    	while ($articles = $this->SiteArticle->find('all', compact('conditions', 'page', 'limit', 'order'))) {
 	    		$page++;
 	    		foreach($articles as $article) {
 					$this->_addArticle($article['SiteArticle'], $article['Media']);
 					$object_type = $article['SiteArticle']['object_type'];
-					if (!isset($counter[$object_type])) {
-						$counter[$object_type] = 0;
-					}
 					$counter[$object_type]++;
 					$counter['Media']+= count($article['Media']);
 				}
@@ -144,7 +145,6 @@ class AdminExportController extends AdminController {
 	    	fdebug('ОК'."\r\n", 'export.log');
 	    	
 	    	$counter['Params'] = count($aParams);
-	    	$counter['ParamsValues'] = 0;
 	    	
 	    	$conditions = array('object_type' => 'ProductParam', 'field_id' => $aParamID);
 	    	$page = 1;
@@ -160,6 +160,23 @@ class AdminExportController extends AdminController {
 	    			
 	    			$this->xParamValue->clear();
 	    			$this->xParamValue->save($data);
+	    		}
+	    	}
+	    	fdebug('ОК'."\r\n", 'export.log');
+	    	
+	    	$page = 1;
+	    	$limit = 10;
+	    	$order = array('id');
+	    	fdebug('Экспорт SEO...', 'export.log');
+	    	while ($aRowset = $this->Seo->find('all', compact('page', 'limit', 'order'))) {
+	    		$page++;
+	    		foreach($aRowset as $row) {
+	    			$counter['Seo']++;
+	    			$data = $row['Seo'];
+	    			$data['object_type'] = 'Article';
+	    			
+	    			$this->xSeo->clear();
+	    			$this->xSeo->save($data);
 	    		}
 	    	}
 	    	fdebug('ОК'."\r\n", 'export.log');
