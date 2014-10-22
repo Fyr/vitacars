@@ -273,5 +273,25 @@ class AdminExportController extends AdminController {
 		}
 		echo 'Перенесено '.$count.' брэндов, '.$count2.' media файлов';
 	}
+	
+	public function update3() {
+		$this->autoRender = false;
+		
+		App::uses('Translit', 'Article.Vendor');
+		// $this->PHTranslit = new PHTranslitHelper($this->view);
+		
+		$conditions = array('object_type' => 'Product');
+    	$page = 1;
+    	$limit = 10;
+    	$order = 'SiteArticle.id'; 
+    	while ($articles = $this->SiteArticle->find('all', compact('conditions', 'page', 'limit', 'order'))) {
+    		$page++;
+    		foreach($articles as $article) {
+    			$data = $article['SiteArticle'];
+    			$data['page_id'] = Translit::convert($data['title_rus'].'-'.$data['detail_num'], true);
+    			$this->SiteArticle->save(array('id' => $data['id'], 'page_id' => $data['page_id']));
+			}
+    	}
+	}
 
 }
