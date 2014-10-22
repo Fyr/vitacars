@@ -1,6 +1,6 @@
 <?
 	$this->Html->css(array('bootstrap-multiselect'), array('inline' => false));
-	$this->Html->script(array('vendor/bootstrap-multiselect'), array('inline' => false));
+	$this->Html->script(array('vendor/bootstrap-multiselect', '/Article/js/translit_utf', '/Article/js/edit_slug'), array('inline' => false));
 
 	echo $this->PHForm->input('Product.cat_id', array(
 		'label' => array('class' => 'control-label', 'text' => __('Category')), 
@@ -38,7 +38,6 @@
 	echo $this->PHForm->input('brand_id', array('options' => $aBrandOptions));
 	echo $this->PHForm->input('title');
 	echo $this->PHForm->input('title_rus', array('label' => array('text' => __('Title rus'), 'class' => 'control-label')));
-	echo $this->PHForm->input('teaser');
 	echo $this->PHForm->input('detail_num', array('type' => 'text', 'label' => array('text' => __('Detail num'), 'class' => 'control-label')));
 	/*
 	$aMotorOptions = 'BF4M1012
@@ -80,7 +79,12 @@ F3M2011
 	echo $this->PHForm->input('selectmotor', $options);
 	*/
 	echo $this->PHForm->input('code');
+	echo $this->PHForm->input('page_id', array(
+		'type' => 'text',
+		'label' => array('text' => __('Slug'), 'class' => 'control-label')
+	));
 	echo $this->PHForm->input('count');
+	echo $this->PHForm->input('teaser');
 	echo $this->PHForm->input('status', array('label' => false, 'multiple' => 'checkbox', 'options' => array('published' => __('Published'), 'featured' => __('Featured'), 'active' => __('On stock')), 'class' => 'checkbox inline'));
 	
 	$subcat_id = $this->request->data('Product.subcat_id');
@@ -95,6 +99,10 @@ function category_onChange(e, subcat_id) {
 
 function change_SeoTitle() {
 	$('#SeoTitle').val($('#ProductTitleRus').val() + ' ' + $('#ProductCode').val());
+}
+
+function change_Slug() {
+	$('#ProductPageId').val(translit($('#ProductTitleRus').val() + '-' + $('#ProductDetailNum').val()));
 }
 
 $(document).ready(function(){
@@ -112,6 +120,9 @@ $(document).ready(function(){
 	});
 	$('#ProductCode').change(function(){
 		change_SeoTitle();
+	});
+	$('#ProductTitleRus, #ProductDetailNum').change(function(){
+		change_Slug();
 	});
 });
 </script>
