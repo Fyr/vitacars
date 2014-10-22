@@ -26,6 +26,8 @@
     	)),
     	$this->PHTableGrid->getDefaultColumns($objectType)
     );
+    $columns['Product.detail_num']['format'] = 'string';
+    
     unset($columns['Media.id']);
     unset($columns['Media.object_type']);
     unset($columns['Media.file']);

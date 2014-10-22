@@ -202,6 +202,7 @@ class AdminProductsController extends AdminController {
 		}
 		$this->set('aCategoryOptions', $aCategoryOptions);
 		*/
+		
 		$this->set('aCategories', $this->Category->getOptions('Category'));
 		$this->set('aSubcategories', $this->Subcategory->find('all', array(
 			'fields' => array('id', 'object_id', 'title', 'Category.id', 'Category.title'),
@@ -213,5 +214,14 @@ class AdminProductsController extends AdminController {
 			$this->request->data('Seo', $seo['Seo']);
 		}
 		$this->set('aBrandOptions', $this->Brand->getOptions());
+		
+		if (!$id && !$lSaved) {
+			// выставляем значения по умолчанию
+			$this->request->data('Product.status', array('published', 'active'));
+			$this->request->data('Product.count', '0');
+			$this->request->data('Product.cat_id', 2133); // category = DEUTZ
+			$this->request->data('Product.subcat_id', 2146); // subcategory = DEUTZ 1013
+			$this->request->data('Product.brand_id', 2166); // brand = Deutz
+		}
 	}
 }

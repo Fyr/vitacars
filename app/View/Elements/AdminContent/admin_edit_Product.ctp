@@ -26,7 +26,7 @@
 		}
 		$selected = ($this->request->data('Product.subcat_id') == $subcat['Subcategory']['id']) ? ' selected="selected"' : '';
 ?>
-					<option value="<?=$subcat['Subcategory']['id']?>".<?=$selected?>><?=$subcat['Subcategory']['title']?></option>
+					<option value="<?=$subcat['Subcategory']['id']?>"<?=$selected?>><?=$subcat['Subcategory']['title']?></option>
 <?
 	}
 ?>
