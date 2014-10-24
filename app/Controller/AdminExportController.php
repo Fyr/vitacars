@@ -76,7 +76,7 @@ class AdminExportController extends AdminController {
     	fdebug('', 'export.log', false); // чистим лог
     	foreach(array('agromotors_by') as $dataSource) { // , 'agromotors_ru'
     		fdebug('Переключение на БД: '.$dataSource."\r\n", 'export.log');
-	    	foreach(array('xArticle', 'xMedia', 'xParam', 'xParamObject', 'xParamValue') as $model) {
+	    	foreach(array('xArticle', 'xMedia', 'xParam', 'xParamObject', 'xParamValue', 'xSeo') as $model) {
 	    		$this->{$model}->setDataSource($dataSource);
 	    		$db = ConnectionManager::getDataSource($dataSource);
 	    		$this->{$model}->schemaName = $db->getSchemaName();
