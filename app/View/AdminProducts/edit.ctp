@@ -11,12 +11,11 @@
     echo $this->PHForm->create('Product');
     $aTabs = array(
         'General' => $this->element('/AdminContent/admin_edit_'.$objectType),
-		'Text' => $this->element('Article.edit_body')
+		'Text' => $this->element('Article.edit_body'),
+		'SEO' => $this->element('Seo.edit')
     );
-    
     if ($id) {
     	$aTabs['Tech-params'] = $this->PHFormFields->render($form, $formValues);
-    	$aTabs['SEO'] = $this->element('Seo.edit');
         $aTabs['Media'] = $this->element('Media.edit', array('object_type' => $objectType, 'object_id' => $id));
     }
     

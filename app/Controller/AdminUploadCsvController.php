@@ -65,6 +65,13 @@ class AdminUploadCsvController extends AdminController {
 		$aParams = array();
 		foreach($aData as $row) {
 			list($number) = array_values($row);
+			$params = $this->Product->find('all', array(
+				'fields' => array('id'),
+				'conditions' => array(
+					'detail_num LIKE ' => '%'.trim($number).'%'
+				)
+			));
+			/*
 			$params = $this->PMFormValue->find('all', array(
 				'fields' => array('object_id'),
 				'conditions' => array(
@@ -72,9 +79,10 @@ class AdminUploadCsvController extends AdminController {
 					'value LIKE ' => '%'.trim($number).'%'
 				)
 			));
+			*/
 			array_shift($row); // исключить 1й ключ из обрабатываемой строки (номер детали)
 			foreach($params as $param) {
-				$object_id = Hash::get($param, 'PMFormValue.object_id');
+				$object_id = Hash::get($param, 'Product.id');
 				if ($object_id) {
 					if (!isset($aParams[$object_id])) {
 						$aParams[$object_id] = array();
@@ -156,7 +164,7 @@ class AdminUploadCsvController extends AdminController {
 			$aNumbers = Hash::extract($aData['data'], '{n}.'.$numberKey);
 			
 			$this->Session->setFlash(__('File have been successfully uploaded'), 'default', array(), 'success');
-			$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Param3.value' => '*'.implode(' ', $aNumbers).'*'));
+			$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.detail_num' => '*'.implode(' ', $aNumbers).'*'));
 		} catch (Exception $e) {
 			$this->Session->setFlash(__($e->getMessage(), $this->errLine), 'default', array(), 'error');
 			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'index'));
