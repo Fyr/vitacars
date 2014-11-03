@@ -18,6 +18,7 @@ class FormField extends AppModel {
                 'message' => 'Введите сортировку'
             )
         );
+        
 	public function beforeDelete($cascade = true) {
 		App::uses('PMFormValue', 'Form.Model');
 		$this->PMFormValue = new PMFormValue();

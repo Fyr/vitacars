@@ -20,10 +20,23 @@ class AdminUploadCsvController extends AdminController {
 	}
     
 	public function index() {
-		/*
-		$_FILES['csv_file'] = array('tmp_name' => 'd:\book1.csv');
-		$this->upload();
-		*/
+		try {
+			if (isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name']) {
+				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
+				$this->_updateParams($aData['keys'], $this->_getCounters($aData['data']));
+				
+				// Получить данные для редиректа
+				// list($numberKey) = array_keys($aData['data'][0]);
+				$numberKey = $aData['keys'][0];
+				$aNumbers = Hash::extract($aData['data'], '{n}.'.$numberKey);
+				
+				$this->Session->setFlash(__('File have been successfully uploaded'), 'default', array(), 'success');
+				$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.detail_num' => '*'.implode(' ', $aNumbers).'*'));
+			}
+		} catch (Exception $e) {
+			$this->Session->setFlash(__($e->getMessage(), $this->errLine), 'default', array(), 'error');
+			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'index'));
+		}
 	}
 	
 	/**
@@ -34,7 +47,6 @@ class AdminUploadCsvController extends AdminController {
 	 */
 	private function _parseCsv($file) {
 		$file = file($file);
-		
 		if (!($file && is_array($file) && count($file) > 1)) {
 			throw new Exception('Incorrect file content');
 		}
@@ -149,108 +161,57 @@ class AdminUploadCsvController extends AdminController {
 		}
 	}
 
-	public function upload() {
-		try {
-			if ( !(isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name']) ) {
-				throw new Exception('Error file upload');
+	protected function _createProducts($aData) {
+		// $aStatic = array('title', 'title_rus', 'detail_num', 'code', 'page_id', 'published', 'active', 'count', 'brand_id', 'cat_id', 'subcat_id');
+		
+		$aFormFields = $this->FormField->find('list', array('fields' => array('key', 'id'), 'conditions' => array('FormField.key IS NOT NULL AND FormField.key <> ""')));
+		$aID = array();
+		$this->errLine = 1;
+		foreach($aData['data'] as $row) {
+			$this->errLine++;
+			$this->Product->clear();
+			$row['object_type'] = 'Product';
+			if (!$this->Product->save($row)) {
+				throw new Exception('Cannot create product (Line %s)');
 			}
 			
-			$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
-			$this->_updateParams($aData['keys'], $this->_getCounters($aData['data']));
-			
-			// Получить данные для редиректа
-			// list($numberKey) = array_keys($aData['data'][0]);
-			$numberKey = $aData['keys'][0];
-			$aNumbers = Hash::extract($aData['data'], '{n}.'.$numberKey);
-			
-			$this->Session->setFlash(__('File have been successfully uploaded'), 'default', array(), 'success');
-			$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.detail_num' => '*'.implode(' ', $aNumbers).'*'));
-		} catch (Exception $e) {
-			$this->Session->setFlash(__($e->getMessage(), $this->errLine), 'default', array(), 'error');
-			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'index'));
+			foreach($aFormFields as $key => $id) {
+				if (isset($row[$key])) {
+					$this->PMFormValue->clear();
+					$res = $this->PMFormValue->save(array(
+						'object_type' => 'ProductParam', 
+						'object_id' => $this->Product->id, 
+						'form_id' => 1, 
+						'field_id' => $id, 
+						'value' => $row[$key]
+					));
+					if (!$res) {
+						throw new Exception('Cannot create form field (Line %s)');
+					}
+				}
+			}
+			$aID[] = $this->Product->id;
 		}
+		return $aID;
 	}
     
-	/*
-    public function upload() {
-        if($_FILES['csv_file']['name']){
-            $fileCsv = file($_FILES['csv_file']['tmp_name']);
-            if ($fileCsv) {
-                // обработка файла
-                $csv = array();
-                foreach ($fileCsv as $key => $value) {
-                    $a = explode(';', $fileCsv[$key]);
-                    foreach ($a as $key_ => $value_) {
-                        $csv[$key][$key_] = trim($value_);
-                    }
-                }
-
-                $keys = $csv[0];
-                unset($csv[0]);
-                
-                // Просуммируем данные по одинаковым номерам
-                $usedNumbers = array();
-                foreach ($csv as $number) {
-                    if (isset($usedNumbers[$number[0]])) {
-                        foreach ($number as $key => $value) {
-                            if ($key) {
-                                $usedNumbers[$number[0]][$key] = intval($value) + $usedNumbers[$number[0]][$key];
-                            }
-                        }
-                    } else {
-                        foreach ($number as $key => $value) {
-                            if ($key) {
-                                $usedNumbers[$number[0]][$key] = intval($value);
-                            }
-                        }
-                        
-                    }
-                }
-                foreach ($usedNumbers as $key => $value) {
-                    //Найдем ID продукта по номеру
-                    $productId = $this->FormValues->find('first', array(
-                        'fields' => array('object_id', 'id'), 
-                        'conditions' => array(
-                            'field_id' => 5,
-                            'value LIKE' => '%'.trim($key).'%'
-                        )
-                    ));
-                    if ($productId) {
-						//Изменим кол-во по данным с ключами
-                        unset($keys[0]);
-                        foreach ($keys as $key_ => $value_) {
-                            $field_id = $this->FormField->find('first', array(
-                                'fields' => array('id'), 
-                                'conditions' => array('key' => $value_)
-                            ));
-                            if ($field_id) {
-                                $row = $this->FormValues->find('first', array(
-                                    'fields' => array('id'),
-                                    'conditions' => array('field_id' => $field_id['FormField']['id'], 'object_id' => $productId['FormValues']['object_id'])
-								));
-								if (!$row) {
-								    $this->FormValues->create();
-								    $this->FormValues->save(array(
-									'object_type' => 'ProductParam', 
-									'object_id' => $productId['FormValues']['object_id'], 
-									'value' => $usedNumbers[$key][$key_],
-									'form_id' => 1,
-									'field_id' => $field_id['FormField']['id']
-								    ));
-								} else {
-								    $this->FormValues->save(array('id' => $row['FormValues']['id'], 'value' => $usedNumbers[$key][$key_]));
-								}
-                            }
-                        }
-                    }
-                }
-                $this->Session->setFlash(__('File successfully downloaded and read'));
-            } else {
-                $this->Session->setFlash(__('Error file upload'));
-            }
-        }
-		$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'index'));
-    }
-    */
+	public function uploadNewProducts() {
+		try {
+			if (isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name'] ) {
+				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
+				
+				$this->Product->getDataSource()->begin();
+				$aID = $this->_createProducts($aData);
+				$this->Product->getDataSource()->commit();
+				
+				$this->Session->setFlash(__('%s products have been successfully uploaded', count($aID)), 'default', array(), 'success');
+				$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
+			}
+		} catch (Exception $e) {
+			$this->Product->getDataSource()->rollback();
+			$this->Session->setFlash(__($e->getMessage(), $this->errLine), 'default', array(), 'error');
+			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'uploadNewProducts'));
+		}
+	}
 }
 

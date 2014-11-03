@@ -83,7 +83,10 @@ class AdminProductsController extends AdminController {
             $this->paginate['order'] = implode(', ', $order);
             unset($this->request->params['named']['Product.detail_num']);
         }
-        
+        if (isset($this->request->named['Product.id']) && strpos($this->request->named['Product.id'], ',')) {
+        	$this->paginate['conditions']['Product.id'] = explode(',', $this->request->named['Product.id']);
+        	unset($this->request->params['named']['Product.id']);
+        }
     }
     
     public function printXls() {
