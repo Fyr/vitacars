@@ -105,6 +105,11 @@ function change_Slug() {
 	$('#ProductPageId').val(translit($('#ProductTitleRus').val() + '-' + $('#ProductDetailNum').val()));
 }
 
+function change_SeoDescr() {
+	$('#SeoKeywords').val($('#ProductTitle').val() + ' ' + $('#ProductDetailNum').val());
+	$('#SeoDescr').val($('#ProductTitle').val() + ' ' + $('#ProductDetailNum').val());
+}
+
 $(document).ready(function(){
 	category_onChange($('#ProductCatId').get(0), <?=($subcat_id) ? $subcat_id : '0'?>);
 	$('#ProductSelectmotor').multiselect({
@@ -123,6 +128,9 @@ $(document).ready(function(){
 	});
 	$('#ProductTitleRus, #ProductDetailNum').change(function(){
 		change_Slug();
+	});
+	$('#ProductTitle, #ProductDetailNum').change(function(){
+		change_SeoDescr();
 	});
 });
 </script>
