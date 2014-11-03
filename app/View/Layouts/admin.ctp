@@ -62,6 +62,10 @@
 	<?=$this->element('/AdminUI/admin_footer')?>
 </footer>
 </div>
-<?=$this->element('sql_dump'); ?>
+<?
+	if (TEST_ENV) {
+		echo $this->element('sql_dump');
+	}
+?>
 </body>
 </html>
