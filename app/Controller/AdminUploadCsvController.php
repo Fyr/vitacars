@@ -6,7 +6,7 @@ App::uses('FormField', 'Form.Model');
 class AdminUploadCsvController extends AdminController {
     public $name = 'AdminUploadCsv';
     public $layout = 'admin';
-    public $uses = array('Product', 'Form.PMFormValue', 'Form.FormField');
+    public $uses = array('Product', 'Form.PMFormValue', 'Form.FormField', 'Brand', 'Category', 'Subcategory');
     
     const CSV_DIV = ';';
     private $errLine = 0;
@@ -23,10 +23,12 @@ class AdminUploadCsvController extends AdminController {
 		try {
 			if (isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name']) {
 				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
+				
+				$this->Product->getDataSource()->begin();
 				$this->_updateParams($aData['keys'], $this->_getCounters($aData['data']));
+				$this->Product->getDataSource()->commit();
 				
 				// Получить данные для редиректа
-				// list($numberKey) = array_keys($aData['data'][0]);
 				$numberKey = $aData['keys'][0];
 				$aNumbers = Hash::extract($aData['data'], '{n}.'.$numberKey);
 				
@@ -34,6 +36,7 @@ class AdminUploadCsvController extends AdminController {
 				$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.detail_num' => '*'.implode(' ', $aNumbers).'*'));
 			}
 		} catch (Exception $e) {
+			$this->Product->getDataSource()->rollback();
 			$this->Session->setFlash(__($e->getMessage(), $this->errLine), 'default', array(), 'error');
 			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'index'));
 		}
@@ -46,7 +49,7 @@ class AdminUploadCsvController extends AdminController {
 	 * @return array
 	 */
 	private function _parseCsv($file) {
-		$file = file($file);
+		$file = explode("\n", str_replace("\r\n", "\n", mb_convert_encoding(trim(file_get_contents($file)), 'utf-8', 'cp1251')));
 		if (!($file && is_array($file) && count($file) > 1)) {
 			throw new Exception('Incorrect file content');
 		}
@@ -165,26 +168,52 @@ class AdminUploadCsvController extends AdminController {
 		// $aStatic = array('title', 'title_rus', 'detail_num', 'code', 'page_id', 'published', 'active', 'count', 'brand_id', 'cat_id', 'subcat_id');
 		
 		$aFormFields = $this->FormField->find('list', array('fields' => array('key', 'id'), 'conditions' => array('FormField.key IS NOT NULL AND FormField.key <> ""')));
+		$aBrands = array_keys($this->Brand->getOptions());
+		$aCategories = array_keys($this->Category->getOptions());
+		$aSubcategories = array_keys($this->Subcategory->getOptions());
+		
 		$aID = array();
 		$this->errLine = 1;
 		foreach($aData['data'] as $row) {
 			$this->errLine++;
-			$this->Product->clear();
+			
+			// Проверить обязательные поля
+			if ( !(isset($row['title']) && trim($row['title'])) ) {
+				throw new Exception('Field title cannot be blank (Line %s)');
+			}
+			if ( !(isset($row['code']) && trim($row['code'])) ) {
+				throw new Exception('Field code cannot be blank (Line %s)');
+			}
+			
 			$row['object_type'] = 'Product';
+			
+			// Проверить необязательные поля
+			if (isset($row['brand_id']) && !in_array($row['brand_id'], $aBrands)) {
+				throw new Exception('Incorrect brand ID (Line %s)');
+			}
+			if (isset($row['cat_id']) && !in_array($row['cat_id'], $aCategories)) {
+				throw new Exception('Incorrect category ID (Line %s)');
+			}
+			if (isset($row['subcat_id']) && !in_array($row['subcat_id'], $aSubcategories)) {
+				throw new Exception('Incorrect subcategory ID (Line %s)');
+			}
+			
+			$this->Product->clear();
 			if (!$this->Product->save($row)) {
 				throw new Exception('Cannot create product (Line %s)');
 			}
 			
 			foreach($aFormFields as $key => $id) {
 				if (isset($row[$key])) {
-					$this->PMFormValue->clear();
-					$res = $this->PMFormValue->save(array(
+					$data = array(
 						'object_type' => 'ProductParam', 
 						'object_id' => $this->Product->id, 
 						'form_id' => 1, 
 						'field_id' => $id, 
 						'value' => $row[$key]
-					));
+					);
+					$this->PMFormValue->clear();
+					$res = $this->PMFormValue->save($data);
 					if (!$res) {
 						throw new Exception('Cannot create form field (Line %s)');
 					}

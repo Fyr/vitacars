@@ -381,3 +381,18 @@ msgstr "Невозможно создать тех.параметр (стр. %s)
 
 msgid "%s products have been successfully uploaded"
 msgstr "%s продуктов было успешно создано"
+
+msgid "Field title cannot be blank (Line %s)"
+msgstr "Поле title не может быть пустым (стр. %s)"
+
+msgid "Field code cannot be blank (Line %s)"
+msgstr "Поле code не может быть пустым (стр. %s)"
+
+msgid "Incorrect brand ID (Line %s)"
+msgstr "Некорректный ID брэнда (стр. %s)"
+
+msgid "Incorrect category ID (Line %s)"
+msgstr "Некорректный ID категории (стр. %s)"
+
+msgid "Incorrect subcategory ID (Line %s)"
+msgstr "Некорректный ID подкатегории (стр. %s)"
