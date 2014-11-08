@@ -8,9 +8,18 @@
 	echo $this->PHForm->input('field_type', array('options' => $aFieldTypes, 'onchange' => 'FieldType_onChange(this)'));
 	echo $this->PHForm->input('label', array('class' => 'input-medium'));
 	echo $this->PHForm->input('key', array('class' => 'input-medium'));
-	echo $this->PHForm->input('fieldset', array('class' => 'input-medium'));
+	// echo $this->PHForm->input('fieldset', array('class' => 'input-medium'));
 	echo $this->PHForm->input('options');
+?>
+	<span class="formula">
+<?
 	echo $this->PHForm->input('formula', array('id' => 'FormFieldFormula'));
+	echo $this->PHForm->input('decimals', array('class' => 'input-mini'));
+	echo $this->PHForm->input('div_float', array('class' => 'input-mini'));
+	echo $this->PHForm->input('div_int', array('class' => 'input-mini'));
+?>
+	</span>
+<?
 	echo $this->PHForm->input('sort_order');
 	echo $this->PHForm->input('required');
 	echo $this->PHForm->input('exported');
@@ -22,14 +31,19 @@
 <script type="text/javascript">
 function FieldType_onChange(e) {
 	var $options = $('#FormFieldOptions').closest('.control-group');
-        var $formula = $('#FormFieldFormula').closest('.control-group');
+	var $formula = $('.formula');
 	$options.hide();
-        $formula.hide();
+	$formula.hide();
 	if ($(e).val() == <?=$FormField__SELECT?> || $(e).val() == <?=$FormField__MULTISELECT?>) {
 		$options.show();
 	} else if ($(e).val() == <?=$FormField__FORMULA?>) {
-                $formula.show();
-        }
+		$formula.show();
+		if (!$('#FormFieldFormula').val()) {
+			$('#FormFieldDecimals').val('0');
+			$('#FormFieldDivFloat').val(',');
+			$('#FormFieldDivInt').val(' ');
+		}
+	}
 }
 $(document).ready(function(){
 	FieldType_onChange($('#FormFieldFieldType'));

@@ -396,3 +396,15 @@ msgstr "Некорректный ID категории (стр. %s)"
 
 msgid "Incorrect subcategory ID (Line %s)"
 msgstr "Некорректный ID подкатегории (стр. %s)"
+
+msgid "Options"
+msgstr "Опции"
+
+msgid "Decimals"
+msgstr "Кол-во цифр для дробн.части"
+
+msgid "Div Float"
+msgstr "Символ-разделитель для дробн.части"
+
+msgid "Div Int"
+msgstr "Символ-разделитель для цел.части"

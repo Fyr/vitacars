@@ -31,7 +31,7 @@ define('DOMAIN_NAME', 'VitaCars.ru');
 define('DOMAIN_TITLE', 'VitaCars.ru');
 
 define('AUTH_ERROR', __('Invalid username or password, try again'));
-define('TEST_ENV', $_SERVER['SERVER_ADDR'] == '192.168.1.31');
+define('TEST_ENV', $_SERVER['SERVER_ADDR'] == '192.168.1.22');
 
 define('EMAIL_ADMIN', 'fyr.work@gmail.com');
 define('EMAIL_ADMIN_CC', 'fyr.work@gmail.com');
