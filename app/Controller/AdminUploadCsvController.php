@@ -6,7 +6,7 @@ App::uses('FormField', 'Form.Model');
 class AdminUploadCsvController extends AdminController {
     public $name = 'AdminUploadCsv';
     public $layout = 'admin';
-    public $uses = array('Product', 'Form.PMFormValue', 'Form.FormField', 'Brand', 'Category', 'Subcategory');
+    public $uses = array('Product', 'Form.PMFormValue', 'Form.FormField', 'Brand', 'Category', 'Subcategory', 'Seo.Seo');
     
     const CSV_DIV = ';';
     private $errLine = 0;
@@ -165,6 +165,8 @@ class AdminUploadCsvController extends AdminController {
 	}
 
 	protected function _createProducts($aData) {
+		App::uses('Translit', 'Article.Vendor');
+		
 		// $aStatic = array('title', 'title_rus', 'detail_num', 'code', 'page_id', 'published', 'active', 'count', 'brand_id', 'cat_id', 'subcat_id');
 		
 		$aFormFields = $this->FormField->find('list', array('fields' => array('key', 'id'), 'conditions' => array('FormField.key IS NOT NULL AND FormField.key <> ""')));
@@ -185,8 +187,6 @@ class AdminUploadCsvController extends AdminController {
 				throw new Exception('Field code cannot be blank (Line %s)');
 			}
 			
-			$row['object_type'] = 'Product';
-			
 			// Проверить необязательные поля
 			if (isset($row['brand_id']) && !in_array($row['brand_id'], $aBrands)) {
 				throw new Exception('Incorrect brand ID (Line %s)');
@@ -198,11 +198,43 @@ class AdminUploadCsvController extends AdminController {
 				throw new Exception('Incorrect subcategory ID (Line %s)');
 			}
 			
+			$row['object_type'] = 'Product';
+			if (!isset($row['page_id'])) {
+				if (isset($row['title_rus']) && $row['detail_num']) {
+					$row['page_id'] = Translit::convert($row['title_rus'].'-'.$row['detail_num'], true);
+				}
+			}
+			if (!isset($row['published'])) {
+				$row['published'] = 1;
+			}
+			if (!isset($row['active'])) {
+				$row['active'] = 1;
+			}
+			
 			$this->Product->clear();
 			if (!$this->Product->save($row)) {
 				throw new Exception('Cannot create product (Line %s)');
 			}
 			
+			$data = array();
+			// Создать SEO блок для продукта
+			if (isset($row['title_rus']) && $row['code']) {
+				$data['title'] = $row['title_rus'].' '.$row['code'];
+			}
+			if (isset($row['title']) && $row['detail_num']) {
+				$data['keywords'] = $row['title'].' '.$row['detail_num'];
+				$data['descr'] = $data['keywords'];
+			}
+			if ($data) {
+				$data['object_type'] = 'Product';
+				$data['object_id'] = $this->Product->id;
+				
+				$this->Seo->clear();
+				$this->Seo->save($data);
+			}
+			
+			
+			// Создать тех.параметры для продукта
 			foreach($aFormFields as $key => $id) {
 				if (isset($row[$key])) {
 					$data = array(
@@ -219,6 +251,7 @@ class AdminUploadCsvController extends AdminController {
 					}
 				}
 			}
+			
 			$aID[] = $this->Product->id;
 		}
 		return $aID;

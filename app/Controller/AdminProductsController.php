@@ -200,7 +200,7 @@ class AdminProductsController extends AdminController {
 		
 		if ($id) {
 			$seo = $this->Seo->getObject($this->Product->objectType, $id);
-			$this->request->data('Seo', $seo['Seo']);
+			$this->request->data('Seo', Hash::get($seo, 'Seo'));
 		}
 		$this->set('aBrandOptions', $this->Brand->getOptions());
 		

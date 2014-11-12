@@ -38,5 +38,6 @@ class RouterController extends AppController {
 			$image->outputGif($fname);
 			$image->outputGif();
 		}
+		exit;
 	}
 }
