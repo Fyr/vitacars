@@ -4,6 +4,14 @@ class AdminSettingsController extends AdminController {
     public $name = 'AdminSettings';
     public $uses = array('Settings');
     
+    public function beforeFilter() {
+		if (!$this->isAdmin()) {
+			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
+			return;
+		}
+		parent::beforeFilter();
+	}
+    
     public function index() {
         if ($this->request->is('post') || $this->request->is('put')) {
         	$this->request->data('Settings.id', 1);

@@ -62,27 +62,49 @@ class AdminProductsController extends AdminController {
         );
         
         if (!$this->isAdmin()) {
-        	if (!isset($this->request->named['Product.detail_num'])) {
-        		$this->request->params['named']['Product.detail_num'] = '~';
+        	if (!(isset($this->request->named['Product.detail_num']) && $this->request->named['Product.detail_num'])) {
+        		$this->request->params['named']['Product.detail_num'] = '@'; // запретить искать по всем номерам НЕ-админам
         	} else {
         		//$number = sprintf('%08d', trim(str_replace('*', '', $this->request->named[$this->paramDetail.'.value'])));
         		//$this->request->params['named'][$this->paramDetail.'.value'] = '*'.$number.'*';
         	}
         }
      
-        if (isset($this->request->named['Product.detail_num'])) {
-            $clear = str_replace('*', '', $this->request->params['named']['Product.detail_num']);
-            $numbers = explode(' ', $clear);
-            $ors = array();
-            $order = array();
-            foreach ($numbers as $key_ => $value_) {
-                if (trim($value_) != ''){
-                    $ors[] = array('Product.detail_num LIKE "%'.trim($value_).'%"');
-                    $order[] = 'Product.detail_num LIKE "%'.trim($value_).'%" DESC';
-                }
-            }
-            $this->paginate['conditions'] = array('OR' => $ors);
-            $this->paginate['order'] = implode(', ', $order);
+        if (isset($this->request->named['Product.detail_num']) && ($detail_num = $this->request->named['Product.detail_num'])) {
+        	if ((strpos($detail_num, '*') !== false) || (strpos($detail_num, '~') !== false)) {
+        		$lFindSame = (strpos($detail_num, '~') !== false); // поиск похожих
+        		$detail_num = str_replace(array('*', '~'), '', $detail_num);
+        		$this->set('detail_num', $detail_num);
+        		
+				$numbers = explode(' ', $detail_num);
+				if ($lFindSame) {
+					$ors = array();
+					$order = array();
+					foreach ($numbers as $key_ => $value_) {
+						if (trim($value_) != ''){
+							$ors[] = array('Product.detail_num LIKE "%'.trim($value_).'%"');
+							$order[] = 'Product.detail_num LIKE "%'.trim($value_).'%" DESC';
+						}
+					}
+					$products = $this->Product->find('all', array('conditions' => array('OR' => $ors)));
+					$numbers = array();
+					foreach($products as $product) {
+						$numbers = array_merge($numbers, explode(' ', $product['Product']['detail_num']));
+					}
+					$number = array_unique($numbers);
+        		}
+					
+				$ors = array();
+				$order = array();
+				foreach ($numbers as $key_ => $value_) {
+					if (trim($value_) != ''){
+						$ors[] = array('Product.detail_num LIKE "%'.trim($value_).'%"');
+						$order[] = 'Product.detail_num LIKE "%'.trim($value_).'%" DESC';
+					}
+				}
+				$this->paginate['conditions'] = array('OR' => $ors);
+				$this->paginate['order'] = implode(', ', $order);
+			}
             unset($this->request->params['named']['Product.detail_num']);
         }
         if (isset($this->request->named['Product.id']) && strpos($this->request->named['Product.id'], ',')) {
@@ -100,7 +122,7 @@ class AdminProductsController extends AdminController {
             $this->paginate['conditions'] = array('Product.id' => $aID);
             $this->paginate['order'] = 'FIELD (Product.id, '.$this->request->data('aID').') ASC';
             $aRowset = $this->PCTableGrid->paginate('Product');
-            $aRowset = $this->fillFormula($aRowset);
+            $aRowset = $this->_fillFormula($aRowset);
             $this->set('aRowset', $aRowset);
         } else {
             $this->redirect(array('action' => 'index'));

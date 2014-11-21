@@ -4,12 +4,12 @@ class AdminUsersController extends AdminController {
     public $name = 'AdminUsers';
     public $uses = array('User', 'Form.FormField');
     
-    public function isAuthorized($user) {
-    	if (!$this->isAdmin()) {
-    		$this->redirect('/admin/');
-    		return false;
-    	}
-    	return parent::isAuthorized($user);
+    public function beforeFilter() {
+		if (!$this->isAdmin()) {
+			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
+			return;
+		}
+		parent::beforeFilter();
 	}
     
     public function beforeRender() {

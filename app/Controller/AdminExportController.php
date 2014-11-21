@@ -176,6 +176,7 @@ class AdminExportController extends AdminController {
 		    		foreach($aRowset as $row) {
 		    			$counter['Seo']++;
 		    			$data = $row['Seo'];
+		    			unset($data['id']);
 		    			$data['object_type'] = 'Article';
 		    			
 		    			$this->xSeo->clear();

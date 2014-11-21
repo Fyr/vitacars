@@ -71,8 +71,9 @@
 	}
 ?>
 		<div id="filterByNumber" class="input-append">
-			<input class="span2" type="text" name="" onfocus="this.select()" placeholder="Введите номер запчасти" style="width: 200px;">
-			<button class="btn" type="button"><i class="icon icon-search"></i> Найти</button>
+			<input class="span2" type="text" name="" value="<?=(isset($detail_num)) ? $detail_num : ''?>" onfocus="this.select()" placeholder="Поиск по номерам" style="width: 200px;">
+			<button id="byNumber" class="btn" type="button"><i class="icon icon-search"></i> Найти</button>
+			<button id="bySame" class="btn" type="button"><i class="icon icon-search"></i> Найти похожие</button>
 		</div>
 		<button id="clearFilter" class="btn" type="button"><i class="icon icon-remove"></i> Очистить</button>
 	</div>
@@ -90,11 +91,6 @@
 <script type="text/javascript">
 $(document).ready(function(){
 	
-	var filterNum = $('#grid-filter-Product-detail_num').val();
-	if (filterNum) {
-		$('#filterByNumber input').val(filterNum.replace(/\*/g, ''));
-	}
-	
 	var filterMotor = $('#grid-filter-<?=$paramMotor?>-value').val();
 	if (filterMotor) {
 		$('#motor').val(filterMotor.slice(1, -1).split('*'));
@@ -107,14 +103,19 @@ $(document).ready(function(){
 	$('#filterByNumber input').keypress(function(event){
 		if (event.which == 13) {
 			event.preventDefault();
+			
+			$('#grid-filter-Product-detail_num').val('*' + $('#filterByNumber input').val());
 			submitFilter();
 		}
 	});
 	
-	$('#filterByNumber input').change(function(){
+	$('#byNumber').click(function(){
+		$('#grid-filter-Product-detail_num').val('*' + $('#filterByNumber input').val());
 		submitFilter();
 	});
-	$('#filterByNumber button').click(function(){
+	
+	$('#bySame').click(function(){
+		$('#grid-filter-Product-detail_num').val('~' + $('#filterByNumber input').val());
 		submitFilter();
 	});
 	
@@ -130,9 +131,6 @@ $(document).ready(function(){
 });
 
 function submitFilter() {
-	var filterNum = $('#filterByNumber input').val();
-	$('#grid-filter-Product-detail_num').val((filterNum) ? '*' + filterNum + '*' : '');
-	
 	var filterMotor = $('#motor').val();
 	$('#grid-filter-<?=$paramMotor?>-value').val((filterMotor) ? '*' + filterMotor.join('*') + '*' : '');
 	

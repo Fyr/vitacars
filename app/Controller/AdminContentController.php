@@ -6,6 +6,14 @@ class AdminContentController extends AdminController {
     public $uses = array('Category', 'Subcategory', 'Brand', 'Form.FormField', 'Form.PMForm');
     public $helpers = array('ObjectType');
     
+    public function beforeFilter() {
+		if (!$this->isAdmin()) {
+			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
+			return;
+		}
+		parent::beforeFilter();
+	}
+    
     public function index($objectType, $objectID = '') {
     	// $this->loadModel($objectType);
         $this->paginate = array(

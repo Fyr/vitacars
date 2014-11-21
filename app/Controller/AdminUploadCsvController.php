@@ -11,12 +11,12 @@ class AdminUploadCsvController extends AdminController {
     const CSV_DIV = ';';
     private $errLine = 0;
     
-	public function isAuthorized($user) {
+	public function beforeFilter() {
 		if (!$this->isAdmin()) {
-			$this->redirect('/admin/');
-			return false;
+			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
+			return;
 		}
-		return parent::isAuthorized($user);
+		parent::beforeFilter();
 	}
     
 	public function index() {

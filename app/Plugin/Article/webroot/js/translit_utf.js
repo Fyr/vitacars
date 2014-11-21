@@ -1,9 +1,9 @@
 var ru2en = {
   ru_str : "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя",
   en_str : ['A','B','V','G','D','E','JO','ZH','Z','I','J','K','L','M','N','O','P','R','S','T',
-    'U','F','H','C','CH','SH','SHCH',String.fromCharCode(35),'Y',String.fromCharCode(39),'JE','JU',
+    'U','F','H','C','CH','SH','SHCH',String.fromCharCode(39),'Y',String.fromCharCode(39),'JE','JU',
     'JA','a','b','v','g','d','e','jo','zh','z','i','j','k','l','m','n','o','p','r','s','t','u','f',
-    'h','c','ch','sh','shch',String.fromCharCode(35),'y',String.fromCharCode(39),'je','ju','ja'],
+    'h','c','ch','sh','shch',String.fromCharCode(39),'y',String.fromCharCode(39),'je','ju','ja'],
   translit : function(org_str) {
     var tmp_str = [];
     for(var i = 0, l = org_str.length; i < l; i++) {

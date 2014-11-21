@@ -34,9 +34,11 @@ class AdminController extends AppController {
 	
 	public function beforeFilter() {
 		if (!$this->isAdmin()) {
-			unset($this->aNavBar['Users']);
-			unset($this->aNavBar['Forms']);
-			unset($this->aNavBar['CSV']);
+			$this->aNavBar = array(
+				'Products' => array('label' => __('Products'), 'href' => '', 'submenu' => array(
+					'Products' => array('label' => __('Products'), 'href' => array('controller' => 'AdminProducts', 'action' => 'index')),
+				)),
+			);
 		}
 	    $this->currMenu = $this->_getCurrMenu();
 	    $this->currLink = $this->currMenu;
