@@ -43,7 +43,7 @@
     		$this->Html->image($img),
     		$this->Media->imageUrl($row, 'noresize'),
     		array('escape' => false, 'class' => 'fancybox', 'rel' => 'gallery')
-    	) : '';
+    	) : '<img src="/img/default_product.jpg" style="width: 50px; alt="" />';
     	$row['Product']['detail_num'] = str_replace(' ', '<br />', $row['Product']['detail_num']);
     	if (Hash::check($row, $paramMotor.'.value')) {
     		$row[$paramMotor]['value'] = str_replace(',', ' ', $row[$paramMotor]['value']);
