@@ -61,23 +61,31 @@ class AdminProductsController extends AdminController {
            	'fields' => array_merge(array('title', 'title_rus', 'detail_num', 'code', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext'), $aFields)
         );
         
-        if (!$this->isAdmin()) {
-        	if (!(isset($this->request->named['Product.detail_num']) && $this->request->named['Product.detail_num'])) {
-        		$this->request->params['named']['Product.detail_num'] = '@'; // запретить искать по всем номерам НЕ-админам
-        	} else {
-        		//$number = sprintf('%08d', trim(str_replace('*', '', $this->request->named[$this->paramDetail.'.value'])));
-        		//$this->request->params['named'][$this->paramDetail.'.value'] = '*'.$number.'*';
-        	}
-        }
-     
+        $detail_num = '';
         if (isset($this->request->named['Product.detail_num']) && ($detail_num = $this->request->named['Product.detail_num'])) {
         	if ((strpos($detail_num, '*') !== false) || (strpos($detail_num, '~') !== false)) {
         		$lFindSame = (strpos($detail_num, '~') !== false); // поиск похожих
         		$detail_num = str_replace(array('*', '~'), '', $detail_num);
         		$this->set('detail_num', $detail_num);
-        		
-				$numbers = explode(' ', $detail_num);
-				if ($lFindSame) {
+        		if ($detail_num) {
+					$numbers = explode(' ', $detail_num);
+					if ($lFindSame) {
+						$ors = array();
+						$order = array();
+						foreach ($numbers as $key_ => $value_) {
+							if (trim($value_) != ''){
+								$ors[] = array('Product.detail_num LIKE "%'.trim($value_).'%"');
+								$order[] = 'Product.detail_num LIKE "%'.trim($value_).'%" DESC';
+							}
+						}
+						$products = $this->Product->find('all', array('conditions' => array('OR' => $ors)));
+						$numbers = array();
+						foreach($products as $product) {
+							$numbers = array_merge($numbers, explode(' ', $product['Product']['detail_num']));
+						}
+						$number = array_unique($numbers);
+	        		}
+						
 					$ors = array();
 					$order = array();
 					foreach ($numbers as $key_ => $value_) {
@@ -86,27 +94,19 @@ class AdminProductsController extends AdminController {
 							$order[] = 'Product.detail_num LIKE "%'.trim($value_).'%" DESC';
 						}
 					}
-					$products = $this->Product->find('all', array('conditions' => array('OR' => $ors)));
-					$numbers = array();
-					foreach($products as $product) {
-						$numbers = array_merge($numbers, explode(' ', $product['Product']['detail_num']));
-					}
-					$number = array_unique($numbers);
+					$this->paginate['conditions'] = array('OR' => $ors);
+					$this->paginate['order'] = implode(', ', $order);
         		}
-					
-				$ors = array();
-				$order = array();
-				foreach ($numbers as $key_ => $value_) {
-					if (trim($value_) != ''){
-						$ors[] = array('Product.detail_num LIKE "%'.trim($value_).'%"');
-						$order[] = 'Product.detail_num LIKE "%'.trim($value_).'%" DESC';
-					}
-				}
-				$this->paginate['conditions'] = array('OR' => $ors);
-				$this->paginate['order'] = implode(', ', $order);
 			}
             unset($this->request->params['named']['Product.detail_num']);
         }
+        
+        if (!$this->isAdmin()) {
+        	if (!$detail_num) {
+        		$this->paginate['conditions'] = array('0=1');
+        	}
+        }
+        
         if (isset($this->request->named['Product.id']) && strpos($this->request->named['Product.id'], ',')) {
         	$this->paginate['conditions']['Product.id'] = explode(',', $this->request->named['Product.id']);
         	unset($this->request->params['named']['Product.id']);
