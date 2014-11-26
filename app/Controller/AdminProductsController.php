@@ -72,18 +72,25 @@ class AdminProductsController extends AdminController {
 					if ($lFindSame) {
 						$ors = array();
 						$order = array();
-						foreach ($numbers as $key_ => $value_) {
-							if (trim($value_) != ''){
-								$ors[] = array('Product.detail_num LIKE "%'.trim($value_).'%"');
-								$order[] = 'Product.detail_num LIKE "%'.trim($value_).'%" DESC';
+						$i = 0;
+						$count = count($numbers);
+						$_count = 0;
+						while ($i < 100 && $count !== $_count) {
+							$i++; // избегать бесконечный цикл
+							foreach ($numbers as $key_ => $value_) {
+								if (trim($value_) != ''){
+									$ors[] = array('Product.detail_num LIKE "%'.trim($value_).'%"');
+									$order[] = 'Product.detail_num LIKE "%'.trim($value_).'%" DESC';
+								}
 							}
+							$products = $this->Product->find('all', array('conditions' => array('OR' => $ors)));
+							foreach($products as $product) {
+								$numbers = array_merge($numbers, explode(' ', $product['Product']['detail_num']));
+							}
+							$numbers = array_unique($numbers);
+							$_count = $count;
+							$count = count($numbers);
 						}
-						$products = $this->Product->find('all', array('conditions' => array('OR' => $ors)));
-						$numbers = array();
-						foreach($products as $product) {
-							$numbers = array_merge($numbers, explode(' ', $product['Product']['detail_num']));
-						}
-						$number = array_unique($numbers);
 	        		}
 						
 					$ors = array();
