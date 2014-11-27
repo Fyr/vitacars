@@ -15,7 +15,7 @@
 		'SEO' => $this->element('Seo.edit')
     );
     if ($id) {
-    	$aTabs['Tech-params'] = $this->PHFormFields->render($form, $formValues);
+    	$aTabs['Tech-params'] = $this->element('/AdminContent/admin_edit_ProductTechParams', compact('form', 'formValues'));
         $aTabs['Media'] = $this->element('Media.edit', array('object_type' => $objectType, 'object_id' => $id));
     }
     

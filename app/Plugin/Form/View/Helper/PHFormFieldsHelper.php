@@ -48,10 +48,11 @@ class PHFormFieldsHelper extends AppHelper {
 	*/
 	private function _renderInput($field, $value, $i) {
 		$aDefaultOptions = array(
-			FieldTypes::STRING => array('class' => 'input-xlarge', 'type' => 'text'),
+			FieldTypes::STRING => array('class' => 'input-medium', 'type' => 'text'),
 			FieldTypes::INT => array('class' => 'input-medium', 'type' => 'text'),
-			FieldTypes::SELECT => array('options' => $this->getSelectOptions($field['options'])),
-			FieldTypes::MULTISELECT => array('options' => $this->getSelectOptions($field['options']), 'multiple' => true),
+			FieldTypes::SELECT => array('class' => 'input-medium', 'options' => $this->getSelectOptions($field['options'])),
+			FieldTypes::MULTISELECT => array('class' => 'input-medium', 'options' => $this->getSelectOptions($field['options']), 'multiple' => true),
+			FieldTypes::UPLOAD_FILE => array('class' => 'input-medium', 'type' => 'text'),
 		);
 		$key = ($field['key']) ? $field['key'] : 'value';
 		
