@@ -72,8 +72,8 @@
 ?>
 		<div id="filterByNumber" class="input-append">
 			<input class="span2" type="text" name="" value="<?=(isset($detail_num)) ? $detail_num : ''?>" onfocus="this.select()" placeholder="Поиск по номерам" style="width: 200px;">
-			<button id="byNumber" class="btn" type="button"><i class="icon icon-search"></i> Найти</button>
-			<button id="bySame" class="btn" type="button"><i class="icon icon-search"></i> Найти похожие</button>
+			<!--button id="byNumber" class="btn" type="button"><i class="icon icon-search"></i> Найти</button-->
+			<button id="bySame" class="btn" type="button"><i class="icon icon-search"></i> Найти</button>
 		</div>
 		<button id="clearFilter" class="btn" type="button"><i class="icon icon-remove"></i> Очистить</button>
 	</div>
