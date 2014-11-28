@@ -71,7 +71,7 @@ class PHFormFieldsHelper extends AppHelper {
 		return $this->PHForm->input('PMFormValue.value', $options);
 	}
 	
-	public function render($form, $values) {
+	public function render($form, $values, $offset = 0) {
 		$html = '';
 		$_values = array();
 		if ($values) {
@@ -98,14 +98,14 @@ class PHFormFieldsHelper extends AppHelper {
 				));
 			}
 			*/
-			$html.= $this->_renderInput($field, $value, $i);
+			$html.= $this->_renderInput($field, $value, $i + $offset);
 			if (isset($_values[$field['id']])) {
 				$html.= $this->PHForm->hidden('PMFormValue.id', array_merge(
-					$this->_options($i, 'id'), array('value' => Hash::get($_ids, $field['id']))
+					$this->_options($i + $offset, 'id'), array('value' => Hash::get($_ids, $field['id']))
 				));
 			}
 			$html.= $this->PHForm->hidden('PMFormValue.field_id', array_merge(
-				$this->_options($i, 'field_id'), array('value' => $field['id'])
+				$this->_options($i + $offset, 'field_id'), array('value' => $field['id'])
 			));
 		}
 		return $html;
