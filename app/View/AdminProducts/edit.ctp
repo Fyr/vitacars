@@ -9,13 +9,16 @@
 	<?=$this->element('admin_title', compact('title'))?>
 <?
     echo $this->PHForm->create('Product');
+    echo $this->Form->hidden('PMFormData.id', array('value' => Hash::get($this->request->data, 'PMFormData.id')));
+    echo $this->Form->hidden('Seo.id', array('value' => Hash::get($this->request->data, 'Seo.id')));
     $aTabs = array(
-        'General' => $this->element('/AdminContent/admin_edit_'.$objectType),
+        'General' => $this->element('/AdminProduct/admin_edit_General'),
 		'Text' => $this->element('Article.edit_body'),
-		'SEO' => $this->element('Seo.edit')
+		'SEO' => $this->element('Seo.edit'),
+		'Tech-params' => $this->element('/AdminProduct/admin_edit_TechParams', compact('form', 'formValues'))
     );
     if ($id) {
-    	$aTabs['Tech-params'] = $this->element('/AdminContent/admin_edit_ProductTechParams', compact('form', 'formValues'));
+    	// $aTabs['Tech-params'] = $this->element('/AdminProduct/admin_edit_TechParams', compact('form', 'formValues'));
         $aTabs['Media'] = $this->element('Media.edit', array('object_type' => $objectType, 'object_id' => $id));
     }
     

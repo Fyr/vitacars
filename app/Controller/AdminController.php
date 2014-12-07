@@ -17,7 +17,7 @@ class AdminController extends AppController {
 			'Products' => array('label' => __('Products'), 'href' => '', 'submenu' => array(
 				'Category' => array('label' => __('Categories'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Category')),
 				'Brands' => array('label' => __('Brands'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Brand')),
-				'Forms' => array('label' => __('Tech.params'), 'href' => array('controller' => 'AdminFields', 'action' => 'index')),
+				'Forms' => array('label' => __('Tech.params'), 'href' => array('controller' => 'AdminForms', 'action' => 'index')),
 				'Products' => array('label' => __('Products'), 'href' => array('controller' => 'AdminProducts', 'action' => 'index')),
 			)),
 			'Users' => array('label' => __('Users'), 'href' => array('controller' => 'AdminUsers', 'action' => 'index')),

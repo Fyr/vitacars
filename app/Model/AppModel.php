@@ -31,6 +31,20 @@ class AppModel extends Model {
 		return $query;
 	}
 	
+	public function loadModel($models) {
+		if (!is_array($models)) {
+			$models = array($models);
+		}
+		foreach($models as $model) {
+			App::import('Model', $model);
+			if (strpos($model, '.') !== false) {
+				list($plugin, $model) = explode('.', $model);
+			}
+			$this->$model = new $model();
+		}
+	}
+
+	
 	private function _getObjectConditions($objectType = '', $objectID = '') {
 		$conditions = array();
 		if ($objectType) {
@@ -50,8 +64,26 @@ class AppModel extends Model {
 		return $this->find('first', $this->_getObjectConditions($objectType, $objectID));
 	}
 	
-	public function getObjectList($objectType = '', $objectID = '') {
-		return $this->find('all', $this->_getObjectConditions($objectType, $objectID));
+	public function getObjectList($objectType = '', $objectID = '', $order = array()) {
+		$conditions = array_values($this->_getObjectConditions($objectType, $objectID));
+		return $this->find('all', compact('conditions', 'order'));
 	}
 	
+	public function getTableName() {
+		return $this->getDataSource()->fullTableName($this);
+	}
+	
+	public function dateRange($field, $date1, $date2 = '') {
+		// TODO: implement for free date2
+		$date1 = date('Y-m-d 00:00:00', strtotime($date1));
+		$date2 = date('Y-m-d 23:59:59', strtotime($date2));
+		return array($field.' >= ' => $date1, $field.' <= ' => $date2);
+	}
+	
+	public function dateTimeRange($field, $date1, $date2 = '') {
+		// TODO: implement for free date2
+		$date1 = date('Y-m-d H:i:s', strtotime($date1));
+		$date2 = date('Y-m-d H:i:s', strtotime($date2));
+		return array($field.' >= ' => $date1, $field.' <= ' => $date2);
+	}
 }

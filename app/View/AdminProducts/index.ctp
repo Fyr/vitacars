@@ -45,8 +45,18 @@
     		array('escape' => false, 'class' => 'fancybox', 'rel' => 'gallery')
     	) : '<img src="/img/default_product.jpg" style="width: 50px; alt="" />';
     	$row['Product']['detail_num'] = str_replace(' ', '<br />', $row['Product']['detail_num']);
-    	if (Hash::check($row, $paramMotor.'.value')) {
-    		$row[$paramMotor]['value'] = str_replace(',', ' ', $row[$paramMotor]['value']);
+    	if (Hash::check($row, 'PMFormData.'.$paramMotor)) {
+    		$row['PMFormData'][$paramMotor] = str_replace(',', '<br />', $row['PMFormData'][$paramMotor]);
+    	}
+    	foreach($row['PMFormData'] as $_field => $_val) {
+			$field_id = str_replace('fk_', '', $_field);
+			if (isset($aParams[$field_id])) {
+				if ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::INT) {
+					$row['PMFormData'][$_field] = (intval($_val)) ? $_val : '';
+				} elseif ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::FLOAT) {
+					$row['PMFormData'][$_field] = (floatval($_val)) ? number_format($_val, 2, ',', ' ') : '';
+				}
+			}
     	}
     }
 ?>
@@ -65,8 +75,8 @@
 		Фильтр:
 <?
 	if ($isAdmin) {
-		$options = $this->PHFormFields->getSelectOptions(Hash::get($motorOptions, 'FormField.options'));
-		$options = array('label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'options' => $options, 'div' => array('class' => 'inline'));
+		$motorOptions = $this->PHFormFields->getSelectOptions(Hash::get($motorOptions, 'PMFormField.options'));
+		$options = array('label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'options' => $motorOptions, 'div' => array('class' => 'inline'));
 		echo $this->PHForm->input('motor', $options);
 	}
 ?>

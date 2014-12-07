@@ -116,7 +116,7 @@ $(document).ready(function(){
 		nonSelectedText: 'Выберите мотор',
 		nSelectedText: 'выбрано'
 	});
-	$('#PMFormValueValue_0').multiselect({
+	$('#PMFormDataFk6').multiselect({
 		nonSelectedText: 'Выберите мотор',
 		nSelectedText: 'выбрано'
 	});

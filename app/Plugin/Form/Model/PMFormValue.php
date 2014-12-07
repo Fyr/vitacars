@@ -1,5 +1,6 @@
 <?
 App::uses('AppModel', 'Model');
+App::uses('FormField', 'Form.Model');
 class PMFormValue extends AppModel {
 	public $useTable = 'form_values';
 

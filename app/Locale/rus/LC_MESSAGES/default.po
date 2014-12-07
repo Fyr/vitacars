@@ -408,3 +408,6 @@ msgstr "Символ-разделитель для дробн.части"
 
 msgid "Div Int"
 msgstr "Символ-разделитель для цел.части"
+
+msgid "%s products have been updated"
+msgstr "%s позицией обновлено"

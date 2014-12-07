@@ -52,7 +52,7 @@ class PHFormFieldsHelper extends AppHelper {
 			FieldTypes::INT => array('class' => 'input-medium', 'type' => 'text'),
 			FieldTypes::SELECT => array('class' => 'input-medium', 'options' => $this->getSelectOptions($field['options'])),
 			FieldTypes::MULTISELECT => array('class' => 'input-medium', 'options' => $this->getSelectOptions($field['options']), 'multiple' => true),
-			FieldTypes::UPLOAD_FILE => array('class' => 'input-medium', 'type' => 'text'),
+			// FieldTypes::UPLOAD_FILE => array('class' => 'input-medium', 'type' => 'text'),
 		);
 		$key = ($field['key']) ? $field['key'] : 'value';
 		

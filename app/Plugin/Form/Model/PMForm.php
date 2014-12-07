@@ -2,7 +2,7 @@
 App::uses('AppModel', 'Model');
 App::uses('PMFormKey', 'Form.Model');
 App::uses('PMFormValue', 'Form.Model');
-App::uses('FormField', 'Form.Model');
+App::uses('PMFormField', 'Form.Model');
 class PMForm extends AppModel {
 	public $useTable = 'forms';
 	
@@ -35,24 +35,23 @@ class PMForm extends AppModel {
 	}
 	
 	public function getFields($object_type, $object_id) {
-		$this->FormField = new FormField();
+		$this->loadModel('Form.PMFormField');
 		$form = $this->FormKey->find('all', array(
-			'fields' => array('PMForm.*', 'FormField.*'),
+			'fields' => array('PMForm.*', 'PMFormField.*'),
 			'joins' => array(
 				array(
-					'table' => $this->useTable,
+					'table' => $this->getTableName(),
 					'alias' => 'PMForm',
 					'conditions' => array('FormKey.form_id = PMForm.id')
 				),
 				array(
-					'table' => $this->FormField->useTable,
-					'alias' => 'FormField',
-					'conditions' => array('FormKey.field_id = FormField.id')
+					'table' => $this->PMFormField->getTableName(),
+					'alias' => 'PMFormField',
+					'conditions' => array('FormKey.field_id = PMFormField.id')
 				)
 			),
 			'conditions' => array('PMForm.object_type' => $object_type, 'PMForm.object_id' => $object_id)
 		));
-		// fdebug($form);
 		return $form;
 	}
 }
