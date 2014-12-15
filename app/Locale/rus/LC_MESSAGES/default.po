@@ -382,11 +382,17 @@ msgstr "Невозможно создать тех.параметр (стр. %s)
 msgid "%s products have been successfully uploaded"
 msgstr "%s продуктов было успешно создано"
 
-msgid "Field title cannot be blank (Line %s)"
-msgstr "Поле title не может быть пустым (стр. %s)"
+msgid "%s products have been successfully updated"
+msgstr "%s продуктов было успешно обновлено"
 
-msgid "Field code cannot be blank (Line %s)"
-msgstr "Поле code не может быть пустым (стр. %s)"
+msgid "Field `title` cannot be blank (Line %s)"
+msgstr "Поле `title` не может быть пустым (стр. %s)"
+
+msgid "Field `title_rus` cannot be blank (Line %s)"
+msgstr "Поле `title_rus` не может быть пустым (стр. %s)"
+
+msgid "Field `code` cannot be blank (Line %s)"
+msgstr "Поле `code` не может быть пустым (стр. %s)"
 
 msgid "Incorrect brand ID (Line %s)"
 msgstr "Некорректный ID брэнда (стр. %s)"
@@ -411,3 +417,15 @@ msgstr "Символ-разделитель для цел.части"
 
 msgid "%s products have been updated"
 msgstr "%s позицией обновлено"
+
+msgid "Incorrect field ID %s"
+msgstr "Некорректный ID тех.параметра: `%s`"
+
+msgid "Cannot save parameters (Line %s)"
+msgstr "Не возможно сохранить тех.параметры (стр.%s)"
+
+msgid "Product %s not found"
+msgstr "Продукт %s не найден"
+
+msgid "Product params could not be saved: %s"
+msgstr "Параметры продута невозможно сохранить: %s"

@@ -140,15 +140,23 @@ class AdminProductsController extends AdminController {
 			$this->request->data('Seo.object_type', $this->Product->objectType);
 			$this->request->data('PMFormData.object_type', 'ProductParam');
 		}
+		
+		if ($this->request->is(array('post', 'put'))) {
+			$formData = $this->request->data('PMFormData');
+			// $this->request->data('PMFormData', null);
+			unset($this->request->data['PMFormData']);
+		}
+		
+		$fields = $this->PMFormField->getObjectList('SubcategoryParam', '');
+		
 		$this->PCArticle->setModel('Product')->edit(&$id, &$lSaved);
 		if ($lSaved) {
+			$this->PMFormData->saveData($this->request->data, $fields);
 			$baseRoute = array('action' => 'index');
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
 		}
 		
 		$field_rights = $this->_getFieldRights();
-		// Достаем все поля для формы ID = 1, хотя пока можно сделать просто $this->PMFormFields->find('all') - у нас все равно 1 форма
-		$fields = $this->PMForm->getFields('ProductParams', 1);
 		$fieldsAvail = array();
 		foreach($fields as $_field) {
 			$_field_id = $_field['PMFormField']['id'];

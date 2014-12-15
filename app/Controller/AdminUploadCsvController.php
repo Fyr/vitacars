@@ -2,11 +2,11 @@
 App::uses('AdminController', 'Controller');
 App::uses('Product', 'Model');
 App::uses('PMFormValue', 'Form.Model');
-App::uses('FormField', 'Form.Model');
+App::uses('PMFormField', 'Form.Model');
 class AdminUploadCsvController extends AdminController {
     public $name = 'AdminUploadCsv';
     public $layout = 'admin';
-    public $uses = array('Product', 'Form.PMFormValue', 'Form.FormField', 'Brand', 'Category', 'Subcategory', 'Seo.Seo');
+    public $uses = array('Product', 'Form.PMFormData', 'Form.PMFormField', 'Brand', 'Category', 'Subcategory', 'Seo.Seo');
     
     const CSV_DIV = ';';
     private $errLine = 0;
@@ -25,15 +25,11 @@ class AdminUploadCsvController extends AdminController {
 				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
 				
 				$this->Product->getDataSource()->begin();
-				$this->_updateParams($aData['keys'], $this->_getCounters($aData['data']));
+				$aID = $this->_updateParams($aData['keys'], $this->_getCounters($aData['data']));
 				$this->Product->getDataSource()->commit();
 				
-				// Получить данные для редиректа
-				$numberKey = $aData['keys'][0];
-				$aNumbers = Hash::extract($aData['data'], '{n}.'.$numberKey);
-				
-				$this->Session->setFlash(__('File have been successfully uploaded'), 'default', array(), 'success');
-				$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.detail_num' => '*'.implode(' ', $aNumbers).'*'));
+				$this->Session->setFlash(__('%s products have been successfully updated', count($aID)), 'default', array(), 'success');
+				$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
 			}
 		} catch (Exception $e) {
 			$this->Product->getDataSource()->rollback();
@@ -49,7 +45,10 @@ class AdminUploadCsvController extends AdminController {
 	 * @return array
 	 */
 	private function _parseCsv($file) {
-		$file = explode("\n", str_replace("\r\n", "\n", mb_convert_encoding(trim(file_get_contents($file)), 'utf-8', 'cp1251')));
+		$file = mb_convert_encoding(trim(file_get_contents($file)), 'utf-8', 'cp1251');
+		$file = str_replace("\r\n", "\n", $file);
+		$file = str_replace(array('   ', '  '), ' ', $file);
+		$file = explode("\n", $file);
 		if (!($file && is_array($file) && count($file) > 1)) {
 			throw new Exception('Incorrect file content');
 		}
@@ -125,18 +124,46 @@ class AdminUploadCsvController extends AdminController {
 		// Считать инфу о колонках
 		array_shift($keys); // исключить 1й ключ из обрабатываемой строки (номер детали)
 		$aKeys = array();
+		$aFormFields = $this->PMFormField->getFieldsList('SubcategoryParam', '');
+		foreach($keys as $id) {
+			if (strpos($id, 'fk_') !== false && !in_array(intval(str_replace('fk_', '', $id)), array_keys($aFormFields))) {
+				throw new Exception(__('Incorrect field ID %s', $id));
+			}
+			$aKeys[$id] = 0;
+		}
+		/*
 		$aRowKeys = $this->FormField->find('all', array('conditions' => array('FormField.key' => $keys)));
 		foreach($aRowKeys as $keyInfo) {
 			$keyInfo = $keyInfo['FormField'];
 			$aKeys[$keyInfo['key']] = $keyInfo;
 		}
+		*/
 		
 		// перед сохранением очистить столбцы
+		/*
 		$this->PMFormValue->updateAll(array('value' => '\'&nbsp;\''), array(
 			'FormField.key' => $keys
 		));
+		*/
+		$this->PMFormData->updateAll($aKeys);
 		
-		foreach($aParams as $object_id => $row) {
+		foreach($aParams as $object_id => $counters) {
+			$product = $this->Product->findById($object_id);
+			if (!$product) {
+				throw new Exception(__('Product %s not found', 'Product.ID='.$object_id));
+			}
+			$formData = $this->PMFormData->getObject('ProductParam', $object_id);
+			if (!$formData) {
+				throw new Exception(__('Product %s not found', 'FormData.object_id='.$object_id));
+			}
+			$counters['id'] = $formData['PMFormData']['id'];
+			if (!$this->PMFormData->save($counters)) {
+				throw new Exception(__('Product params could not be saved: %s', print_r($counters, true)));
+			}
+			$this->PMFormData->recalcFormula($counters['id'], $aFormFields);
+			$aID[] = $object_id;
+			
+			/*
 			foreach($row as $counter => $value) {
 				$param = $this->PMFormValue->find('first', array(
 					'fields' => array('id'),
@@ -161,15 +188,22 @@ class AdminUploadCsvController extends AdminController {
 				$data['value'] = $data['value'] ? $data['value'] : '&nbsp;'; //?????
 				$this->PMFormValue->save($data);
 			}
+			*/
 		}
+		return $aID;
 	}
 
 	protected function _createProducts($aData) {
 		App::uses('Translit', 'Article.Vendor');
 		
-		// $aStatic = array('title', 'title_rus', 'detail_num', 'code', 'page_id', 'published', 'active', 'count', 'brand_id', 'cat_id', 'subcat_id');
+		// $aFormFields = $this->FormField->find('list', array('fields' => array('id', 'key')));
+		$aFormFields = $this->PMFormField->getFieldsList('SubcategoryParam', '');
+		foreach($aData['keys'] as $id) {
+			if (strpos($id, 'fk_') !== false && !in_array(intval(str_replace('fk_', '', $id)), array_keys($aFormFields))) {
+				throw new Exception(__('Incorrect field ID %s', $id));
+			}
+		}
 		
-		$aFormFields = $this->FormField->find('list', array('fields' => array('key', 'id'), 'conditions' => array('FormField.key IS NOT NULL AND FormField.key <> ""')));
 		$aBrands = array_keys($this->Brand->getOptions());
 		$aCategories = array_keys($this->Category->getOptions());
 		$aSubcategories = array_keys($this->Subcategory->getOptions());
@@ -181,10 +215,13 @@ class AdminUploadCsvController extends AdminController {
 			
 			// Проверить обязательные поля
 			if ( !(isset($row['title']) && trim($row['title'])) ) {
-				throw new Exception('Field title cannot be blank (Line %s)');
+				throw new Exception('Field `title` cannot be blank (Line %s)');
+			}
+			if ( !(isset($row['title_rus']) && trim($row['title_rus'])) ) {
+				throw new Exception('Field `title_rus` cannot be blank (Line %s)');
 			}
 			if ( !(isset($row['code']) && trim($row['code'])) ) {
-				throw new Exception('Field code cannot be blank (Line %s)');
+				throw new Exception('Field `code` cannot be blank (Line %s)');
 			}
 			
 			// Проверить необязательные поля
@@ -212,9 +249,23 @@ class AdminUploadCsvController extends AdminController {
 			}
 			
 			$this->Product->clear();
-			if (!$this->Product->save($row)) {
+			$data = array('Product' => $row);
+			if (!$this->Product->save($data)) {
 				throw new Exception('Cannot create product (Line %s)');
 			}
+			
+			$formData = array('object_type' => 'ProductParam', 'object_id' => $this->Product->id);
+			foreach($row as $id => $val) {
+				if (strpos($id, 'fk_') !== false) {
+					$formData[$id] = $row[$id];
+				}
+			}
+			$this->PMFormData->clear();
+			if (!$this->PMFormData->save($formData)) {
+				throw new Exception('Cannot save parameters (Line %s)');
+			}
+			
+			$this->PMFormData->recalcFormula($this->PMFormData->id, $aFormFields);
 			
 			$data = array();
 			// Создать SEO блок для продукта
@@ -233,25 +284,6 @@ class AdminUploadCsvController extends AdminController {
 				$this->Seo->save($data);
 			}
 			
-			
-			// Создать тех.параметры для продукта
-			foreach($aFormFields as $key => $id) {
-				if (isset($row[$key])) {
-					$data = array(
-						'object_type' => 'ProductParam', 
-						'object_id' => $this->Product->id, 
-						'form_id' => 1, 
-						'field_id' => $id, 
-						'value' => $row[$key]
-					);
-					$this->PMFormValue->clear();
-					$res = $this->PMFormValue->save($data);
-					if (!$res) {
-						throw new Exception('Cannot create form field (Line %s)');
-					}
-				}
-			}
-			
 			$aID[] = $this->Product->id;
 		}
 		return $aID;
@@ -261,7 +293,6 @@ class AdminUploadCsvController extends AdminController {
 		try {
 			if (isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name'] ) {
 				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
-				
 				$this->Product->getDataSource()->begin();
 				$aID = $this->_createProducts($aData);
 				$this->Product->getDataSource()->commit();

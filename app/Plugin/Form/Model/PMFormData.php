@@ -31,8 +31,9 @@ class PMFormData extends AppModel {
 		return array();
 	}
 	
+	/*
 	public function beforeSave() {
-		/**
+		
 		 * При сохранении параметров формы для корректного вычисления формул 
 		 * необходимо, чтобы сабмитились ВСЕ параметры
 		 * Либо нужно заменять недостающие параметры нулями или пустыми строками согласно их типу
@@ -41,8 +42,7 @@ class PMFormData extends AppModel {
 		 * 1. Мы снимаем нагрузку при выводе данных (не нужен пересчет при выводе)
 		 * 2. Если какие-то поля не входят в SELECT * FROM form_data, 
 		 *    их не нужно все равно вычитывать для вычисления формул
-		 */
-		
+		 		
 		if (isset($this->data['PMFormData']) && is_array($this->data['PMFormData'])) {
 			$this->loadModel('Form.PMFormField');
 			$aFormFields = $this->_getAllFields();
@@ -69,5 +69,41 @@ class PMFormData extends AppModel {
 		}
 		return true;
 	}
+	*/
+	public function saveData($data, $aFormFields) {
+		foreach($aFormFields as $row) {
+			$field_id = $row['PMFormField']['id'];
+			if ($row['PMFormField']['field_type'] == FieldTypes::MULTISELECT && is_array($data['PMFormData']['fk_'.$field_id])) {
+				$data['PMFormData']['fk_'.$field_id] = implode(',', $data['PMFormData']['fk_'.$field_id]);
+			}
+		}
+		if ($this->save($data)) {
+			return $this->recalcFormula($this->id, $aFormFields);
+		}
+		return false;
+	}
 	
+	public function recalcFormula($id, $aFormFields) {
+		$this->loadModel('PMFormField');
+		$data = $this->findById($id);
+		$aData = array();
+		$aFormula = array();
+		foreach($aFormFields as $row) {
+			$field_id = $row['PMFormField']['id'];
+			if ($row['PMFormField']['field_type'] == FieldTypes::FORMULA) {
+				$aFormula['fk_'.$field_id] = $row['PMFormField'];
+			}
+			if ($row['PMFormField']['key']) {
+				$aData[$row['PMFormField']['key']] = Hash::get($data, 'PMFormData.fk_'.$field_id);
+			}
+		}
+		$_data = array('PMFormData' => array('id' => $id));
+		if ($aFormula) {
+			foreach($aFormula as $formula) {
+				$field_id = $formula['id'];
+				$_data['PMFormData']['fk_'.$field_id] = $this->PMFormField->calcFormula($formula['options'], $aData);
+			}
+		}
+		return $this->save($_data);
+	}
 }

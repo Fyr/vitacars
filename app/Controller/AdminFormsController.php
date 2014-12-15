@@ -56,11 +56,12 @@ class AdminFormsController extends AdminController {
     	$page = 1;
     	$limit = 10;
     	$count = 0;
+    	$fields = $this->PMFormField->getObjectList('SubcategoryParam', '');
     	while ($rowset = $this->PMFormData->find('all', compact('page', 'limit'))) {
     		$page++;
     		foreach($rowset as $row) {
     			$count++;
-    			$this->PMFormData->save($row);
+    			$this->PMFormData->recalcFormula($row['PMFormData']['id'], $fields);
 			}
     	}
     	$this->Session->setFlash(__('%s products have been updated', $count), 'default', array(), 'success');
