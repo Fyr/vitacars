@@ -171,4 +171,29 @@ class Media extends AppModel {
 		}
 		return true;
 	}
+	
+	/**
+	 * Removes all temp cached images
+	 *
+	 * @param int $id
+	 */
+	public function cleanCache($id) {
+		App::uses('Path', 'Core.Vendor');
+		$media = $this->findById($id);
+		if (Hash::get($media, $this->alias.'.media_type') == 'image') {
+			$path = $this->PHMedia->getPath($media[$this->alias]['object_type'], $id);
+			
+			if (file_exists($path)) {
+				// remove all files in folder
+				$aPath = Path::dirContent($path);
+				if (isset($aPath['files']) && $aPath['files']) {
+					foreach($aPath['files'] as $file) {
+						if ($file != $media[$this->alias]['file'].$media[$this->alias]['ext'] && $file != 'thumb.png') {
+							unlink($aPath['path'].$file);
+						}
+					}
+				}
+			}
+		}
+	}
 }

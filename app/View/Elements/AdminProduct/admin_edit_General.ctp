@@ -88,6 +88,7 @@ F3M2011
 	echo $this->PHForm->input('status', array('label' => false, 'multiple' => 'checkbox', 'options' => array('published' => __('Published'), 'featured' => __('Featured'), 'active' => __('On stock')), 'class' => 'checkbox inline'));
 	
 	$subcat_id = $this->request->data('Product.subcat_id');
+	echo $this->Form->hidden('Product.motor');
 ?>
 <script type="text/javascript">
 function category_onChange(e, subcat_id) {
@@ -112,13 +113,13 @@ function change_SeoDescr() {
 
 $(document).ready(function(){
 	category_onChange($('#ProductCatId').get(0), <?=($subcat_id) ? $subcat_id : '0'?>);
-	$('#ProductSelectmotor').multiselect({
-		nonSelectedText: 'Выберите мотор',
-		nSelectedText: 'выбрано'
-	});
 	$('#PMFormDataFk6').multiselect({
 		nonSelectedText: 'Выберите мотор',
-		nSelectedText: 'выбрано'
+		numberDisplayed: 2,
+		nSelectedText: 'выбрано',
+		onChange: function(option, checked, select) {
+			$('#ProductMotor').val($('#PMFormDataFk6').val());
+		}
 	});
 	$('#ProductTitleRus').change(function(){
 		change_SeoTitle();

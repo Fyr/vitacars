@@ -142,16 +142,17 @@ class AdminProductsController extends AdminController {
 		}
 		
 		if ($this->request->is(array('post', 'put'))) {
-			$formData = $this->request->data('PMFormData');
-			// $this->request->data('PMFormData', null);
-			unset($this->request->data['PMFormData']);
+			// $formData = $this->request->data('PMFormData');
+			$this->request->data('PMFormData.fk_6', $this->request->data('Product.motor'));
+			// unset($this->request->data['PMFormData']);
 		}
 		
 		$fields = $this->PMFormField->getObjectList('SubcategoryParam', '');
 		
 		$this->PCArticle->setModel('Product')->edit(&$id, &$lSaved);
 		if ($lSaved) {
-			$this->PMFormData->saveData($this->request->data, $fields);
+			// $formData = $this->request->data('PMFormData')
+			// $this->PMFormData->saveData(array('PMFormData' => $formData), $fields);
 			$baseRoute = array('action' => 'index');
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
 		}
