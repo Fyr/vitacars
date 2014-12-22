@@ -53,6 +53,7 @@ class AdminFormsController extends AdminController {
     }
     
     public function recalcFormula() {
+    	set_time_limit(300);
     	$page = 1;
     	$limit = 10;
     	$count = 0;

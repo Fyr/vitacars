@@ -91,6 +91,11 @@ class AdminProductsController extends AdminController {
             unset($this->request->params['named']['Product.detail_num']);
         }
         
+        if (isset($this->request->named['PMFormData.fk_6']) && $motor = $this->request->named['PMFormData.fk_6']) {
+        	$this->paginate['conditions']['PMFormData.fk_6 LIKE '] = str_replace('*', '%', $motor);
+        	unset($this->request->params['named']['PMFormData.fk_6']);
+        }
+        
         if (!$this->isAdmin()) {
         	if (!$detail_num) {
         		// запретить не-админам показывать полный список
@@ -112,8 +117,8 @@ class AdminProductsController extends AdminController {
 
             $this->paginate['conditions'] = array('Product.id' => $aID);
             $this->paginate['order'] = 'FIELD (Product.id, '.$this->request->data('aID').') ASC';
+        	$this->paginate['limit'] = count($aID);
             $aRowset = $this->PCTableGrid->paginate('Product');
-            $aRowset = $this->_fillFormula($aRowset);
             $this->set('aRowset', $aRowset);
         } else {
             $this->redirect(array('action' => 'index'));

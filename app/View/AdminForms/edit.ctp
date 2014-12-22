@@ -1,7 +1,7 @@
 <div class="span8 offset2">
 <?
 	$id = $this->request->data('PMFormField.id');
-	$title = $this->ObjectType->getTitle(($id) ? 'edit' : 'create', 'PMFormField');
+	$title = $this->ObjectType->getTitle(($id) ? 'edit' : 'create', 'FormField');
 	echo $this->element('admin_title', compact('title'));
 	echo $this->PHForm->create('PMFormField');
 	echo $this->element('admin_content');

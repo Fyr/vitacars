@@ -1,46 +1,55 @@
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=windows-1251">
-    <style type="text/css">
-            td {
-                vertical-align: middle;
-                text-align: center;
-            }
-            .row {
-                /*height: 100px;*/
-            }
-            img {
-                display: block;
-            }
-        </style>
-  </head>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=windows-1251">
+		<style type="text/css">
+		td {
+		    vertical-align: middle;
+		    text-align: center;
+		}
+		.row {
+		    /*height: 100px;*/
+		}
+		.even {
+			background-color: #eee;
+		}
+		.odd {
+		}
+		img {
+		    display: block;
+		}
+		</style>
+	</head>
     <body>
         <table>
             <thead>
                 <tr>
                     <th><?=mb_convert_encoding('Название', "CP1251", "UTF-8")?></th>
+                    <th><?=mb_convert_encoding('Название рус.', "CP1251", "UTF-8")?></th>
                     <th><?=mb_convert_encoding('Код', "CP1251", "UTF-8")?></th>
 <?php
-    for ($i = 1; $i <= count($aLabels); $i++) {
-        echo '<th>&nbsp;'.mb_convert_encoding($aLabels['Param'.$i.'.value'], "CP1251", "UTF-8").'</th>';
+    foreach ($aLabels as $label) {
+        echo '<th>&nbsp;'.mb_convert_encoding($label, "CP1251", "UTF-8").'</th>';
     }
 ?>
                 </tr>
             </thead>
             <tbody>
 <?php 
+	$class = 'even';
 	foreach ($aRowset as $Product) { 
+		$class = ($class == ' class="even"') ? ' class="odd"' : ' class="even"';
 ?>
             <tr class="row">
-                <td>&nbsp;<?= mb_convert_encoding($Product['Product']['title'], "CP1251", "UTF-8")?></td>
-                <td>&nbsp;<?= mb_convert_encoding($Product['Product']['code'], "CP1251", "UTF-8") ?></td>
+                <td<?=$class?>>&nbsp;<?= mb_convert_encoding($Product['Product']['title'], "CP1251", "UTF-8")?></td>
+                <td<?=$class?>>&nbsp;<?= mb_convert_encoding($Product['Product']['title_rus'], "CP1251", "UTF-8")?></td>
+                <td<?=$class?>>&nbsp;<?= mb_convert_encoding($Product['Product']['code'], "CP1251", "UTF-8") ?></td>
 <?php
-		for ($i = 1; $i <= count($aLabels); $i++) {
-            if ($i == 3) {
-                echo '<td>&nbsp;'.mb_convert_encoding(str_replace(' ', ', ', $Product['Param'.$i]['value']), "CP1251", "UTF-8").'</td>';
-            } else {
-                echo '<td>&nbsp;'.mb_convert_encoding($Product['Param'.$i]['value'], "CP1251", "UTF-8").'</td>';
-            }
+		foreach ($aLabels as $key => $label) {
+			$val = Hash::get($Product, $key);
+			if ($key == 'PMFormData.fk_6') {
+				$val = implode(' ', explode(',', $val));
+			}
+			echo '<td'.$class.'>&nbsp;'.mb_convert_encoding($val, "CP1251", "UTF-8").'</td>';
         }
 ?>
             </tr>

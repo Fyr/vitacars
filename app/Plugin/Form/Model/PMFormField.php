@@ -35,16 +35,18 @@ class PMFormField extends AppModel {
 
 	public function beforeSave($options = array()) {
 		// Set default values for formula
-		if (!$fOptions = Hash::get($this->data, 'PMFormField.decimals')) {
-			$this->data['PMFormField']['decimals'] = 2;
-		}
-		if (!$fOptions = Hash::get($this->data, 'PMFormField.div_float')) {
-			$this->data['PMFormField']['div_float'] = ',';
-		}
-		if (!$fOptions = Hash::get($this->data, 'PMFormField.div_int')) {
-			$this->data['PMFormField']['div_int'] = ' ';
-		}
-		if ($fOptions = Hash::get($this->data, 'PMFormField.formula')) {
+		if (isset($this->data['PMFormField']['formula'])) {
+			if (!isset($this->data['PMFormField']['decimals'])) {
+				$this->data['PMFormField']['decimals'] = 2;
+			} elseif ($this->data['PMFormField']['decimals'] == '') {
+				$this->data['PMFormField']['decimals'] = 0;
+			}
+			if (!isset($this->data['PMFormField']['div_float'])) {
+				$this->data['PMFormField']['div_float'] = ',';
+			}
+			if (!isset($this->data['PMFormField']['div_int'])) {
+				$this->data['PMFormField']['div_int'] = ' ';
+			}
 			$this->data['PMFormField']['options'] = $this->packFormulaOptions($this->data['PMFormField']);
 		}
 		return true;

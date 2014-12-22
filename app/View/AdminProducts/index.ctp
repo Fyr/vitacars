@@ -1,3 +1,11 @@
+<style type="text/css">
+.grid .grid-row.legend-red td {
+	background-color: #fdd !important;
+}
+.grid .grid-row.legend-yellow td {
+	background-color: #ffd !important;
+}
+</style>
 <?
 	$this->Html->css(array('jquery.fancybox', 'bootstrap-multiselect'), array('inline' => false));
 	$this->Html->script(array('vendor/jquery/jquery.fancybox', 'vendor/bootstrap-multiselect'), array('inline' => false));
@@ -37,6 +45,7 @@
     		$column['label'] = $aLabels[$key];
     	}
     }
+    $aColors = array();
     foreach($aRowset as &$row) {
     	$img = $this->Media->imageUrl($row, '100x50');
     	$row['Product']['image'] = ($img) ? $this->Html->link(
@@ -56,6 +65,9 @@
 				} elseif ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::FLOAT) {
 					$row['PMFormData'][$_field] = (floatval($_val)) ? number_format($_val, 2, ',', ' ') : '';
 				}
+			}
+			if ($field_id == 38) { // цвет
+				$aColors[$_val][] = $row['Product']['id'];
 			}
     	}
     }
@@ -101,7 +113,7 @@
 <script type="text/javascript">
 $(document).ready(function(){
 	
-	var filterMotor = $('#grid-filter-<?=$paramMotor?>-value').val();
+	var filterMotor = $('#grid-filter-PMFormData-fk_6').val();
 	if (filterMotor) {
 		$('#motor').val(filterMotor.slice(1, -1).split('*'));
 	}
@@ -138,11 +150,27 @@ $(document).ready(function(){
 	$('.fancybox').fancybox({
 		padding: 5
 	});
+	
+/*
+	aColors = <?=json_encode($aColors)?>;
+	if (aColors[2]) {
+		for(var i = 0; i < aColors[2].length; i++) {
+			var id = aColors[2][i];
+			$('#row_' + id).addClass('legend-red');
+		}
+	}
+	if (aColors[1]) {
+		for(var i = 0; i < aColors[1].length; i++) {
+			var id = aColors[1][i];
+			$('#row_' + id).addClass('legend-yellow');
+		}
+	}
+*/
 });
 
 function submitFilter() {
 	var filterMotor = $('#motor').val();
-	$('#grid-filter-<?=$paramMotor?>-value').val((filterMotor) ? '*' + filterMotor.join('*') + '*' : '');
+	$('#grid-filter-PMFormData-fk_6').val((filterMotor) ? '*' + filterMotor.join('*') + '*' : '');
 	
 	grid_Product.submitFilter();
 }

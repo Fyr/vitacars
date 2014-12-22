@@ -30,7 +30,7 @@ Grid = function(config) {
 		total: 0,
 		count: '',
 		limit: 0,
-		perPageList: [10, 20, 50, 100, 1000]
+		perPageList: [10, 20, 50, 100, 300, 500, 1000]
 	};
 
 	self.actions = {
@@ -380,7 +380,7 @@ Grid = function(config) {
 		var html = '';
 		if (self.data.length) {
 		for(var i = 0; i < self.data.length; i++) {
-			html+= '<tr class="grid-row">';
+			html+= '<tr id="row_' + this.getID(self.data[i]) + '" class="grid-row">';
 			html+= self.renderRow(self.data[i]);
 			html+= '</tr>';
 		}
@@ -519,7 +519,7 @@ Grid = function(config) {
 			var action = self.actions.checked[i];
 			var label = (action.icon) ? '<i class="' + action.icon + '"></i>' + action.label : action.label;
 			//html+= '<li><a class="' + action.class + '" href="' + action.href + '">' + label + '</a></li>';
-                        html+= '<li>' + Format.tag('a', {class: action.class, href: action.href, onclick: action.onclick}, label) + '</li>';
+			html+= '<li>' + Format.tag('a', {class: action.class, href: action.href, onclick: action.onclick}, label) + '</li>';
 		}
 		html+= '</ul>';
 		html+= '</div></div>';
@@ -723,9 +723,9 @@ Grid = function(config) {
 		if (self.paging.curr > self.defaults.page) {
 			params.page = self.paging.curr;
 		}
-		if (self.paging.limit != self.defaults.limit) {
+		// if (self.paging.limit != self.defaults.limit) {
 			params.limit = self.paging.limit;
-		}
+		// }
 		// handle sorting
 		if ((self.settings.sort != self.defaults.sort) || (self.settings.direction != self.defaults.direction)) {
 			params.sort = self.settings.sort;
@@ -737,7 +737,6 @@ Grid = function(config) {
 				params[self.cleanFilterName(this.name)] = self.getFilterValue(this);
 			}
 		});
-
 		var url = self.settings.baseURL;
 		url+= self.settings.urlDiv + self.getFilterURL(params);
 		return url;
