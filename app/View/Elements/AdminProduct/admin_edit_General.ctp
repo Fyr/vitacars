@@ -121,6 +121,8 @@ $(document).ready(function(){
 			$('#ProductMotor').val($('#PMFormDataFk6').val());
 		}
 	});
+	$('#ProductMotor').val($('#PMFormDataFk6').val());
+	
 	$('#ProductTitleRus').change(function(){
 		change_SeoTitle();
 	});
