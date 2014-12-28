@@ -48,12 +48,15 @@ class PCArticleComponent extends Component {
 	}
 	
 	public function edit($id = 0, $lSaved = false) {
-		$aFlags = array('published', 'featured', 'active');
+		$aFlags = array('published', 'featured', 'active', 'show_detailnum');
 		$article = $this->model()->findById($id);
 		if ($this->_->request->is('post') || $this->_->request->is('put')) {
 			if ($id && !$this->_->request->data($this->field('id'))) {
 				// auto add ID for update a record
 				$this->_->request->data($this->field('id'), $id);
+			}
+			if (!$this->_->request->data($this->field('status')) || !is_array($this->_->request->data($this->field('status')))) {
+				$this->_->request->data($this->field('status'), array());
 			}
 			if (is_array($this->_->request->data($this->field('status')))) {
 				foreach($aFlags as $field) {

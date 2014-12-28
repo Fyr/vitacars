@@ -429,3 +429,6 @@ msgstr "Продукт %s не найден"
 
 msgid "Product params could not be saved: %s"
 msgstr "Параметры продута невозможно сохранить: %s"
+
+msgid "Show detail number"
+msgstr "Показывать номер детали"

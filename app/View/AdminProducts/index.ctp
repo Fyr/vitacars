@@ -126,8 +126,9 @@ $(document).ready(function(){
 		if (event.which == 13) {
 			event.preventDefault();
 			
-			$('#grid-filter-Product-detail_num').val('*' + $('#filterByNumber input').val());
-			submitFilter();
+			// $('#grid-filter-Product-detail_num').val('*' + $('#filterByNumber input').val());
+			// submitFilter();
+			$('#bySame').click();
 		}
 	});
 	

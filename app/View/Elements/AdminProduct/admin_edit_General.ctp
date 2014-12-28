@@ -85,7 +85,17 @@ F3M2011
 	));
 	echo $this->PHForm->input('count');
 	echo $this->PHForm->input('teaser');
-	echo $this->PHForm->input('status', array('label' => false, 'multiple' => 'checkbox', 'options' => array('published' => __('Published'), 'featured' => __('Featured'), 'active' => __('On stock')), 'class' => 'checkbox inline'));
+	echo $this->PHForm->input('status', array(
+		'label' => false, 
+		'multiple' => 'checkbox', 
+		'options' => array(
+			'published' => __('Published'), 
+			'featured' => __('Featured'), 
+			'active' => __('On stock'), 
+			'show_detailnum' => __('Show detail number')
+		), 
+		'class' => 'checkbox inline'
+	));
 	
 	$subcat_id = $this->request->data('Product.subcat_id');
 	echo $this->Form->hidden('Product.motor');

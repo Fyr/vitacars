@@ -191,7 +191,7 @@ class AdminProductsController extends AdminController {
 		
 		if (!$id) {
 			// выставляем значения по умолчанию
-			$this->request->data('Product.status', array('published', 'active'));
+			$this->request->data('Product.status', array('published', 'active', 'show_detailnum'));
 			$this->request->data('Product.count', '0');
 			$this->request->data('Product.cat_id', 2133); // category = DEUTZ
 			$this->request->data('Product.subcat_id', 2146); // subcategory = DEUTZ 1013
