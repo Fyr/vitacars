@@ -41,7 +41,7 @@ class AdminProductsController extends AdminController {
     	}
     	$this->set('aLabels', $aLabels);
         $this->paginate = array(
-           	'fields' => array_merge(array('title', 'title_rus', 'detail_num', 'code', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext'), $aFields)
+           	'fields' => array_merge(array('title', 'title_rus', 'detail_num', 'code', 'Category.title', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext'), $aFields)
         );
         
         $detail_num = '';

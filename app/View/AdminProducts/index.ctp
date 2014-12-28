@@ -28,10 +28,10 @@
     	$actions['row'] = array();
     }
     $columns = array_merge(
-    	array('Product.image' => array(
-    		'key' => 'Product.image', 'label' => 'Фото', 'align' => 'center', 
-    		'showFilter' => false, 'showSorting' => false
-    	)),
+    	array(
+    		'Product.image' => array('key' => 'Product.image', 'label' => 'Фото', 'align' => 'center', 'showFilter' => false, 'showSorting' => false),
+    		'Category.title' => array('key' => 'Category.title', 'label' => 'Категория', 'showFilter' => false, 'showSorting' => true)
+    	),
     	$this->PHTableGrid->getDefaultColumns($objectType)
     );
     $columns['Product.detail_num']['format'] = 'string';

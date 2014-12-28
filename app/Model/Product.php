@@ -9,6 +9,12 @@ class Product extends Article {
 	const NUM_DETAIL = 5;
 	const MOTOR = 6;
 	
+	public $belongsTo = array(
+		'Category' => array(
+			'foreignKey' => 'cat_id'
+		)
+	);
+	
 	public $hasOne = array(
 		'Media' => array(
 			'className' => 'Media.Media',
