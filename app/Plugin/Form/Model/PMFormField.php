@@ -35,7 +35,7 @@ class PMFormField extends AppModel {
 
 	public function beforeSave($options = array()) {
 		// Set default values for formula
-		if (isset($this->data['PMFormField']['formula'])) {
+		if (isset($this->data['PMFormField']['formula']) && $this->data['PMFormField']['formula']) {
 			if (!isset($this->data['PMFormField']['decimals'])) {
 				$this->data['PMFormField']['decimals'] = 2;
 			} elseif ($this->data['PMFormField']['decimals'] == '') {
