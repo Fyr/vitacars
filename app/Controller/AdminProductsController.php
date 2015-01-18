@@ -156,8 +156,8 @@ class AdminProductsController extends AdminController {
 		
 		$this->PCArticle->setModel('Product')->edit(&$id, &$lSaved);
 		if ($lSaved) {
-			// $formData = $this->request->data('PMFormData')
-			// $this->PMFormData->saveData(array('PMFormData' => $formData), $fields);
+			$this->PMFormData->recalcFormula($this->PMFormData->id, $fields);
+			
 			$baseRoute = array('action' => 'index');
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
 		}

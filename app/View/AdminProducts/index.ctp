@@ -2,6 +2,9 @@
 .grid .grid-row.legend-red td {
 	background-color: #fdd !important;
 }
+.grid .grid-row.legend-red.grid-row-selected td, .grid .grid-row.legend-yellow.grid-row-selected td {
+	background-color: #a2bdff  !important;
+}
 .grid .grid-row.legend-yellow td {
 	background-color: #ffd !important;
 }
@@ -66,7 +69,7 @@
 					$row['PMFormData'][$_field] = (floatval($_val)) ? number_format($_val, 2, ',', ' ') : '';
 				}
 			}
-			if ($field_id == 38) { // цвет
+			if ($field_id == 23) { // цвет
 				$aColors[$_val][] = $row['Product']['id'];
 			}
     	}
@@ -152,7 +155,7 @@ $(document).ready(function(){
 		padding: 5
 	});
 	
-/*
+
 	aColors = <?=json_encode($aColors)?>;
 	if (aColors[2]) {
 		for(var i = 0; i < aColors[2].length; i++) {
@@ -166,7 +169,7 @@ $(document).ready(function(){
 			$('#row_' + id).addClass('legend-yellow');
 		}
 	}
-*/
+
 });
 
 function submitFilter() {

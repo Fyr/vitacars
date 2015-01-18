@@ -3,7 +3,7 @@ App::uses('AppModel', 'Model');
 class FormField extends AppModel {
 	public $validate = array(
             'key' => array(
-                'rule' => '/^[A-Z]+[0-9]+$/',
+                'rule' => '/^([A-Z])+([A-Z0-9])*$/',
                 'allowEmpty' => true,
                 'message' => 'Неверный формат ключа. Пример: A1, B1, AA1, BB1'
             ),
