@@ -92,7 +92,13 @@ class AdminProductsController extends AdminController {
         }
         
         if (isset($this->request->named['PMFormData.fk_6']) && $motor = $this->request->named['PMFormData.fk_6']) {
-        	$this->paginate['conditions']['PMFormData.fk_6 LIKE '] = str_replace('*', '%', $motor);
+        	$motor = explode(' ', str_replace('*', '', $motor));
+        	$ors = array();
+        	foreach($motor as $_motor) {
+        		$ors[] = 'PMFormData.fk_6 LIKE "%'.$_motor.'%"';
+        	}
+        	$this->paginate['conditions'][] = array('OR' => $ors);
+        	$this->set('motorFilterValue', $motor);
         	unset($this->request->params['named']['PMFormData.fk_6']);
         }
         

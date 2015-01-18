@@ -57,7 +57,7 @@
     		array('escape' => false, 'class' => 'fancybox', 'rel' => 'gallery')
     	) : '<img src="/img/default_product.jpg" style="width: 50px; alt="" />';
     	$row['Product']['detail_num'] = str_replace(' ', '<br />', $row['Product']['detail_num']);
-    	if (Hash::check($row, 'PMFormData.'.$paramMotor)) {
+    	if (isset($paramMotor) && Hash::check($row, 'PMFormData.'.$paramMotor)) {
     		$row['PMFormData'][$paramMotor] = str_replace(',', '<br />', $row['PMFormData'][$paramMotor]);
     	}
     	foreach($row['PMFormData'] as $_field => $_val) {
@@ -91,7 +91,10 @@
 <?
 	if ($isAdmin) {
 		$motorOptions = $this->PHFormFields->getSelectOptions(Hash::get($motorOptions, 'PMFormField.options'));
-		$options = array('label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'options' => $motorOptions, 'div' => array('class' => 'inline'));
+		$options = array(
+			'label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'div' => array('class' => 'inline'), 
+			'options' => $motorOptions, 'value' => (isset($motorFilterValue)) ? $motorFilterValue : null
+		);
 		echo $this->PHForm->input('motor', $options);
 	}
 ?>
@@ -115,11 +118,6 @@
 ?>
 <script type="text/javascript">
 $(document).ready(function(){
-	
-	var filterMotor = $('#grid-filter-PMFormData-fk_6').val();
-	if (filterMotor) {
-		$('#motor').val(filterMotor.slice(1, -1).split('*'));
-	}
 	$('.multiselect').multiselect({
 		nonSelectedText: 'Выберите мотор',
 		nSelectedText: 'выбрано'
@@ -174,7 +172,7 @@ $(document).ready(function(){
 
 function submitFilter() {
 	var filterMotor = $('#motor').val();
-	$('#grid-filter-PMFormData-fk_6').val((filterMotor) ? '*' + filterMotor.join('*') + '*' : '');
+	$('#grid-filter-PMFormData-fk_6').val((filterMotor) ? '*' + filterMotor.join(' ') : '');
 	
 	grid_Product.submitFilter();
 }
