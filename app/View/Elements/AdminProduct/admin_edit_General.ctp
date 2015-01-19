@@ -131,7 +131,9 @@ $(document).ready(function(){
 			$('#ProductMotor').val($('#PMFormDataFk6').val());
 		}
 	});
+	$('#PMFormDataFk6').closest('.controls').addClass('multiMotors fourColomn');
 	$('#ProductMotor').val($('#PMFormDataFk6').val());
+	
 	
 	$('#ProductTitleRus').change(function(){
 		change_SeoTitle();

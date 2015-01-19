@@ -92,7 +92,7 @@
 	if ($isAdmin) {
 		$motorOptions = $this->PHFormFields->getSelectOptions(Hash::get($motorOptions, 'PMFormField.options'));
 		$options = array(
-			'label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'div' => array('class' => 'inline'), 
+			'label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'div' => array('class' => 'inline multiMotors'), 
 			'options' => $motorOptions, 'value' => (isset($motorFilterValue)) ? $motorFilterValue : null
 		);
 		echo $this->PHForm->input('motor', $options);

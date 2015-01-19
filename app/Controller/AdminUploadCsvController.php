@@ -12,10 +12,12 @@ class AdminUploadCsvController extends AdminController {
     private $errLine = 0;
     
 	public function beforeFilter() {
+		/*
 		if (!$this->isAdmin()) {
 			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
 			return;
 		}
+		*/
 		parent::beforeFilter();
 	}
     
@@ -23,6 +25,14 @@ class AdminUploadCsvController extends AdminController {
 		try {
 			if (isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name']) {
 				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
+				
+				$fieldRights = $this->_getFieldRights();
+				foreach($aData['keys'] as $fk_id) {
+					$f_id = str_replace('fk_', '', $fk_id);
+					if ($fieldRights && $fk_id != 'detail_num' && !in_array($f_id, $fieldRights)) {
+						throw new Exception(__('You have no access rights to load `%s`', $fk_id));
+					}
+				}
 				
 				$this->Product->getDataSource()->begin();
 				$aID = $this->_updateParams($aData['keys'], $this->_getCounters($aData['data']));
@@ -82,7 +92,7 @@ class AdminUploadCsvController extends AdminController {
 			$params = $this->Product->find('all', array(
 				'fields' => array('id'),
 				'conditions' => array(
-					'detail_num LIKE ' => '%'.trim($number).'%'
+					'Product.detail_num LIKE ' => '%'.trim($number).'%'
 				)
 			));
 			/*

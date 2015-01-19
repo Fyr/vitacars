@@ -39,6 +39,9 @@ class AdminController extends AppController {
 				'Products' => array('label' => __('Products'), 'href' => '', 'submenu' => array(
 					'Products' => array('label' => __('Products'), 'href' => array('controller' => 'AdminProducts', 'action' => 'index')),
 				)),
+				'Upload' => array('label' => __('Uploadings'), 'href' => '', 'submenu' => array(
+					array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index')),
+				)),
 			);
 		}
 	    $this->currMenu = $this->_getCurrMenu();
@@ -52,6 +55,11 @@ class AdminController extends AppController {
 	
 	public function isAdmin() {
 		return AuthComponent::user('id') == 1;
+	}
+	
+	protected function _getFieldRights() {
+		$field_rights = AuthComponent::user('field_rights');
+		return ($field_rights) ? explode(',', $field_rights) : array();
 	}
 
 	public function index() {

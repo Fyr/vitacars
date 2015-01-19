@@ -16,11 +16,6 @@ class AdminProductsController extends AdminController {
     	$this->set('objectType', $this->Product->objectType);
     }
     
-    private function _getFieldRights() {
-    	$field_rights = AuthComponent::user('field_rights');
-    	return ($field_rights) ? explode(',', $field_rights) : array();
-    }
-    
     private function _processParams() {
         $field_rights = $this->_getFieldRights();
     	$aParams = $this->PMFormField->getFieldsList('SubcategoryParam', '');

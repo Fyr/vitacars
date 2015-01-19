@@ -25,6 +25,7 @@
                 <th><?=mb_convert_encoding('Название', "CP1251", "UTF-8")?></th>
                 <th><?=mb_convert_encoding('Название рус.', "CP1251", "UTF-8")?></th>
                 <th><?=mb_convert_encoding('Код', "CP1251", "UTF-8")?></th>
+                <th><?=mb_convert_encoding('Номер детали', "CP1251", "UTF-8")?></th>
 <?php
     foreach ($aLabels as $label) {
         echo '<th>&nbsp;'.mb_convert_encoding($label, "CP1251", "UTF-8").'</th>';
@@ -41,7 +42,8 @@
 		<tr class="row">
 			<td class="<?=$class?>"><?= mb_convert_encoding($Product['Product']['title'], "CP1251", "UTF-8")?></td>
 			<td class="<?=$class?>"><?= mb_convert_encoding($Product['Product']['title_rus'], "CP1251", "UTF-8")?></td>
-			<td class="<?=$class?>"><?= mb_convert_encoding($Product['Product']['code'], "CP1251", "UTF-8") ?></td>
+			<td class="<?=$class?>"><?= mb_convert_encoding($Product['Product']['code'], "CP1251", "UTF-8")?></td>
+			<td class="<?=$class?>"><?= mb_convert_encoding($Product['Product']['detail_num'], "CP1251", "UTF-8")?></td>
 <?php
 		foreach ($aLabels as $key => $label) {
 			$_class = $class;
