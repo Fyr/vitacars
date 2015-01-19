@@ -34,6 +34,11 @@ class AdminUsersController extends AdminController {
 			}
 			if ($this->User->save($this->request->data)) {
 				$id = $this->User->id;
+				if ($id == AuthComponent::user('id')) {
+					// перечитать данные для текущего юзера
+					$user = $this->User->findById($id);
+					$this->Auth->login($user['User']);
+				}
 				$baseRoute = array('action' => 'index');
 				return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
 			}
