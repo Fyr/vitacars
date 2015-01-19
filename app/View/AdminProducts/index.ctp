@@ -69,7 +69,7 @@
 					$row['PMFormData'][$_field] = (floatval($_val)) ? number_format($_val, 2, ',', ' ') : '';
 				}
 			}
-			if ($field_id == 23) { // цвет
+			if ($field_id == 43) { // цвет
 				$aColors[$_val][] = $row['Product']['id'];
 			}
     	}

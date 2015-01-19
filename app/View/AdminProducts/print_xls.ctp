@@ -50,13 +50,21 @@
 				$val = implode(' ', explode(',', $val));
 			}
 			$fk = str_replace('PMFormData.fk_', '', $key);
-			$fieldType = $aParams[$fk]['PMFormField']['field_type'];
+			$formField = $aParams[$fk]['PMFormField'];
+			$fieldType = $formField['field_type'];
 			
-			if ($fieldType == FieldTypes::FLOAT) {
+			if ($fieldType == FieldTypes::FORMULA) {
+				// fdebug($aParams[$fk]['PMFormField']);
+				
+				// приводим формулу к стд.виду для Excel
+				$val = str_replace($formField['div_int'], '', $val); // убираем разделители для целой части
+				$val = floatval(str_replace($formField['div_float'], '.', $val));
+				$val = number_format($val, $formField['decimals'], ',', '');
+			} else if ($fieldType == FieldTypes::FLOAT) {
 				$val = number_format($val, 2, ',', '');
 			}
 			
-			if ($fieldType == FieldTypes::INT || $fieldType == FieldTypes::FLOAT) {
+			if ($fieldType == FieldTypes::INT || $fieldType == FieldTypes::FLOAT || $fieldType == FieldTypes::FORMULA) {
 				// $_class.= ' align-right';
 			} else {
 				$val = '&nbsp;'.$val;
