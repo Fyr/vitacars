@@ -25,20 +25,19 @@
 var stage, totalStages, abortExport, dataSource, lAjaxStarted;
 
 function setTitle(msg) {
-	$('#info').html(dataSource.replace(/_/, '.') + ': ' + msg);
+	$('#info').html(msg);
 }
 
 function setProgress(e, n, total) {
 	$('#' + e + ' .bar').css('width', Math.round(n * 100 / total) + '%');
 }
 
-function exportData(dataSrc) {
+function exportData() {
 	$('#startExport').hide();
 	$('#abortExport').show();
 	
 	stage = 0;
 	totalStages = 8;
-	dataSource = dataSrc;
 	abortExport = false;
 	
 	setProgress('progressTotal', 0, 1);
@@ -55,7 +54,7 @@ function clearMedia() {
 	stage+= 0.5;
 	setProgress('progressTotal', stage, totalStages);
 	setProgress('progressStage', 0.5, 1);
-	$.post('/AdminExportAjax/clearMedia.json', {data: {dataSource: dataSource}}, function(response){
+	$.post('/AdminExportAjax/clearMedia.json', null, function(response){
 		if (checkAbortExport(response)) {
 			setProgress('progressStage', 1, 1);
 			
@@ -74,7 +73,7 @@ function initExportArticles() {
 	stage+= 0.5;
 	setProgress('progressTotal', stage, totalStages);
 	setProgress('progressStage', 0.5, 1);
-	$.post('/AdminExportAjax/initExportArticles.json', {data: {dataSource: dataSource}}, function(response){
+	$.post('/AdminExportAjax/initExportArticles.json', null, function(response){
 		if (checkAbortExport(response)) {
 			setProgress('progressStage', 1, 1);
 			
@@ -94,7 +93,7 @@ function exportArticles(total, page) {
 	}
 	setTitle('Экспорт статей (продукты, категории, брэнды, фото) ' + page + '/' + total + '...');
 	setProgress('progressStage', page - 0.5, total);
-	$.post('/AdminExportAjax/exportArticles.json', {data: {dataSource: dataSource, page: page, total: total}}, function(response){
+	$.post('/AdminExportAjax/exportArticles.json', {data: {page: page, total: total}}, function(response){
 		if (checkAbortExport(response)) {
 			setProgress('progressStage', page, total);
 			page++;
@@ -117,7 +116,7 @@ function exportParams() {
 	stage+= 0.5;
 	setProgress('progressTotal', stage, totalStages);
 	setProgress('progressStage', 0.5, 1);
-	$.post('/AdminExportAjax/exportParams.json', {data: {dataSource: dataSource}}, function(response){
+	$.post('/AdminExportAjax/exportParams.json', null, function(response){
 		if (checkAbortExport(response)) {
 			setProgress('progressStage', 1, 1);
 			
@@ -136,7 +135,7 @@ function initExportParamValues() {
 	stage+= 0.5;
 	setProgress('progressTotal', stage, totalStages);
 	setProgress('progressStage', 0.5, 1);
-	$.post('/AdminExportAjax/initExportParamValues.json', {data: {dataSource: dataSource}}, function(response){
+	$.post('/AdminExportAjax/initExportParamValues.json', null, function(response){
 		if (checkAbortExport(response)) {
 			setProgress('progressStage', 1, 1);
 			
@@ -145,23 +144,23 @@ function initExportParamValues() {
 			
 			stage+= 0.5;
 			setProgress('progressTotal', stage, totalStages);
-			exportParamValues(response.data.page_count, 1);
+			exportParamValues(response.data.fields, response.data.page_count, 1);
 		}
 	}, 'json');
 }
 
-function exportParamValues(total, page) {
+function exportParamValues(fields, total, page) {
 	if (abortExport) {
 		return;
 	}
 	setTitle('Экспорт значений тех.параметров ' + page + '/' + total + '...');
 	setProgress('progressStage', page - 0.5, total);
-	$.post('/AdminExportAjax/exportParamValues.json', {data: {dataSource: dataSource, page: page, total: total}}, function(response){
+	$.post('/AdminExportAjax/exportParamValues.json', {data: {page: page, total: total, fields: fields}}, function(response){
 		if (checkAbortExport(response)) {
 			setProgress('progressStage', page, total);
 			page++;
 			if (page <= total) {
-				exportParamValues(total, page);
+				exportParamValues(fields, total, page);
 			} else {
 				stage+= 0.5;
 				setProgress('progressTotal', stage, totalStages);
@@ -180,7 +179,7 @@ function initExportSeo() {
 	stage+= 0.5;
 	setProgress('progressTotal', stage, totalStages);
 	setProgress('progressStage', 0.5, 1);
-	$.post('/AdminExportAjax/initExportSeo.json', {data: {dataSource: dataSource}}, function(response){
+	$.post('/AdminExportAjax/initExportSeo.json', null, function(response){
 		if (checkAbortExport(response)) {
 			setProgress('progressStage', 1, 1);
 			
@@ -200,7 +199,7 @@ function exportSeo(total, page) {
 	}
 	setTitle('Экспорт SEO-данных ' + page + '/' + total + '...');
 	setProgress('progressStage', page - 0.5, total);
-	$.post('/AdminExportAjax/exportSeo.json', {data: {dataSource: dataSource, page: page, total: total}}, function(response){
+	$.post('/AdminExportAjax/exportSeo.json', {data: {page: page, total: total}}, function(response){
 		if (checkAbortExport(response)) {
 			setProgress('progressStage', page, total);
 			page++;
@@ -218,7 +217,7 @@ function exportSeo(total, page) {
 
 $(document).ready(function(){
 	$('#startExport').click(function(){
-		exportData('agromotors_by');
+		exportData();
 	});
 	
 	$('#abortExport').click(function(){
