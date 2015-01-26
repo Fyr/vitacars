@@ -2,6 +2,7 @@
 App::uses('AdminController', 'Controller');
 class AdminUsersController extends AdminController {
     public $name = 'AdminUsers';
+    public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
     public $uses = array('User', 'Form.FormField');
     
     public function beforeFilter() {
@@ -25,14 +26,15 @@ class AdminUsersController extends AdminController {
     }
     
     public function edit($id = 0) {
-		if ($this->request->is('post') || $this->request->is('put')) {
-			if ($id) {
-				$this->request->data('User.id', $id);
-				if (!$this->request->data('User.password')) {
-					unset($this->request->data['User']['password']);
-				}
+    	if ($id) {
+			if ($this->request->is(array('put', 'post')) && !$this->request->data('User.password')) {
+				unset($this->request->data['User']['password']);
 			}
-			if ($this->User->save($this->request->data)) {
+		}
+    	$this->PCArticle->setModel('User')->edit(&$id, &$lSaved);
+		if ($lSaved) {
+			
+			
 				$id = $this->User->id;
 				if ($id == AuthComponent::user('id')) {
 					// перечитать данные для текущего юзера
@@ -41,11 +43,9 @@ class AdminUsersController extends AdminController {
 				}
 				$baseRoute = array('action' => 'index');
 				return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
-			}
-		} elseif ($id) {
-			$user = $this->User->findById($id);
-			$user['User']['password'] = '';
-			$this->request->data = $user;
+		}
+		if ($id) {
+			$this->request->data('User.password', '');
 		}
 		$this->paginate = array(
     		'fields' => array('field_type', 'label', 'fieldset', 'required'),

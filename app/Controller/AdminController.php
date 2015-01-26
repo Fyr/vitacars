@@ -28,7 +28,7 @@ class AdminController extends AppController {
 				array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index')),
 				array('label' => __('Upload new products'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'uploadNewProducts')),
 			)),
-			'Export' => array('label' => __('Data export'), 'href' => array('controller' => 'AdminExport', 'action' => 'index'))
+			'Export' => array('label' => __('Data export'), 'href' => array('controller' => 'AdminExport', 'action' => 'progress'))
 		);
 		$this->aBottomLinks = $this->aNavBar;
 	}
@@ -38,12 +38,16 @@ class AdminController extends AppController {
 			$this->aNavBar = array(
 				'Products' => array('label' => __('Products'), 'href' => '', 'submenu' => array(
 					'Products' => array('label' => __('Products'), 'href' => array('controller' => 'AdminProducts', 'action' => 'index')),
-				)),
-				'Upload' => array('label' => __('Uploadings'), 'href' => '', 'submenu' => array(
-					array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index')),
-				)),
+				))
 			);
+			if (AuthComponent::user('load_counters')) {
+				$this->aNavBar['Upload'] = array('label' => __('Uploadings'), 'href' => '', 'submenu' => array(
+					array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index')),
+				));
+			}
 		}
+		
+		
 	    $this->currMenu = $this->_getCurrMenu();
 	    $this->currLink = $this->currMenu;
 	}

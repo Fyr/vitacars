@@ -48,7 +48,7 @@ class PCArticleComponent extends Component {
 	}
 	
 	public function edit($id = 0, $lSaved = false) {
-		$aFlags = array('published', 'featured', 'active', 'show_detailnum');
+		$aFlags = array('published', 'featured', 'active', 'show_detailnum', 'load_counters'); // можно перечислять любые поля, даже с других моделей
 		$article = $this->model()->findById($id);
 		if ($this->_->request->is('post') || $this->_->request->is('put')) {
 			if ($id && !$this->_->request->data($this->field('id'))) {
@@ -71,7 +71,7 @@ class PCArticleComponent extends Component {
 		} elseif ($id) {
 			// Set up flags
 			foreach($aFlags as $field) {
-				if ($article[$this->model()->alias][$field]) {
+				if (Hash::get($article, $this->model()->alias.'.'.$field)) {
 					$article[$this->model()->alias]['status'][] = $field;
 				}
 			}
