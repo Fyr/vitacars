@@ -24,11 +24,13 @@ class AdminContentController extends AdminController {
         		'fields' => array('id', 'created', 'title', 'teaser', 'featured', 'published')
         	),
         	'Category' => array(
-        		'fields' => array('id', 'title', 'sorting')
+        		'fields' => array('id', 'title', 'sorting'),
+        		'order' => array('Category.sorting' => 'ASC')
         	),
         	'Subcategory' => array(
         		'conditions' => array('Subcategory.object_id' => $objectID),
-        		'fields' => array('id', 'title', 'sorting')
+        		'fields' => array('id', 'title', 'sorting'),
+        		'order' => array('Subcategory.sorting' => 'ASC')
         	),
         	'Brand' => array(
         		'fields' => array('id', 'title')

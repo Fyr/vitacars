@@ -130,6 +130,9 @@ Grid = function(config) {
 		if (!self.settings.sort) {
 			self.settings.sort = self.settings.primaryKey;
 		}
+		if (self.settings.direction) {
+			self.settings.direction = self.settings.direction.toLowerCase();
+		}
 	}
 
 	this.initPaging = function(paging) {
