@@ -14,7 +14,7 @@
 		'vendor/jquery/jquery-ui-1.10.3.custom.min',
 		'vendor/bootstrap.min',
 		'vendor/meiomask',
-		'admin',
+		'admin'
 	);
 	echo $this->Html->script($aScripts);
 
