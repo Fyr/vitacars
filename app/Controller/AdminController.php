@@ -28,7 +28,7 @@ class AdminController extends AppController {
 				array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index')),
 				array('label' => __('Upload new products'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'uploadNewProducts')),
 			)),
-			'Export' => array('label' => __('Data export'), 'href' => array('controller' => 'AdminExport', 'action' => 'progress'))
+			'Export' => array('label' => __('Data export'), 'href' => array('controller' => 'AdminExport', 'action' => 'index'))
 		);
 		$this->aBottomLinks = $this->aNavBar;
 	}

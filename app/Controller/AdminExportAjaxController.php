@@ -38,10 +38,12 @@ class AdminExportAjaxController extends PAjaxController {
     private $xArticle, $xMedia, $xParam, $xParamObject, $xParamValue, $xSeo;
     private $PHMedia, $aDataSource = array('agromotors_by', 'agromotors_ru');
     
-    const LIMIT = 10;
+    const LIMIT = 100;
     
     public function beforeFilter() {
 		parent::beforeFilter();
+		
+		set_time_limit(300);
 		
 		$this->xArticle = $this->ExportArticle;
 		$this->xMedia = $this->ExportMedia;
