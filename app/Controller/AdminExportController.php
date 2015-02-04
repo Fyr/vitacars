@@ -163,11 +163,13 @@ class AdminExportController extends AdminController {
 		    			$data = array('object_type' => 'ProductParam', 'object_id' => $row['PMFormData']['object_id']);
 		    			unset($row['PMFormData']['object_id']);
 		    			foreach($row['PMFormData'] as $field => $value) {
-		    				$counter['ParamsValues']++;
-		    				$data['param_id'] = str_replace('fk_', '', $field);
-		    				$data['value'] = $value;
-		    				$this->xParamValue->clear();
-			    			$this->xParamValue->save($data);
+		    				if (trim($value)) {
+			    				$counter['ParamsValues']++;
+			    				$data['param_id'] = str_replace('fk_', '', $field);
+			    				$data['value'] = $value;
+			    				$this->xParamValue->clear();
+				    			$this->xParamValue->save($data);
+		    				}
 		    			}
 		    		}
 		    	}

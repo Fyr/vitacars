@@ -257,6 +257,9 @@ class AdminUploadCsvController extends AdminController {
 			if (!isset($row['active'])) {
 				$row['active'] = 1;
 			}
+			if (!isset($row['show_detailnum'])) {
+				$row['show_detailnum'] = 1;
+			}
 			
 			$this->Product->clear();
 			$data = array('Product' => $row);
