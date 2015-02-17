@@ -3,6 +3,8 @@ App::uses('Controller', 'Controller');
 class AppController extends Controller {
     public $paginate;
 	public $aNavBar = array(), $aBottomLinks = array(), $currMenu = '', $currLink = '', $pageTitle = '';
+	
+	protected $Settings;
     
     public function __construct($request = null, $response = null) {
 	    $this->_beforeInit();
@@ -16,6 +18,8 @@ class AppController extends Controller {
 
 	protected function _afterInit() {
 	    // after construct actions here
+	    $this->loadModel('Settings');
+	    $this->Settings->initData();
 	}
 	
     public function isAuthorized($user) {

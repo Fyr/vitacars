@@ -16,7 +16,8 @@ class AdminSettingsController extends AdminController {
         if ($this->request->is('post') || $this->request->is('put')) {
         	$this->request->data('Settings.id', 1);
         	$this->Settings->save($this->request->data);
-        	$this->redirect(array('action' => 'index', '?' => array('sucess' => 1)));
+        	$this->Session->setFlash(__('Settings have been successfully saved'), 'default', array(), 'success');
+        	$this->redirect(array('action' => 'index'));
         }
         $this->request->data = $this->Settings->getData();
     }

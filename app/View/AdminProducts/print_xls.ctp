@@ -1,32 +1,33 @@
 <html>
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=windows-1251">
-	<style type="text/css">
-	td {
-	    vertical-align: middle;
-	}
-	.align-right {
-		text-align: right;
-	}
-	.even {
-		background-color: #eee;
-	}
-	.odd {
-	}
-	img {
-	    display: block;
-	}
-	</style>
+<meta http-equiv="content-type" content="text/html; charset=windows-1251">
+<style type="text/css">
+td {
+    vertical-align: middle;
+}
+.align-right {
+	text-align: right;
+}
+.even {
+	background-color: #eee;
+}
+.odd {
+}
+img {
+    display: block;
+}
+</style>
 </head>
 <body>
     <table>
         <thead>
             <tr>
-                <th><?=mb_convert_encoding('Название', "CP1251", "UTF-8")?></th>
-                <th><?=mb_convert_encoding('Название рус.', "CP1251", "UTF-8")?></th>
-                <th><?=mb_convert_encoding('Код', "CP1251", "UTF-8")?></th>
-                <th><?=mb_convert_encoding('Номер детали', "CP1251", "UTF-8")?></th>
-<?php
+<?
+	foreach(array(__('Title'), __('Title rus'), __('Code'), __('Detail num')) as $label) {
+?>
+                <th><?=mb_convert_encoding($label, "CP1251", "UTF-8")?></th>
+<?
+	}
     foreach ($aLabels as $label) {
         echo '<th>&nbsp;'.mb_convert_encoding($label, "CP1251", "UTF-8").'</th>';
     }

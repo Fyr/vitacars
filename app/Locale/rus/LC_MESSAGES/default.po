@@ -435,3 +435,9 @@ msgstr "Показывать номер детали"
 
 msgid "Load counters (CSV)"
 msgstr "Загрузка счетчиков (CSV)"
+
+msgid "Settings have been successfully saved"
+msgstr "Настройки успешно сохранены"
+
+msgid "System"
+msgstr "Система"

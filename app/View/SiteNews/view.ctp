@@ -1,1 +1,0 @@
-<?=$article['News']['body']?>
