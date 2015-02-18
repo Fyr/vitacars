@@ -1,14 +1,3 @@
-<style type="text/css">
-.grid .grid-row.legend-red td {
-	background-color: #fdd !important;
-}
-.grid .grid-row.legend-red.grid-row-selected td, .grid .grid-row.legend-yellow.grid-row-selected td {
-	background-color: #a2bdff  !important;
-}
-.grid .grid-row.legend-yellow td {
-	background-color: #ffd !important;
-}
-</style>
 <?
 	$this->Html->css(array('jquery.fancybox', 'bootstrap-multiselect'), array('inline' => false));
 	$this->Html->script(array('vendor/jquery/jquery.fancybox', 'vendor/bootstrap-multiselect'), array('inline' => false));
@@ -175,6 +164,17 @@ function submitFilter() {
 	$('#grid-filter-PMFormData-fk_6').val((filterMotor) ? '*' + filterMotor.join(' ') : '');
 	
 	grid_Product.submitFilter();
+}
+
+function sendToPrint() {
+    selectedId = new Array();
+    $('input[name="gridChecked[]"]').each(function(id) {
+        if ($(this).is(':checked')) {
+            selectedId.push($(this).val());
+        }
+    })
+    $('input[name="aID"]').val(selectedId.join(','));
+    $('#printXls').submit();
 }
 </script>
 <form id="printXls" method="post" action="<?= $this->Html->url(array('controller' => 'AdminProducts', 'action' => 'printXls')) ?>"><input type="hidden" name="aID" /></form>

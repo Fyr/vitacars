@@ -5,13 +5,13 @@
 	
 	echo $this->PHForm->create('UploadCsv', array(
 		'url' => array(
-			'controller' => 'AdminUploadCsv', 
-			'action' => 'uploadNewProducts'
+				'controller' => 'AdminUploadCsv', 
+				'action' => 'uploadNewProducts'
 			), 
-        'method' => 'POST',
-        'enctype' => 'multipart/form-data'
+        	'method' => 'POST',
+	        'enctype' => 'multipart/form-data'
 	));
 	echo $this->element('/AdminUploadCsv/admin_upload_csv_form');
-    echo $this->PHForm->end();
+	echo $this->PHForm->end();
 ?>
 </div>

@@ -1,35 +1,15 @@
-<html>
-<head>
-<meta http-equiv="content-type" content="text/html; charset=windows-1251">
-<style type="text/css">
-td {
-    vertical-align: middle;
-}
-.align-right {
-	text-align: right;
-}
-.even {
-	background-color: #eee;
-}
-.odd {
-}
-img {
-    display: block;
-}
-</style>
-</head>
-<body>
+
     <table>
         <thead>
             <tr>
 <?
 	foreach(array(__('Title'), __('Title rus'), __('Code'), __('Detail num')) as $label) {
 ?>
-                <th><?=mb_convert_encoding($label, "CP1251", "UTF-8")?></th>
+                <th><?=$label?></th>
 <?
 	}
     foreach ($aLabels as $label) {
-        echo '<th>&nbsp;'.mb_convert_encoding($label, "CP1251", "UTF-8").'</th>';
+        echo '<th>&nbsp;'.$label.'</th>';
     }
 ?>
             </tr>
@@ -41,10 +21,10 @@ img {
 		$class = ($class == 'even') ? 'odd' : 'even';
 ?>
 		<tr class="row">
-			<td class="<?=$class?>"><?= mb_convert_encoding($Product['Product']['title'], "CP1251", "UTF-8")?></td>
-			<td class="<?=$class?>"><?= mb_convert_encoding($Product['Product']['title_rus'], "CP1251", "UTF-8")?></td>
-			<td class="<?=$class?>"><?= mb_convert_encoding($Product['Product']['code'], "CP1251", "UTF-8")?></td>
-			<td class="<?=$class?>"><?= mb_convert_encoding($Product['Product']['detail_num'], "CP1251", "UTF-8")?></td>
+			<td class="<?=$class?>"><?=$Product['Product']['title']?></td>
+			<td class="<?=$class?>"><?=$Product['Product']['title_rus']?></td>
+			<td class="<?=$class?>">&nbsp;<?=$Product['Product']['code']?></td>
+			<td class="<?=$class?>" nowrap="nowrap">&nbsp;<?=$Product['Product']['detail_num']?></td>
 <?php
 		foreach ($aLabels as $key => $label) {
 			$_class = $class;
@@ -72,7 +52,6 @@ img {
 			} else {
 				$val = '&nbsp;'.$val;
 			}
-			$val = mb_convert_encoding($val, "CP1251", "UTF-8");
 			/*
 			if ($fieldType == FieldTypes::STRING || $fieldType == FieldTypes::TEXTAREA) {
 			}
@@ -88,5 +67,3 @@ img {
 ?>
         </tbody>
     </table>
-</body>
-</html>

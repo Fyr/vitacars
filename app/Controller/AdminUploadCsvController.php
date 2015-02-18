@@ -319,5 +319,42 @@ class AdminUploadCsvController extends AdminController {
 			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'uploadNewProducts'));
 		}
 	}
+	
+	public function checkProducts() {
+		try {
+			if (isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name'] ) {
+				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
+				if (!Hash::get($aData, 'data.0.code')) {
+					throw new Exception('CSV file must contain `code` field');
+				}
+				$aCodes = Hash::extract($aData, 'data.{n}.code');
+				$this->set('aCodes', $aCodes);
+				
+				$conditions = array('Product.code' => $aCodes);
+				$order = 'Product.code';
+				$aProducts = $this->Product->find('all', compact('conditions', 'order'));
+				$this->set('aProducts', Hash::combine($aProducts, '{n}.Product.code', '{n}'));
+				$this->Session->setFlash(__('Found %s products / %s codes', count($aProducts), count($aCodes)), 'default', array(), 'success');
+			}
+		} catch (Exception $e) {
+			$this->Product->getDataSource()->rollback();
+			$this->Session->setFlash(__($e->getMessage(), $this->errLine), 'default', array(), 'error');
+			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'checkProducts'));
+		}
+	}
+	
+	public function printCheckProducts() {
+		if ($this->request->data('codes')){
+			$this->layout = 'print_xls';
+			$aCodes = explode(',', $this->request->data('codes'));
+			$this->set('aCodes', $aCodes);
+			$conditions = array('Product.code' => $aCodes);
+			$order = 'Product.code';
+			$aProducts = $this->Product->find('all', compact('conditions', 'order'));
+			$this->set('aProducts', Hash::combine($aProducts, '{n}.Product.code', '{n}'));
+		} else {
+			// $this->redirect(array('action' => 'index'));
+		}
+    }
 }
 

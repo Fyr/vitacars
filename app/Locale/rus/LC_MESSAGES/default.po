@@ -441,3 +441,9 @@ msgstr "Настройки успешно сохранены"
 
 msgid "System"
 msgstr "Система"
+
+msgid "Check products"
+msgstr "Проверка деталей"
+
+msgid "Found %s products / %s codes"
+msgstr "Найдено %s продуктов / %s кодов"

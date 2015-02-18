@@ -53,16 +53,6 @@ $(function () {
         }
     });
 })
-function sendToPrint() {
-    selectedId = new Array();
-    $('input[name="gridChecked[]"]').each(function(id) {
-        if ($(this).is(':checked')) {
-            selectedId.push($(this).val());
-        }
-    })
-    $('input[name="aID"]').val(selectedId.join(','));
-    $('#printXls').submit();
-}
 String.prototype.ucFirst = function() {
 	var str = this;
 	if (str.length) {
