@@ -6,7 +6,7 @@ class PMFormField extends AppModel {
 	
 	public $validate = array(
 		'key' => array(
-			'rule' => '/^[A-Z]+[0-9]+$/',
+			'rule' => '/^[a-zA-Z]+[\_a-zA-Z0-9]*$/',
 			'allowEmpty' => true,
 			'message' => 'Неверный формат ключа. Пример: A1, B1, AA1, BB1'
 		),
