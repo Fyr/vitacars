@@ -30,7 +30,7 @@ Grid = function(config) {
 		total: 0,
 		count: '',
 		limit: 0,
-		perPageList: [10, 20, 50, 100, 300, 500, 1000]
+		perPageList: [10, 20, 50, 100, 300, 500, 1000, 2000, 5000, 10000]
 	};
 
 	self.actions = {
