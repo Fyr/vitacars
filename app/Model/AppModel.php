@@ -75,9 +75,16 @@ class AppModel extends Model {
 	
 	public function dateRange($field, $date1, $date2 = '') {
 		// TODO: implement for free date2
-		$date1 = date('Y-m-d 00:00:00', strtotime($date1));
-		$date2 = date('Y-m-d 23:59:59', strtotime($date2));
-		return array($field.' >= ' => $date1, $field.' <= ' => $date2);
+		$conditions = array();
+		if ($date1) {
+			$date1 = date('Y-m-d 00:00:00', strtotime($date1));
+			$conditions[$field.' >= '] = $date1;
+		}
+		if ($date2) {
+			$date2 = date('Y-m-d 23:59:59', strtotime($date2));
+			$conditions[$field.' <= '] = $date2;
+		}
+		return $conditions;
 	}
 	
 	public function dateTimeRange($field, $date1, $date2 = '') {

@@ -447,3 +447,18 @@ msgstr "Проверка деталей"
 
 msgid "Found %s products / %s codes"
 msgstr "Найдено %s продуктов / %s кодов"
+
+msgid "Period"
+msgstr "Период"
+
+msgid "Sales by period"
+msgstr "Продажи за период"
+
+msgid "Total"
+msgstr "Всего"
+
+msgid "Sold"
+msgstr "Продано"
+
+msgid "Reports"
+msgstr "Отчеты"

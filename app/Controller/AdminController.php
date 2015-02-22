@@ -29,6 +29,9 @@ class AdminController extends AppController {
 				array('label' => __('Upload new products'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'uploadNewProducts')),
 				array('label' => __('Check products'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'checkProducts')),
 			)),
+			'Reports' => array('label' => __('Reports'), 'href' => '', 'submenu' => array(
+				array('label' => __('Sales by period'), 'href' => array('controller' => 'AdminReports', 'action' => 'sales')),
+			)),
 			'System' => array('label' => __('System'), 'href' => '', 'submenu' => array(
 				'Export' => array('label' => __('Data export'), 'href' => array('controller' => 'AdminExport', 'action' => 'index')),
 				'Settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index')),

@@ -6,7 +6,7 @@ App::uses('PMFormField', 'Form.Model');
 class AdminUploadCsvController extends AdminController {
     public $name = 'AdminUploadCsv';
     public $layout = 'admin';
-    public $uses = array('Product', 'Form.PMFormData', 'Form.PMFormField', 'Brand', 'Category', 'Subcategory', 'Seo.Seo');
+    public $uses = array('Product', 'Form.PMFormData', 'Form.PMFormField', 'Brand', 'Category', 'Subcategory', 'Seo.Seo', 'ProductRemain');
     
     const CSV_DIV = ';';
     private $errLine = 0;
@@ -141,65 +141,80 @@ class AdminUploadCsvController extends AdminController {
 			}
 			$aKeys[$id] = 0;
 		}
-		/*
-		$aRowKeys = $this->FormField->find('all', array('conditions' => array('FormField.key' => $keys)));
-		foreach($aRowKeys as $keyInfo) {
-			$keyInfo = $keyInfo['FormField'];
-			$aKeys[$keyInfo['key']] = $keyInfo;
-		}
-		*/
 		
 		// перед сохранением очистить столбцы
-		/*
-		$this->PMFormValue->updateAll(array('value' => '\'&nbsp;\''), array(
-			'FormField.key' => $keys
-		));
-		*/
-		$this->PMFormData->updateAll($aKeys);
-		
+		// $this->PMFormData->updateAll($aKeys);
+		$a1 = 'fk_'.Configure::read('Params.A1');
+		$a2 = 'fk_'.Configure::read('Params.A2');
 		foreach($aParams as $object_id => $counters) {
 			$product = $this->Product->findById($object_id);
 			if (!$product) {
 				throw new Exception(__('Product %s not found', 'Product.ID='.$object_id));
 			}
+			/*
 			$formData = $this->PMFormData->getObject('ProductParam', $object_id);
 			if (!$formData) {
 				throw new Exception(__('Product %s not found', 'FormData.object_id='.$object_id));
 			}
-			$counters['id'] = $formData['PMFormData']['id'];
+			*/
+			$remain = 0;
+			if (in_array($a1, $keys) || in_array($a2, $keys)) {
+				$a1_val = intval(Hash::get($product, 'PMFormData.'.$a1));
+				$a2_val = intval(Hash::get($product, 'PMFormData.'.$a2));
+				
+				$a1_new = intval((isset($counters[$a1]) && $counters[$a1]) ? $counters[$a1] : $a1_val);
+				$a2_new = intval((isset($counters[$a2]) && $counters[$a2]) ? $counters[$a2] : $a2_val);
+				
+				$remain = ($a1_new - $a1_val) + ($a2_new - $a2_val);
+				fdebug(compact('object_id', 'a1_val', 'a1_new', 'a2_val', 'a2_new', 'remain'));
+			}
+			
+			$counters['id'] = $this->PMFormData->id = $product['PMFormData']['id'];
 			if (!$this->PMFormData->save($counters)) {
 				throw new Exception(__('Product params could not be saved: %s', print_r($counters, true)));
 			}
-			$this->PMFormData->recalcFormula($counters['id'], $aFormFields);
-			$aID[] = $object_id;
-			
-			/*
-			foreach($row as $counter => $value) {
-				$param = $this->PMFormValue->find('first', array(
-					'fields' => array('id'),
-					'conditions' => array(
-						'PMFormValue.object_id' => $object_id,
-						'FormField.key' => $counter
-					)
-				));
-				$data = array('value' => $value);
-				if ($id = Hash::get($param, 'PMFormValue.id')) {
-					$data['id'] = $id;
-				} else {
-					// если запись не найдена - добавить ее с полной инфой
-					$object_type = 'ProductParam';
-					$form_id = 1;
-					$field_id = $aKeys[$counter]['id'];
-					
-					$data = compact('object_type', 'object_id', 'form_id', 'field_id', 'value');
-					
-				}
-				$this->PMFormValue->create();
-				$data['value'] = $data['value'] ? $data['value'] : '&nbsp;'; //?????
-				$this->PMFormValue->save($data);
+			if ($remain) {
+				$product_id = $object_id;
+				$this->ProductRemain->clear();
+				$this->ProductRemain->save(compact('product_id', 'remain'));
+				
+				// скорректировать статистику за год
+				$field = 'fk_'.Configure::read(($remain > 0) ? 'Params.incomeY' : 'Params.outcomeY');
+				$this->PMFormData->saveField($field, intval($this->PMFormData->field($field)) + $remain); // уже выставлен нужный $this->PMFormData->id
 			}
-			*/
+			$this->PMFormData->recalcFormula($this->PMFormData->id, $aFormFields);
+			$aID[] = $object_id;
 		}
+		
+		$outcomeY = 'fk_'.Configure::read('Params.outcomeY');
+		if (in_array($a1, $keys) || in_array($a2, $keys)) {
+			$fields = array_merge(array('id', 'object_id', $outcomeY), $keys);
+	    	$conditions = array('object_type' => 'ProductParam', 'NOT' => array('object_id' => array_keys($aParams)));
+	    	$page = 1;
+	    	$limit = 100;
+	    	$order = array('object_id');
+	    	while ($rows = $this->PMFormData->find('all', compact('fields', 'conditions', 'page', 'limit', 'order'))) {
+	    		$page++;
+	    		$remain = 0;
+	    		foreach($rows as $row) {
+	    			$data = array_merge(array('id' => $row['PMFormData']['id']), $aKeys);
+	    			
+	    			$remain = -intval(Hash::get($row, 'PMFormData.'.$a1)) - intval(Hash::get($row, 'PMFormData.'.$a2));
+	    			if ($remain) {
+	    				$product_id = $row['PMFormData']['object_id'];
+	    				$this->ProductRemain->clear();
+						$this->ProductRemain->save(compact('product_id', 'remain'));
+	    				
+	    				$data[$outcomeY] = $row['PMFormData'][$outcomeY] + $remain;
+	    			}
+	    			$this->PMFormData->save($data);
+	    			$this->PMFormData->recalcFormula($this->PMFormData->id, $aFormFields);
+	    		}
+	    	}
+		}
+		
+		// TODO: пересчитать все формулы
+		
 		return $aID;
 	}
 

@@ -6,7 +6,7 @@ class AdminProductsController extends AdminController {
 	
     public $name = 'AdminProducts';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
-    public $uses = array('Product', 'Form.PMForm', 'Form.PMFormValue', 'Form.PMFormField', 'Form.PMFormData', 'User', 'Category', 'Subcategory', 'Brand');
+    public $uses = array('Product', 'Form.PMForm', 'Form.PMFormValue', 'Form.PMFormField', 'Form.PMFormData', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain');
     public $helpers = array('ObjectType', 'Form.PHFormFields', 'Form.PHFormData');
     
     private $paramDetail, $aFormula, $aFieldKeys;
@@ -147,16 +147,33 @@ class AdminProductsController extends AdminController {
 			$this->request->data('PMFormData.object_type', 'ProductParam');
 		}
 		
+		$remain = 0;
 		if ($this->request->is(array('post', 'put'))) {
-			// $formData = $this->request->data('PMFormData');
 			$this->request->data('PMFormData.fk_6', $this->request->data('Product.motor'));
-			// unset($this->request->data['PMFormData']);
+			
+			$a1_val = 0; $a2_val = 0;
+			$a1 = 'PMFormData.fk_'.Configure::read('Params.A1');
+			$a2 = 'PMFormData.fk_'.Configure::read('Params.A2');
+			if ($id) {
+				$product = $this->Product->findById($id);
+				$a1_val = intval(Hash::get($product, $a1));
+				$a2_val = intval(Hash::get($product, $a2));
+			}
+			$remain = (intval($this->request->data($a1)) - $a1_val) + (intval($this->request->data($a2)) - $a2_val);
 		}
 		
 		$fields = $this->PMFormField->getObjectList('SubcategoryParam', '');
 		
 		$this->PCArticle->setModel('Product')->edit(&$id, &$lSaved);
 		if ($lSaved) {
+			if ($remain) {
+				$product_id = $id;
+				$this->ProductRemain->save(compact('product_id', 'remain'));
+				
+				// скорректировать статистику за год
+				$field = 'fk_'.Configure::read(($remain > 0) ? 'Params.incomeY' : 'Params.outcomeY');
+				$this->PMFormData->saveField($field, intval($this->PMFormData->field($field)) + $remain); // уже выставлен нужный $this->PMFormData->id
+			}
 			$this->PMFormData->recalcFormula($this->PMFormData->id, $fields);
 			
 			$baseRoute = array('action' => 'index');

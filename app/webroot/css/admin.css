@@ -70,7 +70,7 @@ legend+.control-group {
 .control-group .date + img {
     display: inline-block;
     margin-left: 4px;
-    margin-top: 6px;
+/*    margin-top: 6px; */
     cursor: pointer;
 }
 
