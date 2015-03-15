@@ -92,14 +92,11 @@ class AdminUploadCsvController extends AdminController {
 	 */
 	private function _getCounters($keyField = 'detail_num', $aData) {
 		$aParams = array();
+		$fields = array('Product.id');
 		foreach($aData as $row) {
 			list($number) = array_values($row);
-			$params = $this->Product->find('all', array(
-				'fields' => array('id'),
-				'conditions' => array(
-					'Product.'.$keyField.' LIKE ' => '%'.trim($number).'%'
-				)
-			));
+			$conditions = ($keyField == 'detail_num') ? array('Product.'.$keyField.' LIKE ' => '%'.trim($number).'%') : array('Product.code' => $number);
+			$params = $this->Product->find('all', compact('fields', 'conditions'));
 			/*
 			$params = $this->PMFormValue->find('all', array(
 				'fields' => array('object_id'),
@@ -171,7 +168,6 @@ class AdminUploadCsvController extends AdminController {
 				$a2_new = intval((isset($counters[$a2]) && $counters[$a2]) ? $counters[$a2] : $a2_val);
 				
 				$remain = ($a1_new - $a1_val) + ($a2_new - $a2_val);
-				fdebug(compact('object_id', 'a1_val', 'a1_new', 'a2_val', 'a2_new', 'remain'));
 			}
 			
 			$counters['id'] = $this->PMFormData->id = $product['PMFormData']['id'];
@@ -341,40 +337,68 @@ class AdminUploadCsvController extends AdminController {
 	}
 	
 	public function checkProducts() {
+		$keyField = 'code';
+		$aCodes = array();
 		try {
 			if (isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name'] ) {
 				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
-				if (!Hash::get($aData, 'data.0.code')) {
-					throw new Exception('CSV file must contain `code` field');
-				}
-				$aCodes = Hash::extract($aData, 'data.{n}.code');
-				$this->set('aCodes', $aCodes);
 				
-				$conditions = array('Product.code' => $aCodes);
-				$order = 'Product.code';
-				$aProducts = $this->Product->find('all', compact('conditions', 'order'));
-				$this->set('aProducts', Hash::combine($aProducts, '{n}.Product.code', '{n}'));
-				$this->Session->setFlash(__('Found %s products / %s codes', count($aProducts), count($aCodes)), 'default', array(), 'success');
+				if (in_array('detail_num', $aData['keys'])) {
+					$keyField = 'detail_num';
+				}
+				
+				if (!Hash::get($aData, 'data.0.'.$keyField)) {
+					throw new Exception(__('CSV file must contain `%s` field', $keyField));
+				}
+				$aCodes = Hash::extract($aData, 'data.{n}.'.$keyField);
+			} else {
+				$keyField = $this->request->data('keyField');
+				if ($codes = $this->request->data('codes')) {
+					$aCodes = explode(',', $codes);
+				}
+			}
+			
+			if ($aCodes) {
+				$fields = array('Product.id', 'Product.code', 'Product.detail_num', 'Product.title', 'Product.title_rus');
+				$countRecs = 0;
+				if ($keyField == 'detail_num') {
+					$conditions = array();
+					foreach($aCodes as $number) {
+						$conditions['OR'][] = array('Product.detail_num LIKE ' => '%'.trim($number).'%');
+					}
+					$order = 'Product.detail_num';
+					$aData = $this->Product->find('all', compact('fields', 'conditions', 'order'));
+					$countRecs = count($aData);
+					$aProducts = array();
+					foreach($aData as $product) {
+						foreach(explode(' ', $product['Product']['detail_num']) as $_detail_num) {
+							$aProducts[$_detail_num][] = $product; // встречаются разные детали с одинаковыми номерами!!!
+						}
+					}
+				} else {
+					$conditions = array('Product.code' => $aCodes);
+					$order = 'Product.code';
+					$aProducts = $this->Product->find('all', compact('fields', 'conditions', 'order'));
+					$countRecs = count($aProducts);
+					$aProducts = Hash::combine($aProducts, '{n}.Product.code', '{n}');
+				}
+				
+				$this->set('keyField', $keyField);
+				$this->set('aCodes', $aCodes);
+				$this->set('aProducts', $aProducts);
+				if ($this->request->data('print')) {
+					$this->layout = 'print_xls';
+					$this->render('check_products_print');
+				} else {
+					$msg = __('Found %s products / %s codes', $countRecs, count($aCodes));
+					$this->Session->setFlash($msg, 'default', array(), 'success');
+				}
 			}
 		} catch (Exception $e) {
-			$this->Product->getDataSource()->rollback();
 			$this->Session->setFlash(__($e->getMessage(), $this->errLine), 'default', array(), 'error');
 			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'checkProducts'));
 		}
 	}
 	
-	public function printCheckProducts() {
-		if ($this->request->data('codes')){
-			$this->layout = 'print_xls';
-			$aCodes = explode(',', $this->request->data('codes'));
-			$this->set('aCodes', $aCodes);
-			$conditions = array('Product.code' => $aCodes);
-			$order = 'Product.code';
-			$aProducts = $this->Product->find('all', compact('conditions', 'order'));
-			$this->set('aProducts', Hash::combine($aProducts, '{n}.Product.code', '{n}'));
-		} else {
-			// $this->redirect(array('action' => 'index'));
-		}
-    }
 }
 

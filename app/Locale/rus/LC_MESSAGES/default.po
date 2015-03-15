@@ -462,3 +462,6 @@ msgstr "Продано"
 
 msgid "Reports"
 msgstr "Отчеты"
+
+msgid "CSV file must contain `%s` field"
+msgstr "CSV-файл должен содержать поле `%s`"
