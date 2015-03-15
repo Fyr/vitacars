@@ -22,20 +22,25 @@ class AdminUploadCsvController extends AdminController {
 	}
     
 	public function index() {
+		set_time_limit(60 * 10);
 		try {
 			if (isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name']) {
 				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
 				
 				$fieldRights = $this->_getFieldRights();
+				$keyField = 'code';
 				foreach($aData['keys'] as $fk_id) {
 					$f_id = str_replace('fk_', '', $fk_id);
-					if ($fieldRights && $fk_id != 'detail_num' && !in_array($f_id, $fieldRights)) {
+					if (!in_array($fk_id, array('detail_num', 'code')) && !($fieldRights && in_array($f_id, $fieldRights))) {
 						throw new Exception(__('You have no access rights to load `%s`', $fk_id));
+					}
+					if ($fk_id == 'detail_num') {
+						$keyField = 'detail_num'; // в первую очередь проверяем по detail_num, если есть и detail_num, и code
 					}
 				}
 				
 				$this->Product->getDataSource()->begin();
-				$aID = $this->_updateParams($aData['keys'], $this->_getCounters($aData['data']));
+				$aID = $this->_updateParams($aData['keys'], $this->_getCounters($keyField, $aData['data']));
 				$this->Product->getDataSource()->commit();
 				
 				$this->Session->setFlash(__('%s products have been successfully updated', count($aID)), 'default', array(), 'success');
@@ -85,14 +90,14 @@ class AdminUploadCsvController extends AdminController {
 	 *
 	 * @param unknown_type $aData
 	 */
-	private function _getCounters($aData) {
+	private function _getCounters($keyField = 'detail_num', $aData) {
 		$aParams = array();
 		foreach($aData as $row) {
 			list($number) = array_values($row);
 			$params = $this->Product->find('all', array(
 				'fields' => array('id'),
 				'conditions' => array(
-					'Product.detail_num LIKE ' => '%'.trim($number).'%'
+					'Product.'.$keyField.' LIKE ' => '%'.trim($number).'%'
 				)
 			));
 			/*
