@@ -356,7 +356,7 @@ msgid "Motor"
 msgstr "Мотор"
 
 msgid "Detail num"
-msgstr "Номер детали"
+msgstr "Номер запчасти"
 
 msgid "Code"
 msgstr "Код"
@@ -465,3 +465,27 @@ msgstr "Отчеты"
 
 msgid "CSV file must contain `%s` field"
 msgstr "CSV-файл должен содержать поле `%s`"
+
+msgid "Created"
+msgstr "Создано"
+
+msgid "Rights"
+msgstr "Права"
+
+
+
+
+msgid "Legal Title"
+msgstr "Наименование"
+
+msgid "Unp"
+msgstr "УНП"
+
+msgid "Phone"
+msgstr "Тел."
+
+msgid "Address"
+msgstr "Адрес"
+
+msgid "Discount"
+msgstr "Скидка, %"

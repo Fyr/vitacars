@@ -6,6 +6,7 @@
     echo $this->PHForm->create('User');
 	$aTabs = array(
 		'General' => $this->element('/AdminUsers/admin_edit_User'),
+		'Contacts' => $this->element('/AdminUsers/admin_edit_UserContacts'),
 		'Rights' => $this->element('/AdminUsers/admin_edit_UserRights'),
 	);
 	echo $this->element('admin_tabs', compact('aTabs'));

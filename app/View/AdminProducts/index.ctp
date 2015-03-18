@@ -32,6 +32,7 @@
     unset($columns['Media.object_type']);
     unset($columns['Media.file']);
     unset($columns['Media.ext']);
+    unset($columns['PMFormData.fk_23']);
     foreach($columns as $key => &$column) {
     	if (isset($aLabels[$key])) {
     		$column['label'] = $aLabels[$key];
