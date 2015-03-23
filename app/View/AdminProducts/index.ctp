@@ -1,6 +1,6 @@
 <?
 	$this->Html->css(array('jquery.fancybox', 'bootstrap-multiselect'), array('inline' => false));
-	$this->Html->script(array('vendor/jquery/jquery.fancybox', 'vendor/bootstrap-multiselect'), array('inline' => false));
+	$this->Html->script(array('vendor/jquery/jquery.fancybox', 'vendor/bootstrap-multiselect' ), array('inline' => false));
 
 	$title = $this->ObjectType->getTitle('index', $objectType);
     $createURL = $this->Html->url(array('action' => 'edit', 0));
@@ -98,6 +98,8 @@
 	
 </div>
 <br/>
+
+
 <?
     echo $this->PHTableGrid->render('Product', array(
         'baseURL' => $this->ObjectType->getBaseURL($objectType),
@@ -105,9 +107,50 @@
         'actions' => $actions,
         'data' => $aRowset
     ));
+
 ?>
+
+<style>
+	.grid .fixed { position: fixed; top: 43px; left: 40px; margin-left: 1px;}
+	.grid .duplicateHead .grid-filter { display: none !important;}
+	.grid .originalHead .grid-filter { background: #fff;}
+</style>
+
 <script type="text/javascript">
 $(document).ready(function(){
+	var tableHeadWidth = $('.grid thead').width();
+	
+	$('.grid thead').clone().insertAfter('.grid thead').addClass('duplicateHead');
+	$('.grid .duplicateHead').hide();
+	$('.grid .duplicateHead input').prop('id', '').prop('name', '').prop('class', '');
+	
+	$('.grid thead:first-child').addClass('originalHead');
+	$('.grid .originalHead').width(tableHeadWidth);
+	
+	$('.grid .originalHead .first th').each( function(index,element) {
+		$(this).css({"max-width":$(this).width()+"px", "min-width":$(this).width()+"px"});
+	});
+	
+	$(window).scroll(function() {
+		var topOfWindow = $(window).scrollTop();
+		var leftOfWindow = $(window).scrollLeft();
+		
+		$('.grid .originalHead').css("left", -leftOfWindow+40+"px");
+		
+		if ( topOfWindow > 154 ) {
+			$('.grid .duplicateHead').show();
+			$('.grid .originalHead').addClass('fixed');
+			$('.grid .originalHead .grid-filter th').css('border-bottom',"1px solid #dddddd");
+		}
+		else {
+			$('.grid .duplicateHead').hide();
+			$('.grid .originalHead').removeClass('fixed');
+			$('.grid .originalHead .grid-filter th').css('border-bottom',"none");
+		}
+		
+	});
+	
+
 	$('.multiselect').multiselect({
 		nonSelectedText: 'Выберите мотор',
 		nSelectedText: 'выбрано'
