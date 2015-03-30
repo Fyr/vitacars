@@ -40,12 +40,12 @@
     }
     $aColors = array();
     foreach($aRowset as &$row) {
-    	$img = $this->Media->imageUrl($row, '100x50');
+    	$img = $this->Media->imageUrl($row, '100x');
     	$row['Product']['image'] = ($img) ? $this->Html->link(
     		$this->Html->image($img),
     		$this->Media->imageUrl($row, 'noresize'),
     		array('escape' => false, 'class' => 'fancybox', 'rel' => 'gallery')
-    	) : '<img src="/img/default_product.jpg" style="width: 50px; alt="" />';
+    	) : '<img src="/img/default_product100.png" style="width: 100px; alt="" />';
     	$row['Product']['detail_num'] = str_replace(' ', '<br />', $row['Product']['detail_num']);
     	if (isset($paramMotor) && Hash::check($row, 'PMFormData.'.$paramMotor)) {
     		$row['PMFormData'][$paramMotor] = str_replace(',', '<br />', $row['PMFormData'][$paramMotor]);
