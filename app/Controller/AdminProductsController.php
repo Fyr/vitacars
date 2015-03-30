@@ -46,7 +46,7 @@ class AdminProductsController extends AdminController {
         		$detail_num = str_replace(array('*', '~'), '', $detail_num);
         		$this->set('detail_num', $detail_num);
         		if ($detail_num) {
-					$numbers = explode(' ', str_replace(',', '  ', $detail_num));
+					$numbers = explode(' ', str_replace(',', ' ', $detail_num));
 					if ($lFindSame) {
 						$ors = array();
 						$order = array();
@@ -62,7 +62,7 @@ class AdminProductsController extends AdminController {
 							}
 							$products = $this->Product->find('all', array('conditions' => array('OR' => $ors)));
 							foreach($products as $product) {
-								$numbers = array_merge($numbers, explode(' ', str_replace(',', '  ', $product['Product']['detail_num'])));
+								$numbers = array_merge($numbers, explode(' ', str_replace(',', ' ', $product['Product']['detail_num'])));
 							}
 							$numbers = array_unique($numbers);
 							$_count = $count;
