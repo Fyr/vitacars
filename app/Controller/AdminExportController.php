@@ -49,8 +49,9 @@ class AdminExportController extends AdminController {
 		$body = $article['body'];
 		$article['object_type'] = $this->aTypes[$object_type];
 		$this->xArticle->save($article); // пишем ID статьи 1:1
-		
+		/*
 		foreach($aMedia as $media) {
+			
 			$xFile = $this->Media->getPHMedia()->getFileName($object_type, $media['id'], 'noresize', $media['file'].$media['ext']);
 				
 			$media['object_type'] = 'Article';
@@ -61,9 +62,11 @@ class AdminExportController extends AdminController {
 			$new_media_id = $this->xMedia->uploadMedia($media);
 			
 			// update new media in article's body
-			$body = str_replace('/media/router/index/'.strtolower($object_type).'/'.$old_media_id, '/media/router/index/article/'.$new_media_id, $body);
+			$body = str_replace('/media/router/index/'.strtolower($object_type).'/'.$media['id'], '/media/router/index/article/'.$media['id'], $body);
 		}
 		$this->xArticle->save(array('id' => $article['id'], 'body' => $body));
+
+		*/
 	}
 	
     public function index() {
@@ -85,14 +88,14 @@ class AdminExportController extends AdminController {
 		    		$this->{$model}->schemaName = $db->getSchemaName();
 		    		$this->{$model}->clear(); // на всякий случай чистим поля модели
 		    	}
-		    	$this->xMedia->setBasePath(($dataSource == 'agromotors_ru') ? PATH_FILES_UPLOAD_RU : PATH_FILES_UPLOAD_BY);
+		    	// $this->xMedia->setBasePath(($dataSource == 'agromotors_ru') ? PATH_FILES_UPLOAD_RU : PATH_FILES_UPLOAD_BY);
 		    	
 		    	$counter = array('Media' => 0, 'Product' => 0, 'Brand' => 0, 'Category' => 0, 'Subcategory' => 0, 'ParamsValues' => 0, 'Seo' => 0);
 		    	
 		    	$this->xArticle->getDataSource()->begin();
 		    	
 		    	fdebug('Очистка БД...', 'export.log');
-		    	$this->xMedia->deleteAll(array('object_type' => 'Article'), true, true);
+		    	$this->xMedia->deleteAll(true);
 		    	$this->xArticle->deleteAll(true);
 		    	$this->xParam->deleteAll(true);
 		    	$this->xParamObject->deleteAll(true);
@@ -114,8 +117,23 @@ class AdminExportController extends AdminController {
 						$this->_addArticle($article['SiteArticle'], $article['Media']);
 						$object_type = $article['SiteArticle']['object_type'];
 						$counter[$object_type]++;
-						$counter['Media']+= count($article['Media']);
 					}
+		    	}
+		    	fdebug('ОК'."\r\n", 'export.log');
+		    	
+		    	fdebug('Экспорт media...', 'export.log');
+		    	$page = 1;
+		    	$limit = 10;
+		    	$order = 'Media.id'; // !!!  БД не может по другому те же ID записать
+		    	while ($medias = $this->Media->find('all', compact('page', 'limit', 'order'))) {
+		    		$page++;
+				foreach($medias as $media) {
+		    			$media = $media['Media'];
+						// $media['object_type'] = 'Article';
+					$this->xMedia->clear();
+					$this->xMedia->save($media);
+					$counter['Media']++;
+				}
 		    	}
 		    	fdebug('ОК'."\r\n", 'export.log');
 		    	

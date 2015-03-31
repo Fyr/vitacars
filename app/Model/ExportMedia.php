@@ -1,13 +1,9 @@
 <?php
 App::uses('AppModel', 'Model');
 App::uses('Media', 'Media.Model');
-class ExportMedia extends Media {
+class ExportMedia extends AppModel {
 	public $useDbConfig = 'agromotors_by';
-	public $useTable = 'media';
+	public $useTable = 'media_products';
 	public $alias = 'xMedia';
-	
-	public function setBasePath($path) {
-		$this->PHMedia->setBasePath($path);
-	}
 	
 }

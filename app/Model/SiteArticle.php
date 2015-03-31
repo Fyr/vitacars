@@ -1,7 +1,7 @@
 <?
 App::uses('AppModel', 'Model');
 App::uses('Article', 'Article.Model');
-App::uses('Media', 'Media.Model');
+// App::uses('Media', 'Media.Model');
 class SiteArticle extends Article {
 	public $alias = 'SiteArticle';
 	
