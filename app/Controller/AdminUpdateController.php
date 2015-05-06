@@ -103,21 +103,28 @@ class AdminUpdateController extends AdminController {
 	}
 	
 	public function update3() {
+		set_time_limit(60 * 10);
 		App::uses('Translit', 'Article.Vendor');
 		// $this->PHTranslit = new PHTranslitHelper($this->view);
 		
+		$this->loadModel('SiteArticle');
 		$conditions = array('object_type' => 'Product');
-    	$page = 1;
-    	$limit = 10;
-    	$order = 'SiteArticle.id'; 
-    	while ($articles = $this->SiteArticle->find('all', compact('conditions', 'page', 'limit', 'order'))) {
-    		$page++;
-    		foreach($articles as $article) {
-    			$data = $article['SiteArticle'];
-    			$data['page_id'] = Translit::convert($data['title_rus'].'-'.$data['detail_num'], true);
-    			$this->SiteArticle->save(array('id' => $data['id'], 'page_id' => $data['page_id']));
+		$fields = array('id', 'title_rus', 'code');
+		$page = 1;
+		$limit = 1000;
+		$order = 'SiteArticle.id'; 
+		$count = 0;
+		$data = array();
+		while ($articles = $this->SiteArticle->find('all', compact('fields', 'conditions', 'page', 'limit', 'order'))) {
+			$page++;
+			foreach($articles as $article) {
+				$count++;
+				$data = $article['SiteArticle'];
+				$data['page_id'] = Translit::convert($data['title_rus'].'-'.$data['code'], true);
+				$this->SiteArticle->save(array('id' => $data['id'], 'page_id' => $data['page_id']));
 			}
-    	}
+		}
+		exit($count.' products processed');
 	}
 	
 	public function update4() {

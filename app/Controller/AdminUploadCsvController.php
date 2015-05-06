@@ -44,7 +44,7 @@ class AdminUploadCsvController extends AdminController {
 				$this->Product->getDataSource()->commit();
 				
 				$this->Session->setFlash(__('%s products have been successfully updated', count($aID)), 'default', array(), 'success');
-				$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
+				$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index')); // , 'Product.id' => implode(',', $aID)
 			}
 		} catch (Exception $e) {
 			$this->Product->getDataSource()->rollback();
@@ -144,6 +144,7 @@ class AdminUploadCsvController extends AdminController {
 			$aKeys[$id] = 0;
 		}
 		
+		$aID = array();
 		// перед сохранением очистить столбцы
 		// $this->PMFormData->updateAll($aKeys);
 		$a1 = 'fk_'.Configure::read('Params.A1');
@@ -190,16 +191,19 @@ class AdminUploadCsvController extends AdminController {
 		$outcomeY = 'fk_'.Configure::read('Params.outcomeY');
 		if (in_array($a1, $keys) || in_array($a2, $keys)) {
 			$fields = array_merge(array('id', 'object_id', $outcomeY), $keys);
-	    	$conditions = array('object_type' => 'ProductParam', 'NOT' => array('object_id' => array_keys($aParams)));
-	    	$page = 1;
-	    	$limit = 100;
-	    	$order = array('object_id');
-	    	while ($rows = $this->PMFormData->find('all', compact('fields', 'conditions', 'page', 'limit', 'order'))) {
-	    		$page++;
-	    		$remain = 0;
-	    		foreach($rows as $row) {
-	    			$data = array_merge(array('id' => $row['PMFormData']['id']), $aKeys);
-	    			
+		}
+	
+    	$conditions = array('object_type' => 'ProductParam', 'NOT' => array('object_id' => array_keys($aParams)));
+    	$page = 1;
+    	$limit = 100;
+    	$order = array('object_id');
+    	while ($rows = $this->PMFormData->find('all', compact('fields', 'conditions', 'page', 'limit', 'order'))) {
+    		$page++;
+    		$remain = 0;
+    		foreach($rows as $row) {
+    			$data = array_merge(array('id' => $row['PMFormData']['id']), $aKeys);
+    			
+    			if (in_array($a1, $keys) || in_array($a2, $keys)) {
 	    			$remain = -intval(Hash::get($row, 'PMFormData.'.$a1)) - intval(Hash::get($row, 'PMFormData.'.$a2));
 	    			if ($remain) {
 	    				$product_id = $row['PMFormData']['object_id'];
@@ -208,13 +212,12 @@ class AdminUploadCsvController extends AdminController {
 	    				
 	    				$data[$outcomeY] = $row['PMFormData'][$outcomeY] + $remain;
 	    			}
-	    			$this->PMFormData->save($data);
-	    			$this->PMFormData->recalcFormula($this->PMFormData->id, $aFormFields);
-	    		}
-	    	}
-		}
-		
-		// TODO: пересчитать все формулы
+    			}
+    			$this->PMFormData->save($data);
+    			$this->PMFormData->recalcFormula($this->PMFormData->id, $aFormFields);
+    			$aID[] = $row['PMFormData']['object_id'];
+    		}
+    	}
 		
 		return $aID;
 	}

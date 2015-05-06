@@ -113,7 +113,7 @@ function change_SeoTitle() {
 }
 
 function change_Slug() {
-	$('#ProductPageId').val(translit($('#ProductTitleRus').val() + '-' + $('#ProductDetailNum').val()));
+	$('#ProductPageId').val(translit($('#ProductTitleRus').val() + '-' + $('#ProductCode').val()));
 }
 
 function change_SeoDescr() {
@@ -141,7 +141,10 @@ $(document).ready(function(){
 	$('#ProductCode').change(function(){
 		change_SeoTitle();
 	});
-	$('#ProductTitleRus, #ProductDetailNum').change(function(){
+	$('#ProductTitleRus, #ProductCode').change(function(){
+		change_Slug();
+	});
+	$('#ProductTitleRus, #ProductCode').keyup(function(){
 		change_Slug();
 	});
 	$('#ProductTitle, #ProductDetailNum').change(function(){
