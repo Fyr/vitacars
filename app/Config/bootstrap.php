@@ -51,6 +51,11 @@ Configure::write('Params', array(
 	'outcomeY' => (TEST_ENV) ? 27 : 32,
 ));
 
+Configure::write('import', array(
+	'folder' => ROOT.DS.APP_DIR.DS.'tmp'.DS, // .'import'.DS
+	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'import.log'
+));
+
 function fdebug($data, $logFile = 'tmp.log', $lAppend = true) {
 		file_put_contents($logFile, mb_convert_encoding(print_r($data, true), 'cp1251', 'utf8'), ($lAppend) ? FILE_APPEND : null);
 }

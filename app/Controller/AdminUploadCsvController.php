@@ -267,7 +267,7 @@ class AdminUploadCsvController extends AdminController {
 			$row['object_type'] = 'Product';
 			if (!isset($row['page_id'])) {
 				if (isset($row['title_rus']) && $row['detail_num']) {
-					$row['page_id'] = Translit::convert($row['title_rus'].'-'.$row['detail_num'], true);
+					$row['page_id'] = Translit::convert($row['title_rus'].'-'.$row['code'], true);
 				}
 			}
 			if (!isset($row['published'])) {
