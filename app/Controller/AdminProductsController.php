@@ -109,21 +109,36 @@ class AdminProductsController extends AdminController {
         }
     }
     
-    public function printXls() {
-        if($this->request->data('aID')){
-            $this->layout = 'print_xls';
-            $this->_processParams();
-            $aID = explode(',', $this->request->data('aID'));
-
-            $this->paginate['conditions'] = array('Product.id' => $aID);
-            $this->paginate['order'] = 'FIELD (Product.id, '.$this->request->data('aID').') ASC';
-        	$this->paginate['limit'] = count($aID);
-            $aRowset = $this->PCTableGrid->paginate('Product');
-            $this->set('aRowset', $aRowset);
-        } else {
-            $this->redirect(array('action' => 'index'));
-        }
-    }
+	public function printXls() {
+		if($this->request->data('aID')){
+			$this->layout = 'print_xls';
+			$this->_processParams();
+			$aID = explode(',', $this->request->data('aID'));
+			$this->paginate['fields'][] = 'Product.cat_id';
+			$this->paginate['fields'][] = 'Product.subcat_id';
+			$this->paginate['fields'][] = 'Product.brand_id';
+			$this->paginate['conditions'] = array('Product.id' => $aID);
+			$this->paginate['order'] = 'FIELD (Product.id, '.$this->request->data('aID').') ASC';
+			$this->paginate['limit'] = count($aID);
+			$aRowset = $this->PCTableGrid->paginate('Product');
+			
+			$ids = array_unique(Hash::extract($aRowset, '{n}.Product.cat_id'));
+			$conditions = array('Category.object_type' => 'Category', 'Category.id' => $ids);
+			$aCategories = $this->Category->find('list', compact('conditions'));
+			
+			$ids = array_unique(Hash::extract($aRowset, '{n}.Product.subcat_id'));
+			$conditions = array('Subcategory.object_type' => 'Subcategory', 'Subcategory.id' => $ids);
+			$aSubcategories = $this->Subcategory->find('list', compact('conditions'));
+			
+			$ids = array_unique(Hash::extract($aRowset, '{n}.Product.brand_id'));
+			$conditions = array('Brand.object_type' => 'Brand', 'Brand.id' => $ids);
+			$aBrands = $this->Brand->find('list', compact('conditions'));
+			
+			$this->set(compact('aRowset', 'aCategories', 'aSubcategories', 'aBrands'));
+		} else {
+			$this->redirect(array('action' => 'index'));
+		}
+	}
 
     public function index() {
     	$this->_processParams();

@@ -53,14 +53,15 @@ class ImportController extends AppController {
 		
 		foreach($data['data'] as $_data) {
 			$product = $this->Product->findByCode($_data['code']);
-			if (!$product) {
-				throw new Exception(__('Incorrect product code `%s`', $_data['code']));
-			}
-			$key = $data['keys'][1];
-			$this->PMFormData->save(array('id' => $product['PMFormData']['id'], $key => $product['PMFormData'][$key] + $_data[$key]));
+			if ($product) {
+				// throw new Exception(__('Incorrect product code `%s`', $_data['code']));
 			
-			$this->ProductRemain->clear();
-			$this->ProductRemain->save(array('product_id' => $product['Product']['id'], 'remain' => $_data[$key]));
+				$key = $data['keys'][1];
+				$this->PMFormData->save(array('id' => $product['PMFormData']['id'], $key => $product['PMFormData'][$key] + $_data[$key]));
+	
+				$this->ProductRemain->clear();
+				$this->ProductRemain->save(array('product_id' => $product['Product']['id'], 'remain' => $_data[$key]));
+			}
 		}
 	}
 	

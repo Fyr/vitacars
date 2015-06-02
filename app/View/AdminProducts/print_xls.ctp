@@ -3,7 +3,7 @@
         <thead>
             <tr>
 <?
-	foreach(array(__('Title'), __('Title rus'), __('Code'), __('Detail num')) as $label) {
+	foreach(array(__('Brand'), __('Category'), __('Subcategory'), __('Title'), __('Title rus'), __('Code'), __('Detail num')) as $label) {
 ?>
                 <th><?=$label?></th>
 <?
@@ -21,6 +21,9 @@
 		$class = ($class == 'even') ? 'odd' : 'even';
 ?>
 		<tr class="row">
+			<td class="<?=$class?>"><?=$aBrands[$Product['Product']['brand_id']]?></td>
+			<td class="<?=$class?>"><?=$aCategories[$Product['Product']['cat_id']]?></td>
+			<td class="<?=$class?>"><?=$aSubcategories[$Product['Product']['subcat_id']]?></td>
 			<td class="<?=$class?>"><?=$Product['Product']['title']?></td>
 			<td class="<?=$class?>"><?=$Product['Product']['title_rus']?></td>
 			<td class="<?=$class?>">&nbsp;<?=$Product['Product']['code']?></td>
