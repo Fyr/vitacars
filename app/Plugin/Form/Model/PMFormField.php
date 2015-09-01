@@ -6,7 +6,7 @@ class PMFormField extends AppModel {
 	
 	public $validate = array(
 		'key' => array(
-			'rule' => '/^[a-zA-Z]+[\_a-zA-Z0-9]*$/',
+			'rule' => '/^[A-Z]+[0-9]+$/',
 			'allowEmpty' => true,
 			'message' => 'Неверный формат ключа. Пример: A1, B1, AA1, BB1'
 		),
@@ -35,18 +35,16 @@ class PMFormField extends AppModel {
 
 	public function beforeSave($options = array()) {
 		// Set default values for formula
-		if (isset($this->data['PMFormField']['formula']) && $this->data['PMFormField']['formula']) {
-			if (!isset($this->data['PMFormField']['decimals'])) {
-				$this->data['PMFormField']['decimals'] = 2;
-			} elseif ($this->data['PMFormField']['decimals'] == '') {
-				$this->data['PMFormField']['decimals'] = 0;
-			}
-			if (!isset($this->data['PMFormField']['div_float'])) {
-				$this->data['PMFormField']['div_float'] = ',';
-			}
-			if (!isset($this->data['PMFormField']['div_int'])) {
-				$this->data['PMFormField']['div_int'] = ' ';
-			}
+		if (!$fOptions = Hash::get($this->data, 'PMFormField.decimals')) {
+			$this->data['PMFormField']['decimals'] = 2;
+		}
+		if (!$fOptions = Hash::get($this->data, 'PMFormField.div_float')) {
+			$this->data['PMFormField']['div_float'] = ',';
+		}
+		if (!$fOptions = Hash::get($this->data, 'PMFormField.div_int')) {
+			$this->data['PMFormField']['div_int'] = ' ';
+		}
+		if ($fOptions = Hash::get($this->data, 'PMFormField.formula')) {
 			$this->data['PMFormField']['options'] = $this->packFormulaOptions($this->data['PMFormField']);
 		}
 		return true;
@@ -62,13 +60,13 @@ class PMFormField extends AppModel {
 	}
 	
 	public function beforeDelete($cascade = true) {
-		App::uses('PMFormValue', 'Form.Model');
-		$this->PMFormValue = new PMFormValue();
-		$this->PMFormValue->deleteAll(array('PMFormValue.field_id' => $this->id));
-		
 		App::uses('PMFormKey', 'Form.Model');
 		$this->PMFormKey = new PMFormKey();
 		$this->PMFormKey->deleteAll(array('PMFormKey.field_id' => $this->id));
+		
+		$this->loadModel('Form.PMFormData');
+		$sql = 'ALTER TABLE '.$this->PMFormData->getTableName().' DROP fk_'.$this->id;
+		$this->query($sql);
 		return true;
 	}
 	

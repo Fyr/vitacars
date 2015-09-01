@@ -223,4 +223,8 @@ class AdminExportController extends AdminController {
 
     public function progress() {
 	}
+	
+	public function updateSearchData() {
+		
+	}
 }

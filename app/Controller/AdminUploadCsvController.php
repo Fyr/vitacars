@@ -115,9 +115,9 @@ class AdminUploadCsvController extends AdminController {
 					}
 					foreach($row as $counter => $count) {
 						if (isset($aParams[$object_id][$counter])) {
-							$aParams[$object_id][$counter]+= intval($count);
+							$aParams[$object_id][$counter]+= floatval($count);
 						} else {
-							$aParams[$object_id][$counter] = intval($count);
+							$aParams[$object_id][$counter] = floatval($count);
 						}
 					}
 				}

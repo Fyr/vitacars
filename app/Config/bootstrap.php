@@ -52,7 +52,7 @@ Configure::write('Params', array(
 ));
 
 Configure::write('import', array(
-	'folder' => ROOT.DS.APP_DIR.DS.'tmp'.DS, // .'import'.DS
+	'folder' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'csv'.DS,
 	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'import.log'
 ));
 

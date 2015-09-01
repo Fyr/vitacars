@@ -47,6 +47,11 @@ class AdminController extends AppController {
 					'Products' => array('label' => __('Products'), 'href' => array('controller' => 'AdminProducts', 'action' => 'index')),
 				))
 			);
+			
+			if (AuthComponent::user('view_brands')) {
+				$this->aNavBar['Products']['submenu']['Brands'] = array('label' => __('Brands'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Brand'));
+				fdebug($this->aNavBar);
+			}
 			if (AuthComponent::user('load_counters')) {
 				$this->aNavBar['Upload'] = array('label' => __('Uploadings'), 'href' => '', 'submenu' => array(
 					array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index')),

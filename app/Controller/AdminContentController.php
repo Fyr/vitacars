@@ -6,15 +6,17 @@ class AdminContentController extends AdminController {
     public $uses = array('Category', 'Subcategory', 'Brand', 'Form.FormField', 'Form.PMForm');
     public $helpers = array('ObjectType');
     
-    public function beforeFilter() {
-		if (!$this->isAdmin()) {
+    public function index($objectType, $objectID = '') {
+    	if ($objectType == 'Brand') {
+    		if ( !($this->isAdmin() || AuthComponent::user('view_brands')) ) {
+    			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
+				return;
+    		}
+    	} elseif (!$this->isAdmin()) {
 			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
 			return;
 		}
-		parent::beforeFilter();
-	}
-    
-    public function index($objectType, $objectID = '') {
+    	
     	// $this->loadModel($objectType);
         $this->paginate = array(
             'Page' => array(
@@ -62,6 +64,16 @@ class AdminContentController extends AdminController {
 		$this->PCArticle->edit(&$id, &$lSaved);
 		$objectType = $this->request->data('Article.object_type');
 		$objectID = $this->request->data('Article.object_id');
+		
+		if ($objectType == 'Brand') {
+    		if ( !($this->isAdmin() || AuthComponent::user('view_brands')) ) {
+    			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
+				return;
+    		}
+    	} elseif (!$this->isAdmin()) {
+			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
+			return;
+		}
 		
 		if ($lSaved) {
 			if ($objectType == 'Subcategory') {

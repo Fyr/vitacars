@@ -8,6 +8,7 @@
 		'options' => array(
 			'active' => __('Active'), 
 			'load_counters' => __('Load counters (CSV)'), 
+			'view_brands' => __('Brands'), 
 		), 
 		'class' => 'checkbox inline'
 	));

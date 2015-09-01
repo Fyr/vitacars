@@ -58,9 +58,12 @@ class ImportController extends AppController {
 			
 				$key = $data['keys'][1];
 				$this->PMFormData->save(array('id' => $product['PMFormData']['id'], $key => $product['PMFormData'][$key] + $_data[$key]));
-	
-				$this->ProductRemain->clear();
-				$this->ProductRemain->save(array('product_id' => $product['Product']['id'], 'remain' => $_data[$key]));
+				
+				$status = (isset($_data['status']) && $_data['status']);
+				if (!$status) {
+					$this->ProductRemain->clear();
+					$this->ProductRemain->save(array('product_id' => $product['Product']['id'], 'remain' => $_data[$key]));
+				}
 			}
 		}
 	}
