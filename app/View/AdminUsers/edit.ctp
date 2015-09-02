@@ -8,6 +8,7 @@
 		'General' => $this->element('/AdminUsers/admin_edit_User'),
 		'Contacts' => $this->element('/AdminUsers/admin_edit_UserContacts'),
 		'Rights' => $this->element('/AdminUsers/admin_edit_UserRights'),
+		'Brands' => $this->element('/AdminUsers/admin_edit_UserBrands'),
 	);
 	echo $this->element('admin_tabs', compact('aTabs'));
 	echo $this->element('Form.form_actions', array('backURL' => $this->Html->url(array('action' => 'index'))));

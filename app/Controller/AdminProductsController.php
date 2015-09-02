@@ -101,6 +101,9 @@ class AdminProductsController extends AdminController {
         		// запретить не-админам показывать полный список
         		$this->paginate['conditions'] = array('0=1');
         	}
+        	if ($brand_ids = $this->_getBrandRights()) {
+        		$this->paginate['conditions']['Product.brand_id'] = $brand_ids;
+        	}
         }
         
         if (isset($this->request->named['Product.id']) && strpos($this->request->named['Product.id'], ',')) {

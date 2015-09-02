@@ -11,7 +11,7 @@ class PCTableGridComponent extends Component {
 	const LIMIT = 100;
 	
 	private $_;
-	private $model, $paginate = array(), $defaults = array();
+	private $model, $paginate = array(), $defaults = array(), $_paginate = array();
 	private $pgFilter = array();
 
 	public function initialize(Controller $controller) {
@@ -164,10 +164,10 @@ class PCTableGridComponent extends Component {
 		// $aRowset = $this->Paginator->paginate($modelName, $this->getFilter());
 		$aRowset = $this->_->paginate($modelName, $this->getFilter());
 		// $this->paginate[$modelName]['_rowset'] = $aRowset;
-		$_paginate = array();
-		$_paginate[$modelName] = $this->paginate;
-		$_paginate[$modelName]['_rowset'] = $aRowset;
-		$this->_->set('_paginate', $_paginate);
+		// $_paginate = array();
+		$this->_paginate[$modelName] = $this->paginate;
+		$this->_paginate[$modelName]['_rowset'] = $aRowset;
+		$this->_->set('_paginate', $this->_paginate);
 		return $aRowset;
 	}
 
