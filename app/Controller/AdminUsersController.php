@@ -47,7 +47,7 @@ class AdminUsersController extends AdminController {
 		}
 		$this->paginate = array(
 			'FormField' => array(
-				'fields' => array('field_type', 'label', 'fieldset', 'required'),
+				'fields' => array('id', 'field_type', 'label', 'fieldset', 'required'),
     			'limit' => 100
 			),
     		'Brand' => array(

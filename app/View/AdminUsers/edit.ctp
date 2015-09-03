@@ -15,3 +15,34 @@
     echo $this->PHForm->end();
 ?>
 </div>
+<script type="text/javascript">
+$(document).ready(function(){
+	var $grid = $('#grid_FormField');
+	var $grid2 = $('#grid_Brand');
+	
+	var vals = $('#UserFieldRights').val().split(',');
+	for(var i = 0; i < vals.length; i++) {
+		$('.grid-chbx-row[value=' + vals[i] + ']', $grid).click();
+	}
+	
+	var vals = $('#UserBrandRights').val().split(',');
+	for(var i = 0; i < vals.length; i++) {
+		$('.grid-chbx-row[value=' + vals[i] + ']', $grid2).click();
+	}
+	
+	$('.form-3actions button[type=submit]').click(function(){
+		var vals = [];
+		$('.grid-chbx-row:checked', $grid).each(function(){
+			vals.push($(this).val());
+		});
+		$('#UserFieldRights').val(vals.join(','));
+		
+		var vals = [];
+		$('.grid-chbx-row:checked', $grid2).each(function(){
+			vals.push($(this).val());
+		});
+		$('#UserBrandRights').val(vals.join(','));
+	});
+	
+});
+</script>
