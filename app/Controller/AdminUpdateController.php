@@ -183,4 +183,35 @@ class AdminUpdateController extends AdminController {
 		echo 'Processed '.$count['Product'].' products, '.$count['Param'].' params <br>';
 	}
 
+	public function update5() {
+		App::uses('Path', 'Core.Vendor');
+		$pathInfo = Path::dirContent(Configure::read('import.folder'));
+		foreach($pathInfo['files'] as $file) {
+			$fullPath = Configure::read('import.folder').$file;
+			$path = explode(DS, $this->_getFilePath($file));
+			
+			$_path = Configure::read('import.folder').DS.$path[0];
+			if (!file_exists($_path)) {
+				mkdir($_path);
+			}
+			$_path.= DS.$path[1];
+			if (!file_exists($_path)) {
+				mkdir($_path);
+			}
+			$_path.= DS.$path[2];
+			if (!file_exists($_path)) {
+				mkdir($_path);
+			}
+			rename($fullPath, $_path.DS.$file);
+		}
+		
+		$this->autoRender = false;
+		echo 'Processed '.count($pathInfo['files']).' files';
+	}
+	
+	private function _getFilePath($file) {
+		list($fileDate) = explode('_', str_replace('dlt_mgr', '', $file));
+		$path = substr($fileDate, 0, 4).DS.substr($fileDate, 4, 2).DS.substr($fileDate, 6, 2);
+		return $path;
+	}
 }

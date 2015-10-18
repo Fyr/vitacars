@@ -39,6 +39,10 @@ class AdminFormsController extends AdminController {
 					$this->PMFormKey->save(array('form_id' => 1, 'field_id' => $id));
 				}
 				$baseRoute = array('action' => 'index');
+				
+				if ($this->request->data('PMFormField.field_type') == FieldTypes::FORMULA) {
+					$this->setFlash(__('Be sure to recalculate formulas'));
+				}
 				return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
 			}
 		} elseif ($id) {
@@ -53,7 +57,7 @@ class AdminFormsController extends AdminController {
     }
     
     public function recalcFormula() {
-    	set_time_limit(300);
+    	set_time_limit(600);
     	$page = 1;
     	$limit = 10;
     	$count = 0;

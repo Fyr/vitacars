@@ -34,4 +34,9 @@ class AppController extends Controller {
 		$this->set('currLink', $this->currLink);
 		$this->set('pageTitle', $this->pageTitle);
 	}
+	
+	public function setFlash($msg, $type = 'info') {
+		$this->Session->setFlash($msg, 'default', array(), $type);
+	}
+
 }

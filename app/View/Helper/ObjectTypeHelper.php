@@ -13,6 +13,7 @@ class ObjectTypeHelper extends AppHelper {
                 'Subcategory' => __('Subcategories'),
                 'Product' => __('Products'),
                 'FormField' => __('Tech.params'),
+                'FormConst' => __('Constants'),
                 'User' => __('Users'),
                 'Brand' => __('Brands'),
             ), 
@@ -24,6 +25,7 @@ class ObjectTypeHelper extends AppHelper {
                 'Subcategory' => __('Create Subcategory'),
                 'Product' => __('Create Product'),
                 'FormField' => __('Create tech.param'),
+                'FormConst' => __('Create constant'),
                 'User' => __('Create User'),
                 'Brand' => __('Create Brand'),
             ),
@@ -35,6 +37,7 @@ class ObjectTypeHelper extends AppHelper {
                 'Subcategory' => __('Edit Subcategory'),
                 'Product' => __('Edit Product'),
                 'FormField' => __('Edit tech.param'),
+                'FormConst' => __('Edit constant'),
                 'User' => __('Edit User'),
                 'Brand' => __('Edit Brand'),
             )

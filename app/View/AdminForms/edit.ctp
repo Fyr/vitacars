@@ -20,7 +20,7 @@
 ?>
 	</span>
 <?
-	echo $this->PHForm->input('sort_order');
+	echo $this->PHForm->input('sort_order', array('class' => 'input-mini'));
 	echo $this->PHForm->input('required');
 	echo $this->PHForm->input('exported');
 	echo $this->element('admin_content_end');

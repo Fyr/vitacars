@@ -43,12 +43,12 @@ class AdminUploadCsvController extends AdminController {
 				$aID = $this->_updateParams($aData['keys'], $this->_getCounters($keyField, $aData['data']));
 				$this->Product->getDataSource()->commit();
 				
-				$this->Session->setFlash(__('%s products have been successfully updated', count($aID)), 'default', array(), 'success');
+				$this->setFlash(__('%s products have been successfully updated', count($aID)), 'success');
 				$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index')); // , 'Product.id' => implode(',', $aID)
 			}
 		} catch (Exception $e) {
 			$this->Product->getDataSource()->rollback();
-			$this->Session->setFlash(__($e->getMessage(), $this->errLine), 'default', array(), 'error');
+			$this->setFlash(__($e->getMessage(), $this->errLine), 'error');
 			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'index'));
 		}
 	}
@@ -329,12 +329,12 @@ class AdminUploadCsvController extends AdminController {
 				$aID = $this->_createProducts($aData);
 				$this->Product->getDataSource()->commit();
 				
-				$this->Session->setFlash(__('%s products have been successfully uploaded', count($aID)), 'default', array(), 'success');
+				$this->setFlash(__('%s products have been successfully uploaded', count($aID)), 'success');
 				$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
 			}
 		} catch (Exception $e) {
 			$this->Product->getDataSource()->rollback();
-			$this->Session->setFlash(__($e->getMessage(), $this->errLine), 'default', array(), 'error');
+			$this->setFlash(__($e->getMessage(), $this->errLine), 'error');
 			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'uploadNewProducts'));
 		}
 	}
@@ -394,11 +394,11 @@ class AdminUploadCsvController extends AdminController {
 					$this->render('check_products_print');
 				} else {
 					$msg = __('Found %s products / %s codes', $countRecs, count($aCodes));
-					$this->Session->setFlash($msg, 'default', array(), 'success');
+					$this->setFlash($msg, 'success');
 				}
 			}
 		} catch (Exception $e) {
-			$this->Session->setFlash(__($e->getMessage(), $this->errLine), 'default', array(), 'error');
+			$this->setFlash(__($e->getMessage(), $this->errLine), 'error');
 			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'checkProducts'));
 		}
 	}

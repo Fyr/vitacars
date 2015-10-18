@@ -6,9 +6,9 @@ class PMFormField extends AppModel {
 	
 	public $validate = array(
 		'key' => array(
-			'rule' => '/^[A-Z]+[0-9]+$/',
+			'rule' => '/^[A-Z]+[A-Z0-9]*$/',
 			'allowEmpty' => true,
-			'message' => 'Неверный формат ключа. Пример: A1, B1, AA1, BB1'
+			'message' => 'Неверный формат ключа. Пример: A1, B1, AA1, BB1, CCC'
 		),
 		'sort_order' => array(
 			'rule' => '/^[0-9]+$/',
@@ -35,7 +35,8 @@ class PMFormField extends AppModel {
 
 	public function beforeSave($options = array()) {
 		// Set default values for formula
-		if (!$fOptions = Hash::get($this->data, 'PMFormField.decimals')) {
+		$fOptions = Hash::get($this->data, 'PMFormField.decimals');
+		if (!$fOptions && $fOptions !== '0') {
 			$this->data['PMFormField']['decimals'] = 2;
 		}
 		if (!$fOptions = Hash::get($this->data, 'PMFormField.div_float')) {

@@ -1,12 +1,13 @@
 <?
 App::uses('AppModel', 'Model');
 App::uses('PMFormField', 'Form.Model');
+App::uses('PMFormConst', 'Form.Model');
 App::uses('FieldTypes', 'Form.Vendor');
 class PMFormData extends AppModel {
 	public $useTable = 'form_data';
 
 	protected $fieldsData = array();
-	protected $PMFormField;
+	protected $PMFormField, $PMFormConst;
 
 	public function getValues($object_type, $object_id = '') {
 		return $this->getObjectList($object_type, $object_id);
@@ -84,7 +85,9 @@ class PMFormData extends AppModel {
 	}
 	
 	public function recalcFormula($id, $aFormFields) {
-		$this->loadModel('PMFormField');
+		$this->loadModel('Form.PMFormField');
+		$this->loadModel('Form.PMFormConst');
+		
 		$data = $this->findById($id);
 		$aData = array();
 		$aFormula = array();
@@ -97,6 +100,12 @@ class PMFormData extends AppModel {
 				$aData[$row['PMFormField']['key']] = Hash::get($data, 'PMFormData.fk_'.$field_id);
 			}
 		}
+		
+		$fields = array('key', 'value');
+		$conditions = array('PMFormConst.object_type' => 'SubcategoryParam');
+		$aConst = $this->PMFormConst->find('list', compact('fields', 'conditions'));
+		$aData = array_merge($aData, $aConst);
+		
 		$_data = array('PMFormData' => array('id' => $id));
 		if ($aFormula) {
 			foreach($aFormula as $formula) {

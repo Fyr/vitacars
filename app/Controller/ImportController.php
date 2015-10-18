@@ -4,7 +4,7 @@ App::uses('AppModel', 'Model');
 App::uses('Product', 'Model');
 class ImportController extends AppController {
 	public $name = 'Import';
-	public $uses = array('Product', 'Form.PMFormData', 'ProductRemain');
+	public $uses = array('Product', 'Form.PMFormData', 'ProductRemain', 'ImportLog');
 	
 	const CSV_DIV = ';';
 		
@@ -28,12 +28,34 @@ class ImportController extends AppController {
 			$this->Product->getDataSource()->commit();
 			
 			$this->_writeLog('PROCESSED', count($data['data']).' product(s)');
+			
+			$path = explode(DS, $this->_getFilePath($file));
+			$_path = Configure::read('import.folder').DS.$path[0];
+			if (!file_exists($_path)) {
+				mkdir($_path);
+			}
+			$_path.= DS.$path[1];
+			if (!file_exists($_path)) {
+				mkdir($_path);
+			}
+			$_path.= DS.$path[2];
+			if (!file_exists($_path)) {
+				mkdir($_path);
+			}
+			rename($fullPath, $_path.DS.$file);
+			
 			echo 'SUCCESS';
 		} catch (Exception $e) {
 			$this->Product->getDataSource()->rollback();
 			$this->_writeLog('ERROR', $e->getMessage());
 			echo 'ERROR';
 		}
+	}
+	
+	private function _getFilePath($file) {
+		list($fileDate) = explode('_', str_replace('dlt_mgr', '', $file));
+		$path = substr($fileDate, 0, 4).DS.substr($fileDate, 4, 2).DS.substr($fileDate, 6, 2);
+		return $path;
 	}
 	
 	private function _processImport($data) {
@@ -53,18 +75,30 @@ class ImportController extends AppController {
 		
 		foreach($data['data'] as $_data) {
 			$product = $this->Product->findByCode($_data['code']);
+			$key = $data['keys'][1];
+			$logData = array(
+				'code' => $_data['code'], 
+				'fk_n' => $data['keys'][1],
+				'val' => $_data[$key],
+				'data' => implode(';', $_data),
+				'status' => 'ERROR'
+			);
 			if ($product) {
-				// throw new Exception(__('Incorrect product code `%s`', $_data['code']));
-			
-				$key = $data['keys'][1];
-				$this->PMFormData->save(array('id' => $product['PMFormData']['id'], $key => $product['PMFormData'][$key] + $_data[$key]));
+				$this->PMFormData->save(array('id' => $product['PMFormData']['id'], $key => $_data[$key]));
 				
+				$logData['product_id'] = $product['Product']['id'];
+				$logData['form_data_id'] = $product['PMFormData']['id'];
+				$logData['status'] = 'OK';
+				/*
 				$status = (isset($_data['status']) && $_data['status']);
 				if (!$status) {
 					$this->ProductRemain->clear();
 					$this->ProductRemain->save(array('product_id' => $product['Product']['id'], 'remain' => $_data[$key]));
 				}
+				*/
 			}
+			$this->ImportLog->clear();
+			$this->ImportLog->save($logData);
 		}
 	}
 	

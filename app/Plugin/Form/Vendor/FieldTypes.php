@@ -35,6 +35,15 @@ class FieldTypes {
 		return ($id) ? Hash::get($aTypes, $id) : $aTypes;
 	}
 	
+	static public function getConstTypes($id = false) {
+		$aTypes = array(
+			// self::STRING => __d('form', 'String'),
+			self::INT => __d('form', 'Integer'),
+			self::FLOAT => __d('form', 'Float'),
+		);
+		return ($id) ? Hash::get($aTypes, $id) : $aTypes;
+	}
+	
 	static function getSqlTypes($id = false) {
 		$aTypes = array(
 			self::STRING => '`fk_%d` varchar(1023) DEFAULT ""',
