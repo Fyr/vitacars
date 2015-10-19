@@ -6,7 +6,7 @@ class AdminProductsController extends AdminController {
 	
     public $name = 'AdminProducts';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
-    public $uses = array('Product', 'Form.PMForm', 'Form.PMFormValue', 'Form.PMFormField', 'Form.PMFormData', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain');
+    public $uses = array('Product', 'Form.PMForm', 'Form.PMFormValue', 'Form.PMFormField', 'Form.PMFormData', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media');
     public $helpers = array('ObjectType', 'Form.PHFormFields', 'Form.PHFormData');
     
     private $paramDetail, $aFormula, $aFieldKeys;
@@ -36,7 +36,7 @@ class AdminProductsController extends AdminController {
     	}
     	$this->set('aLabels', $aLabels);
         $this->paginate = array(
-           	'fields' => array_merge(array('title', 'title_rus', 'detail_num', 'code', 'Category.title', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext'), $aFields)
+           	'fields' => array_merge(array('title', 'title_rus', 'detail_num', 'code', 'brand_id', 'Category.title', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext'), $aFields)
         );
         
         $detail_num = '';
@@ -119,7 +119,7 @@ class AdminProductsController extends AdminController {
 			$aID = explode(',', $this->request->data('aID'));
 			$this->paginate['fields'][] = 'Product.cat_id';
 			$this->paginate['fields'][] = 'Product.subcat_id';
-			$this->paginate['fields'][] = 'Product.brand_id';
+			// $this->paginate['fields'][] = 'Product.brand_id'; уже добавлено
 			$this->paginate['conditions'] = array('Product.id' => $aID);
 			$this->paginate['order'] = 'FIELD (Product.id, '.$this->request->data('aID').') ASC';
 			$this->paginate['limit'] = count($aID);
@@ -148,7 +148,14 @@ class AdminProductsController extends AdminController {
 
         $aRowset = $this->PCTableGrid->paginate('Product');
         $this->set('aRowset', $aRowset);
-
+        
+        $brand_ids = Hash::extract($aRowset, '{n}.Product.brand_id');
+        $brand_ids = array_unique($brand_ids);
+        
+        $aBrandMedia = $this->Media->getList(array('object_type' => 'Brand', 'object_id' => $brand_ids, 'main' => 1));
+        $aBrandMedia = Hash::combine($aBrandMedia, '{n}.Media.object_id', '{n}');
+		$this->set('aBrandMedia', $aBrandMedia);
+		
         $field = $this->PMFormField->findByLabel('Мотор');
         $this->set('motorOptions', $field);
     }
