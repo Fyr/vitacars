@@ -26,7 +26,8 @@
     	),
     	$this->PHTableGrid->getDefaultColumns($objectType)
     );
-    $columns['Product.detail_num']['format'] = 'string';
+    $columns['Category.title']['label'] = 'Брeнд';
+	$columns['Product.detail_num']['format'] = 'string';
     
     unset($columns['Media.id']);
     unset($columns['Media.object_type']);
