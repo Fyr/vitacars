@@ -507,3 +507,6 @@ msgstr "Скидка, %"
 
 msgid "Be sure to recalculate formulas"
 msgstr "Не забудьте пересчитать формулы"
+
+msgid "No subcategory"
+msgstr "без категории"

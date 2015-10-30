@@ -14,6 +14,7 @@
 		<div class="controls">
 			<select id="ProductSubCatId" name="data[Product][subcat_id]" autocomplete="off">
 				<optgroup id="cat-<?=Hash::get($aSubcategories[0], 'Category.id')?>" label="<?=Hash::get($aSubcategories[0], 'Category.title')?>">
+					<option value="0">- <?=__('No subcategory')?> -</option>
 <?
 	$cat = Hash::get($aSubcategories[0], 'Category.id');
 	foreach($aSubcategories as $subcat) {
@@ -22,6 +23,7 @@
 ?>
 				</optgroup>
 				<optgroup id="cat-<?=$subcat['Category']['id']?>" label="<?=$subcat['Category']['title']?>">
+					<option value="0">- <?=__('No subcategory')?> -</option>
 <?			
 		}
 		$selected = ($this->request->data('Product.subcat_id') == $subcat['Subcategory']['id']) ? ' selected="selected"' : '';
