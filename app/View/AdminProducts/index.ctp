@@ -58,9 +58,11 @@
     	}
 	    	
     	$row['Product']['detail_num'] = str_replace(' ', '<br />', $row['Product']['detail_num']);
+    	/*
     	if (isset($paramMotor) && Hash::check($row, 'PMFormData.'.$paramMotor)) {
     		$row['PMFormData'][$paramMotor] = str_replace(',', '<br />', $row['PMFormData'][$paramMotor]);
     	}
+    	*/
     	foreach($row['PMFormData'] as $_field => $_val) {
 			$field_id = str_replace('fk_', '', $_field);
 			if (isset($aParams[$field_id])) {
@@ -68,6 +70,8 @@
 					$row['PMFormData'][$_field] = (intval($_val)) ? $_val : '';
 				} elseif ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::FLOAT) {
 					$row['PMFormData'][$_field] = (floatval($_val)) ? number_format($_val, 2, ',', ' ') : '';
+				} elseif ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::MULTISELECT) {
+					$row['PMFormData'][$_field] = str_replace(',', '<br />', $row['PMFormData'][$_field]);
 				}
 			}
 			if ($field_id == Configure::read('Params.color')) { // цвет

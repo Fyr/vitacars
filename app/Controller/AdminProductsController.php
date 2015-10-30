@@ -173,8 +173,6 @@ class AdminProductsController extends AdminController {
 		
 		$remain = 0;
 		if ($this->request->is(array('post', 'put'))) {
-			$this->request->data('PMFormData.fk_6', $this->request->data('Product.motor'));
-			
 			$a1_val = 0; $a2_val = 0;
 			$a1 = 'PMFormData.fk_'.Configure::read('Params.A1');
 			$a2 = 'PMFormData.fk_'.Configure::read('Params.A2');
@@ -186,8 +184,7 @@ class AdminProductsController extends AdminController {
 			$remain = (intval($this->request->data($a1)) - $a1_val) + (intval($this->request->data($a2)) - $a2_val);
 		}
 		
-		$fields = $this->PMFormField->getObjectList('SubcategoryParam', '');
-		
+		$fields = $this->PMFormField->getObjectList('SubcategoryParam', '', 'PMFormField.sort_order');
 		$this->PCArticle->setModel('Product')->edit(&$id, &$lSaved);
 		if ($lSaved) {
 			if ($remain) {

@@ -100,7 +100,7 @@ F3M2011
 	));
 	
 	$subcat_id = $this->request->data('Product.subcat_id');
-	echo $this->Form->hidden('Product.motor');
+	// echo $this->Form->hidden('Product.motor');
 ?>
 <script type="text/javascript">
 function category_onChange(e, subcat_id) {
@@ -125,17 +125,6 @@ function change_SeoDescr() {
 
 $(document).ready(function(){
 	category_onChange($('#ProductCatId').get(0), <?=($subcat_id) ? $subcat_id : '0'?>);
-	$('#PMFormDataFk6').multiselect({
-		nonSelectedText: 'Выберите мотор',
-		numberDisplayed: 2,
-		nSelectedText: 'выбрано',
-		onChange: function(option, checked, select) {
-			$('#ProductMotor').val($('#PMFormDataFk6').val());
-		}
-	});
-	$('#PMFormDataFk6').closest('.controls').addClass('multiMotors fourColomn');
-	$('#ProductMotor').val($('#PMFormDataFk6').val());
-	
 	
 	$('#ProductTitleRus').change(function(){
 		change_SeoTitle();
@@ -151,6 +140,22 @@ $(document).ready(function(){
 	});
 	$('#ProductTitle, #ProductDetailNum').change(function(){
 		change_SeoDescr();
+	});
+	
+	$('#PMFormDataFk6').closest('.controls').addClass('multiMotors fourColomn');
+	$('.multiselect').multiselect({
+		nonSelectedText: 'Выберите опции',
+		numberDisplayed: 2,
+		nSelectedText: 'выбрано',
+		onChange: function(option, checked) {
+			var select = $(option).parent().get(0);
+			$('#' + select.id + '_').val($('#' + select.id).val().join(','));
+		}
+	});
+	
+	$('#ProductEditForm').submit(function(){
+		$('.multiselect').remove();
+		return true;
 	});
 });
 </script>
