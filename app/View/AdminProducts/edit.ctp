@@ -8,9 +8,14 @@
 ?>
 	<?=$this->element('admin_title', compact('title'))?>
 <?
+	if ($this->request->data('Product.motor')) {
+		$this->request->data('PMFormData.fk_6', $this->request->data('Product.motor'));
+	}
+	
     echo $this->PHForm->create('Product');
     echo $this->Form->hidden('PMFormData.id', array('value' => Hash::get($this->request->data, 'PMFormData.id')));
     echo $this->Form->hidden('Seo.id', array('value' => Hash::get($this->request->data, 'Seo.id')));
+    
     $aTabs = array(
         'General' => $this->element('/AdminProduct/admin_edit_General'),
 		'Text' => $this->element('Article.edit_body'),

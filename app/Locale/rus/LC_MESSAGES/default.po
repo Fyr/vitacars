@@ -433,8 +433,8 @@ msgstr "Символ-разделитель для цел.части"
 msgid "%s products have been updated"
 msgstr "%s позицией обновлено"
 
-msgid "Incorrect field ID %s"
-msgstr "Некорректный ID тех.параметра: `%s`"
+msgid "Incorrect field ID %s (Line %s)"
+msgstr "Некорректный ID тех.параметра: `%s` (стр.%s)"
 
 msgid "Cannot save parameters (Line %s)"
 msgstr "Не возможно сохранить тех.параметры (стр.%s)"

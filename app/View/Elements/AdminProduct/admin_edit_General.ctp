@@ -152,9 +152,11 @@ $(document).ready(function(){
 			$('#' + select.id + '_').val($('#' + select.id).val().join(','));
 		}
 	});
-	
+	$('select.multiselect').each(function(){
+		$('#' + this.id + '_').val($(this).val());
+	});
 	$('#ProductEditForm').submit(function(){
-		$('.multiselect').remove();
+		$('select.multiselect').remove();
 		return true;
 	});
 });

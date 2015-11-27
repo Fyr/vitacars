@@ -72,6 +72,8 @@
 					$row['PMFormData'][$_field] = (floatval($_val)) ? number_format($_val, 2, ',', ' ') : '';
 				} elseif ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::MULTISELECT) {
 					$row['PMFormData'][$_field] = str_replace(',', '<br />', $row['PMFormData'][$_field]);
+				} elseif ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::TEXTAREA) {
+					$row['PMFormData'][$_field] = nl2br($row['PMFormData'][$_field]);
 				}
 			}
 			if ($field_id == Configure::read('Params.color')) { // цвет

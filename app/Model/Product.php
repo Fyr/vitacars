@@ -19,7 +19,7 @@ class Product extends Article {
 		'Media' => array(
 			'className' => 'Media.Media',
 			'foreignKey' => 'object_id',
-			'conditions' => array('Media.object_type' => 'Product', 'Media.main' => 1),
+			'conditions' => array('Media.media_type' => 'image', 'Media.object_type' => 'Product', 'Media.main' => 1),
 			'dependent' => true
 		),
 		'PMFormData' => array(

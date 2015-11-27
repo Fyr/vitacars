@@ -9,7 +9,7 @@ class AdminUploadCsvController extends AdminController {
     public $uses = array('Product', 'Form.PMFormData', 'Form.PMFormField', 'Brand', 'Category', 'Subcategory', 'Seo.Seo', 'ProductRemain');
     
     const CSV_DIV = ';';
-    private $errLine = 0;
+    private $errLine = 0, $errLog;
     
 	public function beforeFilter() {
 		/*
@@ -222,6 +222,54 @@ class AdminUploadCsvController extends AdminController {
 		return $aID;
 	}
 
+	protected function addErrLog($err) {
+		$this->errLog.= $err.'<br>';
+	}
+
+	protected function _checkCreatedProducts($aData) {
+		$this->errLine = 1;
+
+		$this->errLog = '';
+		$aFormFields = $this->PMFormField->getFieldsList('SubcategoryParam', '');
+		foreach($aData['keys'] as $id) {
+			if (strpos($id, 'fk_') !== false && !in_array(intval(str_replace('fk_', '', $id)), array_keys($aFormFields))) {
+				$this->addErrLog(__('Incorrect field ID %s (Line %s)', $id, $this->errLine));
+			}
+		}
+
+		$aBrands = array_keys($this->Brand->getOptions());
+		$aCategories = array_keys($this->Category->getOptions());
+		$aSubcategories = array_keys($this->Subcategory->getOptions());
+
+		foreach($aData['data'] as $row) {
+			$this->errLine++;
+
+			// Проверить обязательные поля
+			if ( !(isset($row['title']) && trim($row['title'])) ) {
+				$this->addErrLog(__('Field `title` cannot be blank (Line %s)', $this->errLine));
+			}
+			if ( !(isset($row['title_rus']) && trim($row['title_rus'])) ) {
+				$this->addErrLog(__('Field `title_rus` cannot be blank (Line %s)', $this->errLine));
+			}
+			if ( !(isset($row['code']) && trim($row['code'])) ) {
+				$this->addErrLog(__('Field `code` cannot be blank (Line %s)', $this->errLine));
+			}
+
+			// Проверить необязательные поля
+			if (isset($row['brand_id']) && !in_array($row['brand_id'], $aBrands)) {
+				$this->addErrLog(__('Incorrect brand ID (Line %s)', $this->errLine));
+			}
+			if (isset($row['cat_id']) && !in_array($row['cat_id'], $aCategories)) {
+				$this->addErrLog(__('Incorrect category ID (Line %s)', $this->errLine));
+			}
+			if (isset($row['subcat_id']) && !in_array($row['subcat_id'], $aSubcategories)) {
+				$this->addErrLog(__('Incorrect subcategory ID (Line %s)', $this->errLine));
+			}
+
+		}
+		return $this->errLog;
+	}
+
 	protected function _createProducts($aData) {
 		App::uses('Translit', 'Article.Vendor');
 		
@@ -267,7 +315,8 @@ class AdminUploadCsvController extends AdminController {
 			$row['object_type'] = 'Product';
 			if (!isset($row['page_id'])) {
 				if (isset($row['title_rus']) && $row['detail_num']) {
-					$row['page_id'] = Translit::convert($row['title_rus'].'-'.$row['code'], true);
+					$row['page_id'] = Translit::convert(trim($row['title_rus']).'-'.trim($row['code']), true);
+					$row['page_id'] = preg_replace('![^'.preg_quote('-').'a-z0-9_\s]+!', '', $row['page_id']);
 				}
 			}
 			if (!isset($row['published'])) {
@@ -279,43 +328,43 @@ class AdminUploadCsvController extends AdminController {
 			if (!isset($row['show_detailnum'])) {
 				$row['show_detailnum'] = 1;
 			}
-			
+
 			$this->Product->clear();
 			$data = array('Product' => $row);
 			if (!$this->Product->save($data)) {
 				throw new Exception('Cannot create product (Line %s)');
 			}
-			
+
 			$formData = array('object_type' => 'ProductParam', 'object_id' => $this->Product->id);
-			foreach($row as $id => $val) {
+			foreach ($row as $id => $val) {
 				if (strpos($id, 'fk_') !== false) {
 					$formData[$id] = $row[$id];
 				}
 			}
+
 			$this->PMFormData->clear();
 			if (!$this->PMFormData->save($formData)) {
 				throw new Exception('Cannot save parameters (Line %s)');
 			}
-			
+
 			$this->PMFormData->recalcFormula($this->PMFormData->id, $aFormFields);
-			
 			$data = array();
 			// Создать SEO блок для продукта
 			if (isset($row['title_rus']) && $row['code']) {
-				$data['title'] = $row['title_rus'].' '.$row['code'];
+				$data['title'] = $row['title_rus'] . ' ' . $row['code'];
 			}
 			if (isset($row['title']) && $row['detail_num']) {
-				$data['keywords'] = $row['title'].' '.$row['detail_num'];
+				$data['keywords'] = $row['title'] . ' ' . $row['detail_num'];
 				$data['descr'] = $data['keywords'];
 			}
 			if ($data) {
 				$data['object_type'] = 'Product';
 				$data['object_id'] = $this->Product->id;
-				
+
 				$this->Seo->clear();
 				$this->Seo->save($data);
 			}
-			
+
 			$aID[] = $this->Product->id;
 		}
 		return $aID;
@@ -324,13 +373,19 @@ class AdminUploadCsvController extends AdminController {
 	public function uploadNewProducts() {
 		try {
 			if (isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name'] ) {
+				set_time_limit(60 * 30);
 				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
-				$this->Product->getDataSource()->begin();
-				$aID = $this->_createProducts($aData);
-				$this->Product->getDataSource()->commit();
-				
-				$this->setFlash(__('%s products have been successfully uploaded', count($aID)), 'success');
-				$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
+				$errLog = $this->_checkCreatedProducts($aData);
+				if ($errLog) {
+					$this->set('errLog', $errLog);
+				} else {
+					$this->Product->getDataSource()->begin();
+					$aID = $this->_createProducts($aData);
+					$this->Product->getDataSource()->commit();
+
+					$this->setFlash(__('%s products have been successfully uploaded', count($aID)), 'success');
+					$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
+				}
 			}
 		} catch (Exception $e) {
 			$this->Product->getDataSource()->rollback();
@@ -400,6 +455,71 @@ class AdminUploadCsvController extends AdminController {
 		} catch (Exception $e) {
 			$this->setFlash(__($e->getMessage(), $this->errLine), 'error');
 			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'checkProducts'));
+		}
+	}
+	
+	public function processBigCsv() {
+		set_time_limit(60 * 10);
+		$this->autoRender = false;
+		$chunkSize = 20000;
+		
+		try {
+			
+			$aBrands = array_keys($this->Brand->getOptions());
+			$aCategories = array_keys($this->Category->getOptions());
+			$aSubcategories = array_keys($this->Subcategory->getOptions());
+		
+			$aData = $this->_parseCsv('big_csv.csv');
+			$this->errLine = 1;
+			$chunk = '';
+			$chunkCount = 0;
+			$chunkFile = 0;
+			foreach($aData['data'] as $row) {
+				$this->errLine++;
+				
+				// Проверить обязательные поля
+				if ( !(isset($row['title']) && trim($row['title'])) ) {
+					throw new Exception('Field `title` cannot be blank (Line %s)');
+				}
+				if ( !(isset($row['title_rus']) && trim($row['title_rus'])) ) {
+					throw new Exception('Field `title_rus` cannot be blank (Line %s)');
+				}
+				if ( !(isset($row['code']) && trim($row['code'])) ) {
+					throw new Exception('Field `code` cannot be blank (Line %s)');
+				}
+				
+				// Проверить необязательные поля
+				if (isset($row['brand_id']) && !in_array($row['brand_id'], $aBrands)) {
+					throw new Exception('Incorrect brand ID (Line %s)');
+				}
+				if (isset($row['cat_id']) && !in_array($row['cat_id'], $aCategories)) {
+					throw new Exception('Incorrect category ID (Line %s)');
+				}
+				if (isset($row['subcat_id']) && !in_array($row['subcat_id'], $aSubcategories)) {
+					throw new Exception('Incorrect subcategory ID (Line %s)');
+				}
+				// fdebug(array($this->errLine => $row));
+				$chunkCount++;
+				$chunk.= implode(self::CSV_DIV, array_values($row))."\r\n";
+				if ($chunkCount >= $chunkSize) {
+					$chunkFile++;
+					$f = 'big_csv_'.$chunkFile.'.csv';
+					@unlink($f);
+					fdebug(implode(self::CSV_DIV, $aData['keys'])."\r\n".$chunk, $f);
+					$chunk = '';
+					$chunkCount = 0;
+				}
+			}
+			// last part of CSV
+			$chunkFile++;
+			$f = 'big_csv_'.$chunkFile.'.csv';
+			@unlink($f);
+			fdebug(implode(self::CSV_DIV, $aData['keys'])."\r\n".$chunk, $f);
+			
+			echo 'No errors in file';
+		} catch (Exception $e) {
+			echo 'Error!';
+			echo __($e->getMessage(), $this->errLine);
 		}
 	}
 	
