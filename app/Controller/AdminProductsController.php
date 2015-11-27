@@ -110,6 +110,10 @@ class AdminProductsController extends AdminController {
         	$this->paginate['conditions']['Product.id'] = explode(',', $this->request->named['Product.id']);
         	unset($this->request->params['named']['Product.id']);
         }
+        
+        if (TEST_ENV) {
+        	$this->paginate['limit'] = 10;
+        }
     }
     
 	public function printXls() {
@@ -144,6 +148,7 @@ class AdminProductsController extends AdminController {
 	}
 
     public function index() {
+    	set_time_limit(60 * 5);
     	$this->_processParams();
 
         $aRowset = $this->PCTableGrid->paginate('Product');
@@ -173,6 +178,7 @@ class AdminProductsController extends AdminController {
 		
 		$remain = 0;
 		if ($this->request->is(array('post', 'put'))) {
+			$this->request->data('Product.motor', $this->request->data('PMFormData.fk_6'));
 			$a1_val = 0; $a2_val = 0;
 			$a1 = 'PMFormData.fk_'.Configure::read('Params.A1');
 			$a2 = 'PMFormData.fk_'.Configure::read('Params.A2');
