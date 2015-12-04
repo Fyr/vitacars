@@ -1,2 +1,2 @@
 <?
-	echo $this->PHForm->editor('body', array('fullwidth' => true));
+	echo $this->PHForm->editor((isset($field)) ? $field : 'body', array('fullwidth' => true));

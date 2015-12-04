@@ -247,6 +247,9 @@ msgstr "Цена"
 msgid "Teaser"
 msgstr "Анонс"
 
+msgid "Teaser Ru"
+msgstr "Анонс RU"
+
 msgid "Published"
 msgstr "Опубликовано"
 
