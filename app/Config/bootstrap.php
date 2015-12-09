@@ -51,6 +51,8 @@ Configure::write('Params', array(
 	'outcomeY' => (TEST_ENV) ? 27 : 32,
 ));
 
+Configure::write('tmp_dir', ROOT.DS.APP_DIR.DS.'tmp'.DS);
+
 Configure::write('import', array(
 	'folder' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'csv'.DS,
 	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'import.log'

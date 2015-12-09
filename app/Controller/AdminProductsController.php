@@ -106,9 +106,20 @@ class AdminProductsController extends AdminController {
         	}
         }
         
-        if (isset($this->request->named['Product.id']) && strpos($this->request->named['Product.id'], ',')) {
-        	$this->paginate['conditions']['Product.id'] = explode(',', $this->request->named['Product.id']);
-        	unset($this->request->params['named']['Product.id']);
+        if (isset($this->request->named['Product.id'])) {
+			$idList = array();
+			if (strpos($this->request->named['Product.id'], ',')) {
+				$idList = explode(',', $this->request->named['Product.id']);
+			} elseif ($this->request->named['Product.id'] == 'list') {
+				$file = Configure::read('tmp_dir').'user_products_'.$this->Auth->user('id').'.tmp';
+				$idList = explode("\n", str_replace("\r\n", "\n", file_get_contents($file)));
+				// unlink($file);
+			}
+
+			if ($idList) {
+				$this->paginate['conditions']['Product.id'] = $idList;
+				unset($this->request->params['named']['Product.id']);
+			}
         }
         
         if (TEST_ENV) {

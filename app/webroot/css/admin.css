@@ -70,7 +70,7 @@ legend+.control-group {
 .control-group .date + img {
     display: inline-block;
     margin-left: 4px;
-/*    margin-top: 6px; */
+    margin-top: 6px;
     cursor: pointer;
 }
 
@@ -284,7 +284,3 @@ h3 {text-shadow: 0 2px 1px rgba(0, 0, 0, 0.25);}
 .error-message { margin-left: 180px; font-size: 0.8em; }
 .error-message ul { margin: 0; padding: 0; list-style-type: none;}
 .error-message ul > li { line-height: normal;}
-
-.multiMotors .dropdown-menu { width: 900px;}
-	.multiMotors.fourColomn .dropdown-menu { width: 500px;}
-	.multiMotors .dropdown-menu li { float: left; width: 150px;}

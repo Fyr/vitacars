@@ -313,10 +313,10 @@ class AdminUploadCsvController extends AdminController {
 			}
 			
 			$row['object_type'] = 'Product';
-			if (!isset($row['page_id'])) {
+			if (!isset($row['slug'])) {
 				if (isset($row['title_rus']) && $row['detail_num']) {
-					$row['page_id'] = Translit::convert(trim($row['title_rus']).'-'.trim($row['code']), true);
-					$row['page_id'] = preg_replace('![^'.preg_quote('-').'a-z0-9_\s]+!', '', $row['page_id']);
+					$row['slug'] = Translit::convert(trim($row['title_rus']).'-'.trim($row['code']), true);
+					$row['slug'] = preg_replace('![^'.preg_quote('-').'a-z0-9_\s]+!', '', $row['slug']);
 				}
 			}
 			if (!isset($row['published'])) {
@@ -384,7 +384,13 @@ class AdminUploadCsvController extends AdminController {
 					$this->Product->getDataSource()->commit();
 
 					$this->setFlash(__('%s products have been successfully uploaded', count($aID)), 'success');
-					$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
+					if (count($aID) > 100) {
+						$file = Configure::read('tmp_dir').'user_products_'.$this->Auth->user('id').'.tmp';
+						file_put_contents($file, implode("\r\n", $aID));
+						$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => 'list'));
+					} else {
+						$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
+					}
 				}
 			}
 		} catch (Exception $e) {
@@ -498,7 +504,6 @@ class AdminUploadCsvController extends AdminController {
 				if (isset($row['subcat_id']) && !in_array($row['subcat_id'], $aSubcategories)) {
 					throw new Exception('Incorrect subcategory ID (Line %s)');
 				}
-				// fdebug(array($this->errLine => $row));
 				$chunkCount++;
 				$chunk.= implode(self::CSV_DIV, array_values($row))."\r\n";
 				if ($chunkCount >= $chunkSize) {

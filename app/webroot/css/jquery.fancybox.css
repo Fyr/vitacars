@@ -165,6 +165,8 @@
 	overflow: hidden;
 }
 
+.fancybox-margin { margin-right: 17px !important;}
+
 .fancybox-overlay {
 	position: absolute;
 	top: 0;
