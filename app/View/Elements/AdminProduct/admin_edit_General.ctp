@@ -81,7 +81,7 @@ F3M2011
 	echo $this->PHForm->input('selectmotor', $options);
 	*/
 	echo $this->PHForm->input('code');
-	echo $this->PHForm->input('page_id', array(
+	echo $this->PHForm->input('slug', array(
 		'type' => 'text',
 		'label' => array('text' => __('Slug'), 'class' => 'control-label')
 	));
@@ -115,7 +115,7 @@ function change_SeoTitle() {
 }
 
 function change_Slug() {
-	$('#ProductPageId').val(translit($('#ProductTitleRus').val() + '-' + $('#ProductCode').val()));
+	$('#ProductSlug').val(translit($('#ProductTitleRus').val() + '-' + $('#ProductCode').val()));
 }
 
 function change_SeoDescr() {
