@@ -23,7 +23,9 @@ class AdminFormsController extends AdminController {
 			'fields' => array('id', 'field_type', 'label', 'key', 'required', 'exported', 'sort_order'),
 			'order' => array('PMFormField.sort_order' => 'asc')
 		);
-		$this->PCTableGrid->paginate('PMFormField');
+		$aRows = $this->PCTableGrid->paginate('PMFormField');
+		$this->set('aRows', $aRows);
+		$this->set('aTypes', FieldTypes::getTypes());
 	}
 	
 	public function edit($id = 0) {

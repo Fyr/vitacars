@@ -1,5 +1,5 @@
 <?
-	$title = $this->ObjectType->getTitle('index', $objectType);
+    $title = $this->ObjectType->getTitle('index', $objectType);
     $createURL = $this->Html->url(array('action' => 'edit', 0));
     $createTitle = $this->ObjectType->getTitle('create', $objectType);
     $actions = $this->PHTableGrid->getDefaultActions($objectType);
@@ -8,9 +8,18 @@
     
     $backURL = $this->Html->url(array('action' => 'index'));
     $deleteURL = $this->Html->url(array('action' => 'delete')).'/{$id}?model=Form.PMFormField&backURL='.urlencode($backURL);
-    $actions['row']['delete'] = $this->Html->link('', $deleteURL, array('class' => 'icon-color icon-delete', 'title' => __('Delete record')), __('Are you sure to delete this record?'))
+    $actions['row']['delete'] = $this->Html->link('', $deleteURL, array('class' => 'icon-color icon-delete', 'title' => __('Delete record')), __('Are you sure to delete this record?'));
+
+    foreach($aRows as &$row) {
+        $fieldType = $row['PMFormField']['field_type'];
+        $row['PMFormField']['field_type'] = $aTypes[$fieldType];
+    }
+
+    $columns = $this->PHTableGrid->getDefaultColumns('PMFormField');
+    $columns['PMFormField.field_type']['format'] = 'string';
+
+    echo $this->element('admin_title', compact('title'));
 ?>
-<?=$this->element('admin_title', compact('title'))?>
 <div class="text-center">
     <a class="btn btn-primary" href="<?=$createURL?>">
         <i class="icon-white icon-plus"></i> <?=$createTitle?>
@@ -21,5 +30,5 @@
 </div>
 <br/>
 <?
-    echo $this->PHTableGrid->render('PMFormField', array('actions' => $actions));
+    echo $this->PHTableGrid->render('PMFormField', array('actions' => $actions, 'data' => $aRows, 'columns' => $columns));
 ?>
