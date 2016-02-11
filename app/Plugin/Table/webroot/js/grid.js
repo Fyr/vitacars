@@ -321,6 +321,8 @@ Grid = function(config) {
 				html+= self.renderFilterDate(col, val);
 			} else if (col.format == 'integer') {
 				html+= self.renderFilterInteger(col, val);
+			} else if (col.format == 'select') {
+				html+= self.renderFilterSelect(col, col.options, val);
 			} else {
 				html+= self.renderFilterString(col, val);
 			}
@@ -334,7 +336,7 @@ Grid = function(config) {
 	}
 
 	this.renderFilterBoolean = function(col, val) {
-		options = {'': '- any -', '1': 'yes', '0': 'no'};
+		options = {'1': 'yes', '0': 'no'};
 		return self.renderFilterSelect(col, options, val);
 	}
 
@@ -363,6 +365,7 @@ Grid = function(config) {
 	this.renderFilterSelect = function(col, options, val) {
 		var html = '<select class="input-small grid-filter-input grid-filter-select" name="' + self.getFilterName(col) + '">';
 		var selected;
+		html+= '<option value=""> - any - </option>';
 		for (var i in options) {
 			selected = (val == i) ? ' selected="selected"' : ''
 			html+= '<option value="' + i + '"' + selected + '>' + options[i] + '</option>';
@@ -487,6 +490,8 @@ Grid = function(config) {
 			return Format.fileSize(value);
 		} else if (col.format == 'img') {
 			return Format.img(value);
+		} else if (col.format == 'select') {
+			return (col.options && col.options[value]) ? col.options[value] : '-';
 		}
 		return value;
 	}
