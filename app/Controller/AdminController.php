@@ -80,11 +80,6 @@ class AdminController extends AppController {
 		return ($field_rights) ? explode(',', $field_rights) : array();
 	}
 	
-	protected function _getBrandRights() {
-		$field_rights = AuthComponent::user('brand_rights');
-		return ($field_rights) ? explode(',', $field_rights) : array();
-	}
-
 	public function index() {
 		$this->redirect(array('controller' => 'AdminProducts'));
 	}

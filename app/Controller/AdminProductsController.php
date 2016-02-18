@@ -9,13 +9,41 @@ class AdminProductsController extends AdminController {
     public $uses = array('Product', 'Form.PMForm', 'Form.PMFormValue', 'Form.PMFormField', 'Form.PMFormData', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media');
     public $helpers = array('ObjectType', 'Form.PHFormFields', 'Form.PHFormData');
     
-    private $paramDetail, $aFormula, $aFieldKeys;
+    private $paramDetail, $aFormula, $aFieldKeys, $aBrandOptions;
+
+	public function beforeFilter() {
+		parent::beforeFilter();
+		$conditions = array('Brand.object_type' => 'Brand');
+		$order = 'Brand.title';
+		$this->aBrandOptions = $this->Brand->find('list', compact('conditions', 'order'));
+	}
     
     public function beforeRender() {
     	parent::beforeRender();
     	$this->set('objectType', $this->Product->objectType);
     }
-    
+
+	private function _getBrandOptions($brands_ids = array()) {
+		if (!$brands_ids) {
+			$brands_ids = $this->_getBrandRights();
+		} else {
+			$brands_ids = array_intersect($this->_getBrandRights(), $brands_ids);
+		}
+		$options = array();
+		foreach($this->aBrandOptions as $id => $title) {
+			if (in_array($id, $brands_ids)) {
+				$options[$id] = $title;
+			}
+		}
+		return $options;
+	}
+
+	private function _getBrandRights() {
+		$field_rights = AuthComponent::user('brand_rights');
+		// если нет прав доступа на брэнды - возвращаем все
+		return ($field_rights) ? explode(',', $field_rights) : array_keys($this->aBrandOptions);
+	}
+
     private function _processParams() {
         $field_rights = $this->_getFieldRights();
     	$aParams = $this->PMFormField->getFieldsList('SubcategoryParam', '');
@@ -101,11 +129,19 @@ class AdminProductsController extends AdminController {
         		// запретить не-админам показывать полный список
         		$this->paginate['conditions'] = array('0=1');
         	}
-        	if ($brand_ids = $this->_getBrandRights()) {
-        		$this->paginate['conditions']['Product.brand_id'] = $brand_ids;
-        	}
         }
-        
+
+		$brand_ids = $this->_getBrandRights();
+		if (isset($this->request->named['Product.brand_id']) && $brands = $this->request->named['Product.brand_id']) {
+			$brand_ids = array_keys($this->_getBrandOptions(explode(' ', $brands)));
+			$this->set('brandsFilterValue', $brand_ids);
+			unset($this->request->params['named']['Product.brand_id']);
+		}
+		if (!$brand_ids) {
+			$brand_ids = array(0);
+		}
+		$this->paginate['conditions']['Product.brand_id'] = $brand_ids;
+
         if (isset($this->request->named['Product.id'])) {
 			$idList = array();
 			if (strpos($this->request->named['Product.id'], ',')) {
@@ -159,7 +195,7 @@ class AdminProductsController extends AdminController {
 	}
 
     public function index() {
-    	set_time_limit(60 * 5);
+    	set_time_limit(20); // 60 * 5
     	$this->_processParams();
 
         $aRowset = $this->PCTableGrid->paginate('Product');
@@ -174,7 +210,8 @@ class AdminProductsController extends AdminController {
 		
         $field = $this->PMFormField->findByLabel('Мотор');
         $this->set('motorOptions', $field);
-    }
+		$this->set('aBrandOptions', $this->_getBrandOptions());
+	}
     
 	public function edit($id = 0) {
 		if (!$this->isAdmin()) {

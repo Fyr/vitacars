@@ -103,6 +103,12 @@
 			'options' => $motorOptions, 'value' => (isset($motorFilterValue)) ? $motorFilterValue : null
 		);
 		echo $this->PHForm->input('motor', $options);
+		$options = array(
+			'label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'div' => array('class' => 'inline multiMotors'),
+			'options' => $aBrandOptions,
+			'value' => (isset($brandsFilterValue)) ? $brandsFilterValue :  null
+		);
+		echo $this->PHForm->input('brand', $options);
 	}
 ?>
 		<div id="filterByNumber" class="input-append">
@@ -135,6 +141,15 @@
 
 <script type="text/javascript">
 $(document).ready(function(){
+	var getFilterURL = grid_Product.getFilterURL;
+	grid_Product.getFilterURL = function(params) {
+		if ($('#brand').val()) {
+			params['Product.brand_id'] = $('#brand').val().join(' ');
+		}
+		return getFilterURL(params);
+	}
+
+
 	var tableHeadWidth = $('.grid thead').width();
 	
 	$('.grid thead').clone().insertAfter('.grid thead').addClass('duplicateHead');
@@ -166,10 +181,13 @@ $(document).ready(function(){
 		}
 		
 	});
-	
 
-	$('.multiselect').multiselect({
+	$('#motor').multiselect({
 		nonSelectedText: 'Выберите мотор',
+		nSelectedText: 'выбрано'
+	});
+	$('#brand').multiselect({
+		nonSelectedText: 'Выберите бренд',
 		nSelectedText: 'выбрано'
 	});
 	
