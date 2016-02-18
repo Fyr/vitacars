@@ -513,3 +513,21 @@ msgstr "Не забудьте пересчитать формулы"
 
 msgid "No subcategory"
 msgstr "без категории"
+
+msgid "Events"
+msgstr "События"
+
+msgid "System events"
+msgstr "События системы"
+
+msgid "Login into system"
+msgstr "Вход в систему"
+
+msgid "Logout from system"
+msgstr "Выход из системы"
+
+msgid "Authorization failed"
+msgstr "Ошибка авторизации"
+
+msgid "Event type"
+msgstr "Тип события"

@@ -6,6 +6,7 @@
 	vertical-align: middle;
 	margin-top: 0px;
 	margin-right: 2px;
+	display: inline-block;
 }
 .icon-color.icon-accept-filter {
 	background-image: url("/Icons/img/filter_accept.png") !important;
@@ -32,7 +33,7 @@
 	background-image: url("/Icons/img/checked.png") !important;
 }
 .icon-color.icon-info {
-	background-image: url("/Icons/img/preview.gif") !important;
+	background-image: url("/Icons/img/info.gif") !important;
 }
 .icon-color.icon-first {
 	background-image: url("/Icons/img/first.gif") !important;

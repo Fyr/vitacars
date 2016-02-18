@@ -8,7 +8,10 @@
     
     $backURL = $this->Html->url(array('action' => 'index'));
     $deleteURL = $this->Html->url(array('action' => 'delete')).'/{$id}?model=User&backURL='.urlencode($backURL);
-    $actions['row']['delete'] = $this->Html->link('', $deleteURL, array('class' => 'icon-color icon-delete', 'title' => __('Delete record')), __('Are you sure to delete this record?'))
+    $actions['row']['delete'] = $this->Html->link('', $deleteURL, array('class' => 'icon-color icon-delete', 'title' => __('Delete record')), __('Are you sure to delete this record?'));
+
+    $logURL = $this->Html->url(array('controller' => 'AdminUserLogs', 'action' => 'index')).'/index/UserLog.user_id:{$id}';
+    $actions['row']['logs'] = $this->Html->link('', $logURL, array('class' => 'icon-color icon-info', 'title' => 'Посмотреть логи'));
 ?>
 <?=$this->element('admin_title', compact('title'))?>
 <div class="text-center">
