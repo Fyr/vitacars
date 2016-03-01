@@ -21,6 +21,7 @@
 @echo.
 @echo off
 
+cd ..
 SET app=%0
 SET lib=%~dp0
 

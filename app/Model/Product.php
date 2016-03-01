@@ -51,7 +51,14 @@ class Product extends Article {
 	public $objectType = 'Product';
 
 	public function afterSave($created, $options = array()) {
-		$subcategory = $this->Subcategory->findById($this->data['Product']['subcat_id']);
+		$subcategory = array();
+		if (isset($this->data['Product']['subcat_id']) && $this->data['Product']['subcat_id']) {
+			$subcategory = $this->Subcategory->findById($this->data['Product']['subcat_id']);
+		}
+		$category = array();
+		if (isset($this->data['Product']['cat_id']) && $this->data['Product']['cat_id']) {
+			$category = $this->Category->findById($this->data['Product']['cat_id']);
+		}
 		$brand = $this->Brand->findById($this->data['Product']['brand_id']);
 		$this->data['Search']['id'] = $this->id;
 		$this->data['Search']['body'] = implode(',', array(
@@ -59,11 +66,26 @@ class Product extends Article {
 			str_replace(', ', ',', $this->data['Product']['detail_num']),
 			$this->data['Product']['title'],
 			$this->data['Product']['title_rus'],
-			$this->data['Product']['motor'],
-			$subcategory['Subcategory']['title'],
-			$subcategory['Category']['title'],
+			(isset($this->data['Product']['motor'])) ? $this->data['Product']['motor'] : '',
+			($subcategory) ? $subcategory['Subcategory']['title'] : '',
+			($category) ? $category['Category']['title'] : '',
 			$brand['Brand']['title']
 		));
 		$this->Search->save($this->data['Search']);
+
+		$this->loadModel('DetailNum');
+		$this->DetailNum->deleteAll(array('product_id' => $this->id));
+		$detail_nums = explode(',', str_replace(array('   ', '  ', ' '), '', trim($this->data['Product']['detail_num'])));
+		foreach($detail_nums as &$dn) {
+			$dn = $this->DetailNum->strip($dn);
+		}
+		unset($dn);
+		$detail_nums = array_unique($detail_nums);
+		foreach($detail_nums as $dn) {
+			$dn = $this->DetailNum->strip($dn);
+			$data = array('detail_num' => $dn, 'product_id' => $this->id);
+			$this->DetailNum->clear();
+			$this->DetailNum->save($data);
+		}
 	}
 }

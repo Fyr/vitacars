@@ -531,3 +531,6 @@ msgstr "Ошибка авторизации"
 
 msgid "Event type"
 msgstr "Тип события"
+
+msgid "Print"
+msgstr "Печать"

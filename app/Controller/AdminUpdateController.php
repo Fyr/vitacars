@@ -3,6 +3,8 @@ App::uses('AdminController', 'Controller');
 class AdminUpdateController extends AdminController {
     public $name = 'AdminUtils';
     public $layout = false;
+
+	// public $components = array('Gearman.Gearman');
     
     public function beforeFilter() {
 		if (!$this->isAdmin()) {
@@ -214,4 +216,80 @@ class AdminUpdateController extends AdminController {
 		$path = substr($fileDate, 0, 4).DS.substr($fileDate, 4, 2).DS.substr($fileDate, 6, 2);
 		return $path;
 	}
+
+	public function update6() {
+		ignore_user_abort(true);
+		set_time_limit(0);
+		$this->autoRender = false;
+		$this->loadModel('Product');
+		$this->loadModel('DetailNum');
+		$fields = array('id', 'detail_num');
+		$conditions = array('object_type' => 'Product', 'processed' => 0);
+		$page = 1;
+		$limit = 1000;
+		$order = array('Product.id');
+		$recursive = -1;
+		$count_rows = 0;
+		$count_nums = 0;
+		while (file_get_contents('cont.log') && $rows = $this->Product->find('all', compact('fields', 'conditions', 'page', 'limit', 'order', 'recursive'))) {
+			$page++;
+			foreach($rows as $row) {
+				$detail_nums = explode(',', str_replace(array('   ', '  ', ' '), '', trim($row['Product']['detail_num'])));
+				fdebug($row, 'products.log');
+				$count_rows++;
+				foreach($detail_nums as $dn) {
+					$dn = $this->DetailNum->strip($dn);
+					if (!$this->DetailNum->findByProductIdAndDetailNum($row['Product']['id'], $dn)) {
+						fdebug("{$dn}\r\n", 'detail_nums.log');
+						$count_nums++;
+						$this->DetailNum->clear();
+						$this->DetailNum->save(array('detail_num' => $dn, 'product_id' => $row['Product']['id']));
+					}
+				}
+				$this->Product->clear();
+				$this->Product->save(
+					array('id' => $row['Product']['id'], 'processed' => 1),
+					array('callbacks' => false)
+				);
+			}
+		}
+		echo "Processing finished. Rows: {$count_rows}, nums: {$count_nums}";
+		/*
+		$this->autoRender = true;
+		$this->layout = 'admin';
+		$this->render('/Admin/index');
+		*/
+	}
+
+	public function statusUpdate6() {
+		$this->autoRender = false;
+		$this->loadModel('Product');
+		$conditions = array();
+		$recursive = -1;
+		$total = $this->Product->find('count', compact('conditions', 'recursive'));
+
+		$conditions['processed'] = 1;
+		$proc = $this->Product->find('count', compact('conditions', 'recursive'));
+		echo "{$proc} / {$total} (".round($proc / $total * 100, 1)."%)";
+		/*
+		$this->autoRender = true;
+		$this->layout = 'admin';
+		$this->render('/Admin/index');
+		*/
+	}
+
+    public function test() {
+		ignore_user_abort(true);
+		set_time_limit(0);
+		$this->autoRender = false;
+		$i = 0;
+		echo 'Run...<br/>';
+		while (file_get_contents('cont.log')) {
+			$i++;
+			fdebug("$i\r\n");
+			sleep(1);
+		}
+		echo 'Done!';
+	}
+
 }

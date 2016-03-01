@@ -5,17 +5,27 @@
 	$title = $this->ObjectType->getTitle('index', $objectType);
     $createURL = $this->Html->url(array('action' => 'edit', 0));
     $createTitle = $this->ObjectType->getTitle('create', $objectType);
+
     $actions = $this->PHTableGrid->getDefaultActions($objectType);
-    $actions['checked']['add']['href'] = $this->Html->url(array('action' => 'printXls'));
-    $actions['checked']['add']['label'] = __('Print selected records');
-    $actions['checked']['add']['icon'] = 'icon-color icon-print';
-    $actions['checked']['add']['onclick'] = 'sendToPrint();return false;';
+/*
+	unset($actions['checked'][0]);
+
+	$actions['checked']['del']['href'] = 'javascript:;';
+	$actions['checked']['del']['label'] = __('Delete');
+	$actions['checked']['del']['icon'] = 'icon-color icon-delete';
+	$actions['checked']['del']['onclick'] = 'deleteChecked();return false;';
+*/
+	// $actions['checked']['del'] = $this->Html->link('!!!');
+    $actions['checked']['print']['href'] = $this->Html->url(array('action' => 'printXls'));
+    $actions['checked']['print']['label'] = __('Print');
+    $actions['checked']['print']['icon'] = 'icon-color icon-print';
+    $actions['checked']['print']['onclick'] = 'sendToPrint();return false;';
     if ($isAdmin) {
     	$actions['table']['add']['href'] = $createURL;
     	$actions['table']['add']['label'] = $createTitle;
     } else {
     	// unset($actions['table']);
-        unset($actions['checked'][0]);
+		unset($actions['checked']['delete']);
     	$actions['table'] = array();
     	$actions['row'] = array();
     }
@@ -103,13 +113,13 @@
 			'options' => $motorOptions, 'value' => (isset($motorFilterValue)) ? $motorFilterValue : null
 		);
 		echo $this->PHForm->input('motor', $options);
-		$options = array(
-			'label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'div' => array('class' => 'inline multiMotors'),
-			'options' => $aBrandOptions,
-			'value' => (isset($brandsFilterValue)) ? $brandsFilterValue :  null
-		);
-		echo $this->PHForm->input('brand', $options);
 	}
+	$options = array(
+		'label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'div' => array('class' => 'inline multiMotors'),
+		'options' => $aBrandOptions,
+		'value' => (isset($brandsFilterValue)) ? $brandsFilterValue :  null
+	);
+	echo $this->PHForm->input('brand', $options);
 ?>
 		<div id="filterByNumber" class="input-append">
 			<input class="span2" type="text" name="" value="<?=(isset($detail_num)) ? $detail_num : ''?>" onfocus="this.select()" placeholder="Поиск по номерам" style="width: 200px;">
@@ -121,7 +131,6 @@
 	
 </div>
 <br/>
-
 
 <?
     echo $this->PHTableGrid->render('Product', array(
@@ -255,5 +264,6 @@ function sendToPrint() {
     $('input[name="aID"]').val(selectedId.join(','));
     $('#printXls').submit();
 }
+
 </script>
 <form id="printXls" method="post" action="<?= $this->Html->url(array('controller' => 'AdminProducts', 'action' => 'printXls')) ?>"><input type="hidden" name="aID" /></form>

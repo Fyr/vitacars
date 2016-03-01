@@ -195,7 +195,7 @@ class AdminProductsController extends AdminController {
 	}
 
     public function index() {
-    	set_time_limit(20); // 60 * 5
+    	set_time_limit(60 * 5); //
     	$this->_processParams();
 
         $aRowset = $this->PCTableGrid->paginate('Product');
@@ -291,5 +291,10 @@ class AdminProductsController extends AdminController {
 			$this->request->data('Product.brand_id', 2166); // brand = Deutz
 		}
 	}
-	
+/*
+	public function delete($id) {
+
+		parent::delete($id);
+	}
+*/
 }

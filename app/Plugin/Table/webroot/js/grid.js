@@ -776,6 +776,16 @@ Grid = function(config) {
 		// console.log(self.getURL());
 		window.location.href = self.getURL();
 	}
+
+	this.deleteChecked = function(deleteURL) {
+		var checked = [];
+		console.log(deleteURL);
+		$('.grid-chbx-row:checked', $self).each(function(){
+			checked.push($(this).val());
+		});
+		deleteURL = deleteURL.replace(/\{\$id\}/, checked.join());
+		window.location.href = deleteURL + '&backURL=' + self.getURL();
+	}
                 
 	self.init(config);
 }
