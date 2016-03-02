@@ -234,7 +234,7 @@ class AdminUpdateController extends AdminController {
 		while (file_get_contents('cont.log') && $rows = $this->Product->find('all', compact('fields', 'conditions', 'page', 'limit', 'order', 'recursive'))) {
 			$page++;
 			foreach($rows as $row) {
-				$detail_nums = explode(',', str_replace(array('   ', '  ', ' '), '', trim($row['Product']['detail_num'])));
+				$detail_nums = explode(',', str_replace(array('   ', '  ', ' '), ' ', trim($row['Product']['detail_num'])));
 				fdebug($row, 'products.log');
 				$count_rows++;
 				foreach($detail_nums as $dn) {

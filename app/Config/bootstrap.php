@@ -51,6 +51,10 @@ Configure::write('Params', array(
 	'outcomeY' => (TEST_ENV) ? 27 : 32,
 ));
 
+Configure::write('Search', array(
+	'detail_nums' => true
+));
+
 Configure::write('tmp_dir', ROOT.DS.APP_DIR.DS.'tmp'.DS);
 
 Configure::write('import', array(

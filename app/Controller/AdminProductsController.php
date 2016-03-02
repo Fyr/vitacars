@@ -74,40 +74,53 @@ class AdminProductsController extends AdminController {
         		$detail_num = str_replace(array('*', '~'), '', $detail_num);
         		$this->set('detail_num', $detail_num);
         		if ($detail_num) {
-					$numbers = explode(' ', str_replace(',', ' ', $detail_num));
-					if ($lFindSame) {
+
+					if (Configure::write('Search.detail_nums')) {
+						$this->loadModel('DetailNum');
+						$product_ids = $this->DetailNum->findDetails($this->DetailNum->stripList($detail_num), $lFindSame);
+						$this->paginate['conditions'] = array('Product.id' => $product_ids);
+						$order = array();
+						foreach ($product_ids as $id) {
+							$order[] = 'Product.id = ' . $id . ' DESC';
+						}
+						$this->paginate['order'] = implode(', ', $order);
+					} else {
+
+						$numbers = explode(' ', str_replace(',', ' ', $detail_num));
+						if ($lFindSame) {
+							$ors = array();
+							$order = array();
+							$i = 0;
+							$count = count($numbers);
+							$_count = 0;
+							while ($i < 100 && $count !== $_count) {
+								$i++; // избегать бесконечный цикл
+								foreach ($numbers as $key_ => $value_) {
+									if (trim($value_) != '') {
+										$ors[] = array('Product.detail_num LIKE "%' . trim($value_) . '%"');
+									}
+								}
+								$products = $this->Product->find('all', array('conditions' => array('OR' => $ors)));
+								foreach ($products as $product) {
+									$numbers = array_merge($numbers, explode(' ', str_replace(',', ' ', $product['Product']['detail_num'])));
+								}
+								$numbers = array_unique($numbers);
+								$_count = $count;
+								$count = count($numbers);
+							}
+						}
+
 						$ors = array();
 						$order = array();
-						$i = 0;
-						$count = count($numbers);
-						$_count = 0;
-						while ($i < 100 && $count !== $_count) {
-							$i++; // избегать бесконечный цикл
-							foreach ($numbers as $key_ => $value_) {
-								if (trim($value_) != ''){
-									$ors[] = array('Product.detail_num LIKE "%'.trim($value_).'%"');
-								}
+						foreach ($numbers as $key_ => $value_) {
+							if (trim($value_) != '') {
+								$ors[] = array('Product.detail_num LIKE "%' . trim($value_) . '%"');
+								$order[] = 'Product.detail_num LIKE "%' . trim($value_) . '%" DESC';
 							}
-							$products = $this->Product->find('all', array('conditions' => array('OR' => $ors)));
-							foreach($products as $product) {
-								$numbers = array_merge($numbers, explode(' ', str_replace(',', ' ', $product['Product']['detail_num'])));
-							}
-							$numbers = array_unique($numbers);
-							$_count = $count;
-							$count = count($numbers);
 						}
-	        		}
-						
-					$ors = array();
-					$order = array();
-					foreach ($numbers as $key_ => $value_) {
-						if (trim($value_) != ''){
-							$ors[] = array('Product.detail_num LIKE "%'.trim($value_).'%"');
-							$order[] = 'Product.detail_num LIKE "%'.trim($value_).'%" DESC';
-						}
+						$this->paginate['conditions'] = array('OR' => $ors);
+						$this->paginate['order'] = implode(', ', $order);
 					}
-					$this->paginate['conditions'] = array('OR' => $ors);
-					$this->paginate['order'] = implode(', ', $order);
         		}
 			}
             unset($this->request->params['named']['Product.detail_num']);
