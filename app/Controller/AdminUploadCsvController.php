@@ -1,12 +1,13 @@
 <?php
 App::uses('AdminController', 'Controller');
 App::uses('Product', 'Model');
+App::uses('DetailNum', 'Model');
 App::uses('PMFormValue', 'Form.Model');
 App::uses('PMFormField', 'Form.Model');
 class AdminUploadCsvController extends AdminController {
     public $name = 'AdminUploadCsv';
     public $layout = 'admin';
-    public $uses = array('Product', 'Form.PMFormData', 'Form.PMFormField', 'Brand', 'Category', 'Subcategory', 'Seo.Seo', 'ProductRemain');
+    public $uses = array('Product', 'Form.PMFormData', 'Form.PMFormField', 'Brand', 'Category', 'Subcategory', 'Seo.Seo', 'ProductRemain', 'DetailNum');
     
     const CSV_DIV = ';';
     private $errLine = 0, $errLog;
@@ -92,37 +93,33 @@ class AdminUploadCsvController extends AdminController {
 	 */
 	private function _getCounters($keyField = 'detail_num', $aData) {
 		$aParams = array();
-		$fields = array('Product.id');
 		foreach($aData as $row) {
 			list($number) = array_values($row);
-			$conditions = ($keyField == 'detail_num') ? array('Product.'.$keyField.' LIKE ' => '%'.trim($number).'%') : array('Product.code' => $number);
-			$params = $this->Product->find('all', compact('fields', 'conditions'));
-			/*
-			$params = $this->PMFormValue->find('all', array(
-				'fields' => array('object_id'),
-				'conditions' => array(
-					'field_id' => Product::NUM_DETAIL,
-					'value LIKE ' => '%'.trim($number).'%'
-				)
-			));
-			*/
+			$ids = array();
+			if ($keyField == 'detail_num') {
+				$conditions = array('detail_num' => trim($number));
+				$ids = $this->DetailNum->find('all', compact('conditions'));
+				$ids = Hash::extract($ids, '{n}.DetailNum.product_id');
+				$ids = array_unique($ids);
+			} else {
+				$fields = array('Product.id');
+				$conditions = array('Product.code' => $number);
+				$ids = $this->Product->find('all', compact('fields', 'conditions'));
+				$ids = Hash::extract($ids, '{n}.Product.id');
+			}
 			array_shift($row); // исключить 1й ключ из обрабатываемой строки (номер детали)
-			foreach($params as $param) {
-				$object_id = Hash::get($param, 'Product.id');
-				if ($object_id) {
-					if (!isset($aParams[$object_id])) {
-						$aParams[$object_id] = array();
-					}
-					foreach($row as $counter => $count) {
-						if (isset($aParams[$object_id][$counter])) {
-							$aParams[$object_id][$counter]+= floatval($count);
-						} else {
-							$aParams[$object_id][$counter] = floatval($count);
-						}
+			foreach($ids as $object_id) {
+				if (!isset($aParams[$object_id])) {
+					$aParams[$object_id] = array();
+				}
+				foreach($row as $counter => $count) {
+					if (isset($aParams[$object_id][$counter])) {
+						$aParams[$object_id][$counter]+= floatval($count);
+					} else {
+						$aParams[$object_id][$counter] = floatval($count);
 					}
 				}
 			}
-			
 		}
 		return $aParams;
 	}
