@@ -70,14 +70,18 @@ class AdminProductsController extends AdminController {
         $detail_num = '';
         if (isset($this->request->named['Product.detail_num']) && ($detail_num = $this->request->named['Product.detail_num'])) {
         	if ((strpos($detail_num, '*') !== false) || (strpos($detail_num, '~') !== false)) {
+				/*
         		$lFindSame = (strpos($detail_num, '~') !== false); // поиск похожих
+				$lFindLike = (strpos($detail_num, '*') !== false); // поиск по части номера
+				$_detail_num = str_replace('~', '', $detail_num);
+				*/
         		$detail_num = str_replace(array('*', '~'), '', $detail_num);
         		$this->set('detail_num', $detail_num);
         		if ($detail_num) {
 
-					if (Configure::write('Search.detail_nums')) {
+					if (Configure::read('Search.detail_nums')) {
 						$this->loadModel('DetailNum');
-						$product_ids = $this->DetailNum->findDetails($this->DetailNum->stripList($detail_num), $lFindSame);
+						$product_ids = $this->DetailNum->findDetails($this->DetailNum->stripList('*'.$detail_num.'*'), true);
 						$this->paginate['conditions'] = array('Product.id' => $product_ids);
 						$order = array();
 						foreach ($product_ids as $id) {
@@ -87,7 +91,7 @@ class AdminProductsController extends AdminController {
 					} else {
 
 						$numbers = explode(' ', str_replace(',', ' ', $detail_num));
-						if ($lFindSame) {
+						// if ($lFindSame) {
 							$ors = array();
 							$order = array();
 							$i = 0;
@@ -108,7 +112,7 @@ class AdminProductsController extends AdminController {
 								$_count = $count;
 								$count = count($numbers);
 							}
-						}
+						// }
 
 						$ors = array();
 						$order = array();

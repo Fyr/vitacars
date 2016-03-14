@@ -16,14 +16,25 @@ class DetailNum extends AppModel {
 	}
 
 	public function findDetails($detail_nums, $lFindSame = true) {
-		$aRows = $this->find('all', array('conditions' => array('detail_num' => $detail_nums)));
+		$conditions = array('detail_num' => $detail_nums);
+		if (strpos(implode('', $detail_nums), '*') !== false) {
+			if (count($detail_nums) == 1) {
+				$conditions = array('detail_num LIKE "'.str_replace('*', '%', $detail_nums[0]).'"');
+			} else {
+				$conditions = array('OR' => array());
+				foreach($detail_nums as $dn) {
+					$conditions['OR'][] = array('detail_num LIKE "' => str_replace('*', '%', $dn).'"');
+				}
+			}
+		}
+		$aRows = $this->find('all', compact('conditions'));
 		$product_ids = array_unique(Hash::extract($aRows, '{n}.DetailNum.product_id'));
 		if (!$lFindSame) {
 			return $product_ids;
 		}
 		$aRows = $this->find('all', array('conditions' => array('product_id' => $product_ids)));
 		$nums = array_unique(Hash::extract($aRows, '{n}.DetailNum.detail_num'));
-		if (count($detail_nums) != count($nums)) {
+		if (count($detail_nums) != count($nums) && count($nums) < 1000) {
 			return $this->findDetails($nums);
 		}
 		return $product_ids;
