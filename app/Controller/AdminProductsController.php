@@ -83,7 +83,8 @@ class AdminProductsController extends AdminController {
 						$this->loadModel('DetailNum');
 						$product_ids = $this->DetailNum->findDetails($this->DetailNum->stripList('*'.$detail_num.'*'), true);
 						$this->paginate['conditions'] = array('Product.id' => $product_ids);
-						$order = array();
+						$_detail_num = $this->DetailNum->strip($detail_num);
+						$order = array("Product.code = '{$detail_num}' DESC", "Product.code = '{$_detail_num}' DESC");
 						foreach ($product_ids as $id) {
 							$order[] = 'Product.id = ' . $id . ' DESC';
 						}

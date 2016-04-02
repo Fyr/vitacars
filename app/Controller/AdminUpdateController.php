@@ -254,13 +254,51 @@ class AdminUpdateController extends AdminController {
 			}
 		}
 		echo "Processing finished. Rows: {$count_rows}, nums: {$count_nums}";
-		/*
-		$this->autoRender = true;
-		$this->layout = 'admin';
-		$this->render('/Admin/index');
-		*/
 	}
 
+	public function update7() {
+		ignore_user_abort(true);
+		set_time_limit(0);
+		$this->autoRender = false;
+		$this->loadModel('DetailNum');
+		$this->loadModel('Form.FormData');
+		$fields = array('id', 'object_id', 'fk_60');
+		$conditions = array('fk_60 AND fk_60 IS NOT NULL AND fk_60 != "нет"');
+		$page = 1;
+		$limit = 1000;
+		$order = array('object_id');
+		$recursive = -1;
+		$count_rows = 0;
+		$count_nums = 0;
+		while ($rows = $this->FormData->find('all', compact('fields', 'conditions', 'page', 'limit', 'order', 'recursive'))) {
+			$page++;
+			foreach($rows as $row) {
+				$detail_nums = trim($row['FormData']['fk_60']);
+				$detail_nums = str_replace(array('   ', '  ', ' '), ' ', $detail_nums);
+				$detail_nums = explode(',', str_replace(array("\r\n", "\r", "\n"), ',', $detail_nums)); // разделяем строки номеров
+				$count_rows++;
+
+				foreach($detail_nums as $_dn) {
+					foreach(explode(' ', trim($_dn)) as $dn) {
+						$dn = trim($dn);
+						if ($dn && $this->DetailNum->isDigitWord($dn)) {
+							$dn = $this->DetailNum->strip($dn);
+							if ($r = $this->DetailNum->findByProductIdAndDetailNum($row['FormData']['object_id'], $dn)) {
+							} else {
+								fdebug("{$dn}\r\n", 'detail_nums.log');
+								$count_nums++;
+								$this->DetailNum->clear();
+								$this->DetailNum->save(array('detail_num' => $dn, 'product_id' => $row['FormData']['object_id']));
+							}
+						}
+					}
+				}
+			}
+		}
+		echo "Processing finished. Rows: {$count_rows}, nums: {$count_nums}";
+	}
+
+/*
 	public function statusUpdate6() {
 		$this->autoRender = false;
 		$this->loadModel('Product');
@@ -271,11 +309,6 @@ class AdminUpdateController extends AdminController {
 		$conditions['processed'] = 1;
 		$proc = $this->Product->find('count', compact('conditions', 'recursive'));
 		echo "{$proc} / {$total} (".round($proc / $total * 100, 1)."%)";
-		/*
-		$this->autoRender = true;
-		$this->layout = 'admin';
-		$this->render('/Admin/index');
-		*/
 	}
 
     public function test() {
@@ -291,5 +324,5 @@ class AdminUpdateController extends AdminController {
 		}
 		echo 'Done!';
 	}
-
+*/
 }

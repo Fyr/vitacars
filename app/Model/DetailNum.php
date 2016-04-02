@@ -39,4 +39,15 @@ class DetailNum extends AppModel {
 		}
 		return $product_ids;
 	}
+
+	public function isDigitWord($q) {
+		for($i = 0; $i < mb_strlen($q); $i++) {
+			$ch = mb_substr($q, $i, 1);
+			if (!preg_match('/[a-z0-9\-\.\\/]/', $ch)) {
+				return false;
+			}
+		}
+		return preg_match('/.*[0-9]+.*/', $q) && true;
+	}
+
 }

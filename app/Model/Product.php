@@ -7,6 +7,7 @@ App::uses('Subcategory', 'Model');
 App::uses('Brand', 'Model');
 App::uses('PMFormData', 'Form.Model');
 App::uses('Seo', 'Seo.Model');
+App::uses('DetailNum', 'Model');
 class Product extends Article {
 	const NUM_DETAIL = 5;
 	const MOTOR = 6;
@@ -49,8 +50,12 @@ class Product extends Article {
 	);
 	
 	public $objectType = 'Product';
+	protected $DetailNum;
 
 	public function afterSave($created, $options = array()) {
+
+		$this->loadModel('DetailNum');
+
 		$subcategory = array();
 		if (isset($this->data['Product']['subcat_id']) && $this->data['Product']['subcat_id']) {
 			$subcategory = $this->Subcategory->findById($this->data['Product']['subcat_id']);
@@ -60,32 +65,55 @@ class Product extends Article {
 			$category = $this->Category->findById($this->data['Product']['cat_id']);
 		}
 		$brand = $this->Brand->findById($this->data['Product']['brand_id']);
+
+		$aForm = array('fk_9', 'fk_33', 'fk_34', 'fk_60');
+		$aFormData = array();
+		foreach($aForm as $e) {
+			$aFormData[$e] = '';
+			if (isset($this->data['PMFormData']) && $this->data['PMFormData'] && isset($this->data['PMFormData'][$e])) {
+				$aFormData[$e] = str_replace(array("\r", "\n"), '', $this->data['PMFormData'][$e]);
+			}
+		}
 		$this->data['Search']['id'] = $this->id;
-		$this->data['Search']['body'] = implode(',', array(
+		$this->data['Search']['body'] = mb_strtolower(implode(',', array(
 			$this->data['Product']['code'],
-			str_replace(', ', ',', $this->data['Product']['detail_num']),
+			str_replace(', ', ',', $this->DetailNum->strip($this->data['Product']['detail_num']).','.$this->DetailNum->strip($aFormData['fk_60'])),
+			(isset($this->data['Product']['motor'])) ? $this->data['Product']['motor'] : '',
+			$aFormData['fk_34'],
 			$this->data['Product']['title'],
 			$this->data['Product']['title_rus'],
-			(isset($this->data['Product']['motor'])) ? $this->data['Product']['motor'] : '',
+			$aFormData['fk_9'],
 			($subcategory) ? $subcategory['Subcategory']['title'] : '',
 			($category) ? $category['Category']['title'] : '',
-			$brand['Brand']['title']
-		));
+			$brand['Brand']['title'],
+			$aFormData['fk_33']
+		)));
 		$this->Search->save($this->data['Search']);
 
 		$this->loadModel('DetailNum');
 		$this->DetailNum->deleteAll(array('product_id' => $this->id));
-		$detail_nums = explode(',', str_replace(array('   ', '  ', ' '), '', trim($this->data['Product']['detail_num'])));
+
+		$detail_nums = array();
+		if ($aFormData['fk_60']) {
+			$detail_nums = str_replace(array("\r\n", "\r", "\n"), ',', $this->data['PMFormData']['fk_60']);
+			$detail_nums = str_replace(array('   ', '  ', ' '), ',', $detail_nums);
+			$detail_nums = explode(',', $detail_nums);
+		}
+
+		$detail_nums = array_merge($detail_nums, explode(',', str_replace(array('   ', '  ', ' '), '', trim($this->data['Product']['detail_num']))));
+
 		foreach($detail_nums as &$dn) {
 			$dn = $this->DetailNum->strip($dn);
 		}
 		unset($dn);
 		$detail_nums = array_unique($detail_nums);
 		foreach($detail_nums as $dn) {
-			$dn = $this->DetailNum->strip($dn);
-			$data = array('detail_num' => $dn, 'product_id' => $this->id);
-			$this->DetailNum->clear();
-			$this->DetailNum->save($data);
+			if ($this->DetailNum->isDigitWord($dn)) {
+				$dn = $this->DetailNum->strip($dn);
+				$data = array('detail_num' => $dn, 'product_id' => $this->id);
+				$this->DetailNum->clear();
+				$this->DetailNum->save($data);
+			}
 		}
 	}
 }
