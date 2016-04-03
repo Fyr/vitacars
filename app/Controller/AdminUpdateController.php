@@ -1,7 +1,7 @@
 <?php
 App::uses('AdminController', 'Controller');
 class AdminUpdateController extends AdminController {
-    public $name = 'AdminUtils';
+    public $name = 'AdminUpdate';
     public $layout = false;
 
 	// public $components = array('Gearman.Gearman');
@@ -259,11 +259,10 @@ class AdminUpdateController extends AdminController {
 	public function update7() {
 		ignore_user_abort(true);
 		set_time_limit(0);
-		$this->autoRender = false;
 		$this->loadModel('DetailNum');
 		$this->loadModel('Form.FormData');
 		$fields = array('id', 'object_id', 'fk_60');
-		$conditions = array('fk_60 AND fk_60 IS NOT NULL AND fk_60 != "нет"');
+		$conditions = array('fk_60 IS NOT NULL'); //
 		$page = 1;
 		$limit = 1000;
 		$order = array('object_id');
@@ -272,24 +271,24 @@ class AdminUpdateController extends AdminController {
 		$count_nums = 0;
 		while ($rows = $this->FormData->find('all', compact('fields', 'conditions', 'page', 'limit', 'order', 'recursive'))) {
 			$page++;
+			fdebug($rows, 'tmp1.log');
 			foreach($rows as $row) {
 				$detail_nums = trim($row['FormData']['fk_60']);
-				$detail_nums = str_replace(array('   ', '  ', ' '), ' ', $detail_nums);
-				$detail_nums = explode(',', str_replace(array("\r\n", "\r", "\n"), ',', $detail_nums)); // разделяем строки номеров
+				$detail_nums = str_replace(array("\r\n", "\r", "\n"), ',', $detail_nums); // разделяем строки номеров
+				$detail_nums = str_replace(array('   ', '  ', ' '), ',', $detail_nums);
+				$detail_nums = explode(',', $detail_nums);
 				$count_rows++;
 
-				foreach($detail_nums as $_dn) {
-					foreach(explode(' ', trim($_dn)) as $dn) {
-						$dn = trim($dn);
-						if ($dn && $this->DetailNum->isDigitWord($dn)) {
-							$dn = $this->DetailNum->strip($dn);
-							if ($r = $this->DetailNum->findByProductIdAndDetailNum($row['FormData']['object_id'], $dn)) {
-							} else {
-								fdebug("{$dn}\r\n", 'detail_nums.log');
-								$count_nums++;
-								$this->DetailNum->clear();
-								$this->DetailNum->save(array('detail_num' => $dn, 'product_id' => $row['FormData']['object_id']));
-							}
+				foreach($detail_nums as $dn) {
+					$dn = trim($dn);
+					if ($dn && $this->DetailNum->isDigitWord($dn)) {
+						$dn = $this->DetailNum->strip($dn);
+						if ($r = $this->DetailNum->findByProductIdAndDetailNum($row['FormData']['object_id'], $dn)) {
+						} else {
+							fdebug("{$dn}\r\n", 'detail_nums.log');
+							$count_nums++;
+							$this->DetailNum->clear();
+							$this->DetailNum->save(array('detail_num' => mb_strtolower($dn), 'product_id' => $row['FormData']['object_id']));
 						}
 					}
 				}
@@ -297,6 +296,8 @@ class AdminUpdateController extends AdminController {
 		}
 		echo "Processing finished. Rows: {$count_rows}, nums: {$count_nums}";
 	}
+
+
 
 /*
 	public function statusUpdate6() {

@@ -41,6 +41,7 @@ class DetailNum extends AppModel {
 	}
 
 	public function isDigitWord($q) {
+		$q = mb_strtolower($q);
 		for($i = 0; $i < mb_strlen($q); $i++) {
 			$ch = mb_substr($q, $i, 1);
 			if (!preg_match('/[a-z0-9\-\.\\/]/', $ch)) {

@@ -110,7 +110,7 @@ class Product extends Article {
 		foreach($detail_nums as $dn) {
 			if ($this->DetailNum->isDigitWord($dn)) {
 				$dn = $this->DetailNum->strip($dn);
-				$data = array('detail_num' => $dn, 'product_id' => $this->id);
+				$data = array('detail_num' => mb_strtolower($dn), 'product_id' => $this->id);
 				$this->DetailNum->clear();
 				$this->DetailNum->save($data);
 			}
