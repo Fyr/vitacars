@@ -83,12 +83,8 @@ class PMFormData extends AppModel {
 		}
 		return false;
 	}
-	
-	public function recalcFormula($id, $aFormFields) {
-		$this->PMFormField = $this->loadModel('Form.PMFormField');
-		$this->PMFormConst = $this->loadModel('Form.PMFormConst');
-		
-		$data = $this->findById($id);
+
+	public function _recalcFormula($data, $aFormFields, $aConst) {
 		$aData = array();
 		$aFormula = array();
 		foreach($aFormFields as $row) {
@@ -100,19 +96,29 @@ class PMFormData extends AppModel {
 				$aData[$row['PMFormField']['key']] = Hash::get($data, 'PMFormData.fk_'.$field_id);
 			}
 		}
-		
-		$fields = array('key', 'value');
-		$conditions = array('PMFormConst.object_type' => 'SubcategoryParam');
-		$aConst = $this->PMFormConst->find('list', compact('fields', 'conditions'));
+
 		$aData = array_merge($aData, $aConst);
-		
-		$_data = array('PMFormData' => array('id' => $id));
+
+		$_data = array('PMFormData' => array('id' => $data['PMFormData']['id']));
 		if ($aFormula) {
+			$this->PMFormField = $this->loadModel('Form.PMFormField');
 			foreach($aFormula as $formula) {
 				$field_id = $formula['id'];
 				$_data['PMFormData']['fk_'.$field_id] = $this->PMFormField->calcFormula($formula['options'], $aData);
 			}
 		}
 		return $this->save($_data);
+	}
+	
+	public function recalcFormula($id, $aFormFields) {
+		$this->PMFormConst = $this->loadModel('Form.PMFormConst');
+
+		$data = $this->findById($id);
+
+		$fields = array('key', 'value');
+		$conditions = array('PMFormConst.object_type' => 'SubcategoryParam');
+		$aConst = $this->PMFormConst->find('list', compact('fields', 'conditions'));
+
+		return $this->_recalcFormula($data, $aFormFields, $aConst);
 	}
 }

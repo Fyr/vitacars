@@ -23,7 +23,9 @@ class AdminUploadCsvController extends AdminController {
 	}
     
 	public function index() {
-		set_time_limit(60 * 10);
+		// set_time_limit(60 * 10);
+		ignore_user_abort(true);
+		set_time_limit(0);
 		try {
 			if (isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name']) {
 				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
@@ -43,9 +45,18 @@ class AdminUploadCsvController extends AdminController {
 				$this->Product->getDataSource()->begin();
 				$aID = $this->_updateParams($aData['keys'], $this->_getCounters($keyField, $aData['data']));
 				$this->Product->getDataSource()->commit();
-				
+
 				$this->setFlash(__('%s products have been successfully updated', count($aID)), 'success');
-				$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index')); // , 'Product.id' => implode(',', $aID)
+				if (count($aID) > 100) {
+					$file = Configure::read('tmp_dir').'user_products_'.$this->Auth->user('id').'.tmp';
+					file_put_contents($file, implode("\r\n", $aID));
+					// $this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => 'list'));
+				} else {
+					// $this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
+				}
+
+
+				//$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index')); // , 'Product.id' => implode(',', $aID)
 			}
 		} catch (Exception $e) {
 			$this->Product->getDataSource()->rollback();
@@ -140,10 +151,26 @@ class AdminUploadCsvController extends AdminController {
 			}
 			$aKeys[$id] = 0;
 		}
-		
+
 		$aID = array();
-		// перед сохранением очистить столбцы
-		// $this->PMFormData->updateAll($aKeys);
+/*
+		$a1 = 'fk_'.Configure::read('Params.A1');
+		$a2 = 'fk_'.Configure::read('Params.A2');
+		$outcomeY = 'fk_'.Configure::read('Params.outcomeY');
+		if (in_array($a1, $keys) || in_array($a2, $keys)) {
+			$fields = array_merge(array('id', 'object_id', $outcomeY), $keys);
+		}
+		$aKeys = array('fk_28' => 0, 'fk_30' => 0);
+		// $aParamKeys = array_unique(array_keys($aParams));
+
+		$conditions = array('object_type' => 'ProductParam', 'NOT' => array('object_id' => array_keys($aParams), 'OR' => $aKeys));
+		$page = 1;
+		$limit = 1000;
+		$order = array('object_id');
+		$this->PMFormData->find('all', compact('fields', 'conditions', 'page', 'limit', 'order'));
+		fdebug($conditions);
+		return $aID;
+*/
 		$a1 = 'fk_'.Configure::read('Params.A1');
 		$a2 = 'fk_'.Configure::read('Params.A2');
 		foreach($aParams as $object_id => $counters) {
@@ -186,15 +213,21 @@ class AdminUploadCsvController extends AdminController {
 		}
 		
 		$outcomeY = 'fk_'.Configure::read('Params.outcomeY');
+		/*
 		if (in_array($a1, $keys) || in_array($a2, $keys)) {
 			$fields = array_merge(array('id', 'object_id', $outcomeY), $keys);
 		}
+		*/
+		$this->loadModel('Form.PMFormConst');
+		$fields = array('key', 'value');
+		$conditions = array('PMFormConst.object_type' => 'SubcategoryParam');
+		$aConst = $this->PMFormConst->find('list', compact('fields', 'conditions'));
 	
-    	$conditions = array('object_type' => 'ProductParam', 'NOT' => array('object_id' => array_keys($aParams)));
+    	$conditions = array('object_type' => 'ProductParam', 'NOT' => array('object_id' => array_keys($aParams)), 'OR' => $aKeys);
     	$page = 1;
-    	$limit = 100;
+    	$limit = 1000;
     	$order = array('object_id');
-    	while ($rows = $this->PMFormData->find('all', compact('fields', 'conditions', 'page', 'limit', 'order'))) {
+    	while ($rows = $this->PMFormData->find('all', compact('conditions', 'page', 'limit', 'order'))) {
     		$page++;
     		$remain = 0;
     		foreach($rows as $row) {
@@ -211,8 +244,8 @@ class AdminUploadCsvController extends AdminController {
 	    			}
     			}
     			$this->PMFormData->save($data);
-    			$this->PMFormData->recalcFormula($this->PMFormData->id, $aFormFields);
-    			$aID[] = $row['PMFormData']['object_id'];
+    			$this->PMFormData->_recalcFormula($row, $aFormFields, $aConst);
+    			// $aID[] = $row['PMFormData']['object_id'];
     		}
     	}
 		
