@@ -52,7 +52,7 @@ class PMFormField extends AppModel {
 	}
 	
 	public function afterSave($created, $options = array()) {
-		$this->loadModel('Form.PMFormData');
+		$this->PMFormData = $this->loadModel('Form.PMFormData');
 		$sql_field = sprintf(FieldTypes::getSqlTypes($this->data['PMFormField']['field_type']), $this->id);
 		$created = $created || (isset($options['forceCreate']) && $options['forceCreate']);
 		$sql = 'ALTER TABLE '.$this->PMFormData->getTableName().(($created) ? ' ADD ' : ' MODIFY ').$sql_field;
@@ -64,8 +64,8 @@ class PMFormField extends AppModel {
 		App::uses('PMFormKey', 'Form.Model');
 		$this->PMFormKey = new PMFormKey();
 		$this->PMFormKey->deleteAll(array('PMFormKey.field_id' => $this->id));
-		
-		$this->loadModel('Form.PMFormData');
+
+		$this->PMFormData = $this->loadModel('Form.PMFormData');
 		$sql = 'ALTER TABLE '.$this->PMFormData->getTableName().' DROP fk_'.$this->id;
 		$this->query($sql);
 		return true;

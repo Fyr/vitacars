@@ -35,7 +35,7 @@ class PMForm extends AppModel {
 	}
 	
 	public function getFields($object_type, $object_id) {
-		$this->loadModel('Form.PMFormField');
+		$this->PMFormField = $this->loadModel('Form.PMFormField');
 		$form = $this->FormKey->find('all', array(
 			'fields' => array('PMForm.*', 'PMFormField.*'),
 			'joins' => array(

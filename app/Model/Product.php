@@ -98,19 +98,22 @@ class Product extends Article {
 			$detail_nums = str_replace(array("\r\n", "\r", "\n"), ',', $this->data['PMFormData']['fk_60']);
 			$detail_nums = str_replace(array('   ', '  ', ' '), ',', $detail_nums);
 			$detail_nums = explode(',', $detail_nums);
+			foreach($detail_nums as $dn) {
+				if ($this->DetailNum->isDigitWord($dn)) {
+					$dn = $this->DetailNum->strip($dn);
+					$data = array('detail_num' => mb_strtolower($dn), 'product_id' => $this->id, 'num_type' => DetailNum::CROSS);
+					$this->DetailNum->clear();
+					$this->DetailNum->save($data);
+				}
+			}
 		}
 
-		$detail_nums = array_merge($detail_nums, explode(',', str_replace(array('   ', '  ', ' '), '', trim($this->data['Product']['detail_num']))));
-
-		foreach($detail_nums as &$dn) {
-			$dn = $this->DetailNum->strip($dn);
-		}
-		unset($dn);
-		$detail_nums = array_unique($detail_nums);
+		$detail_nums = $this->DetailNum->stripList($this->data['Product']['detail_num']);
 		foreach($detail_nums as $dn) {
+			$dn = $this->DetailNum->strip($dn);
 			if ($this->DetailNum->isDigitWord($dn)) {
 				$dn = $this->DetailNum->strip($dn);
-				$data = array('detail_num' => mb_strtolower($dn), 'product_id' => $this->id);
+				$data = array('detail_num' => mb_strtolower($dn), 'product_id' => $this->id, 'num_type' => DetailNum::ORIG);
 				$this->DetailNum->clear();
 				$this->DetailNum->save($data);
 			}

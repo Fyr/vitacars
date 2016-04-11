@@ -17,13 +17,14 @@
         <tbody>
 <?php 
 	$class = 'even';
-	foreach ($aRowset as $Product) { 
+	foreach ($aRowset as $Product) {
 		$class = ($class == 'even') ? 'odd' : 'even';
+		$subcat_id = $Product['Product']['subcat_id'];
 ?>
 		<tr class="row">
 			<td class="<?=$class?>"><?=$aBrands[$Product['Product']['brand_id']]?></td>
 			<td class="<?=$class?>"><?=$aCategories[$Product['Product']['cat_id']]?></td>
-			<td class="<?=$class?>"><?=$aSubcategories[$Product['Product']['subcat_id']]?></td>
+			<td class="<?=$class?>"><?=(isset($aSubcategories[$subcat_id])) ? $aSubcategories[$subcat_id] : ''?></td>
 			<td class="<?=$class?>"><?=$Product['Product']['title']?></td>
 			<td class="<?=$class?>"><?=$Product['Product']['title_rus']?></td>
 			<td class="<?=$class?>">&nbsp;<?=$Product['Product']['code']?></td>

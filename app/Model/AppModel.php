@@ -30,7 +30,8 @@ class AppModel extends Model {
 		}
 		return $query;
 	}
-	
+
+	/*
 	public function loadModel($models) {
 		if (!is_array($models)) {
 			$models = array($models);
@@ -43,7 +44,19 @@ class AppModel extends Model {
 			$this->$model = new $model();
 		}
 	}
+	*/
+	public function loadModel($modelClass = null, $id = null) {
+		list($plugin, $modelClass) = pluginSplit($modelClass, true);
 
+		$this->{$modelClass} = ClassRegistry::init(array(
+			'class' => $plugin . $modelClass, 'alias' => $modelClass, 'id' => $id
+		));
+		if (!$this->{$modelClass}) {
+			throw new MissingModelException($modelClass);
+		}
+
+		return $this->{$modelClass};
+	}
 	
 	private function _getObjectConditions($objectType = '', $objectID = '') {
 		$conditions = array();

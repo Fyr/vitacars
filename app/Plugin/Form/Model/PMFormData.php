@@ -85,8 +85,8 @@ class PMFormData extends AppModel {
 	}
 	
 	public function recalcFormula($id, $aFormFields) {
-		$this->loadModel('Form.PMFormField');
-		$this->loadModel('Form.PMFormConst');
+		$this->PMFormField = $this->loadModel('Form.PMFormField');
+		$this->PMFormConst = $this->loadModel('Form.PMFormConst');
 		
 		$data = $this->findById($id);
 		$aData = array();

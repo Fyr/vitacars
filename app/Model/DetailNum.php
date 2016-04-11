@@ -2,6 +2,16 @@
 App::uses('AppModel', 'Model');
 class DetailNum extends AppModel {
 
+	const ORIG = 1;
+	const CROSS = 2;
+
+	protected function _beforeInit() {
+		list($domain) = explode('.', $_SERVER['SERVER_NAME']);
+		if ($domain !== 'vitacars') {
+			$this->useDbConfig = 'vitacars';
+		}
+	}
+
 	public function strip($q) {
 		return str_replace(array('.', '-', '/', '\\'), '', $q);
 	}
@@ -10,22 +20,28 @@ class DetailNum extends AppModel {
 		$detail_nums = explode(',', str_replace(' ', ',', str_replace(array('   ', '  ', ' '), ' ', trim($detail_nums))));
 		$numbers = array();
 		foreach($detail_nums as $dn) {
-			$numbers[] = $this->strip($dn);
+			$dn = $this->strip($dn);
+			if ($dn) {
+				$numbers[] = $dn;
+			}
 		}
 		return array_unique($numbers);
 	}
 
-	public function findDetails($detail_nums, $lFindSame = true) {
+	public function findDetails($detail_nums, $lFindSame = true, $numType = false) {
 		$conditions = array('detail_num' => $detail_nums);
 		if (strpos(implode('', $detail_nums), '*') !== false) {
 			if (count($detail_nums) == 1) {
-				$conditions = array('detail_num LIKE "'.str_replace('*', '%', $detail_nums[0]).'"');
+				$conditions = array('detail_num LIKE ' => str_replace('*', '%', $detail_nums[0]));
 			} else {
 				$conditions = array('OR' => array());
 				foreach($detail_nums as $dn) {
 					$conditions['OR'][] = array('detail_num LIKE "' => str_replace('*', '%', $dn).'"');
 				}
 			}
+		}
+		if ($numType) {
+			$conditions['num_type'] = $numType;
 		}
 		$aRows = $this->find('all', compact('conditions'));
 		$product_ids = array_unique(Hash::extract($aRows, '{n}.DetailNum.product_id'));
@@ -50,5 +66,4 @@ class DetailNum extends AppModel {
 		}
 		return preg_match('/.*[0-9]+.*/', $q) && true;
 	}
-
 }

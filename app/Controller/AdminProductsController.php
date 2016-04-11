@@ -6,7 +6,7 @@ class AdminProductsController extends AdminController {
 	
     public $name = 'AdminProducts';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
-    public $uses = array('Product', 'Form.PMForm', 'Form.PMFormValue', 'Form.PMFormField', 'Form.PMFormData', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media');
+    public $uses = array('Product', 'Form.PMForm', 'Form.PMFormField', 'Form.PMFormData', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media', 'Search', 'DetailNum');
     public $helpers = array('ObjectType', 'Form.PHFormFields', 'Form.PHFormData');
     
     private $paramDetail, $aFormula, $aFieldKeys, $aBrandOptions;
@@ -64,31 +64,19 @@ class AdminProductsController extends AdminController {
     	}
     	$this->set('aLabels', $aLabels);
         $this->paginate = array(
-           	'fields' => array_merge(array('title', 'title_rus', 'detail_num', 'code', 'brand_id', 'Category.title', 'Media.id', 'Media.object_type', 'Media.file', 'Media.ext'), $aFields)
+           	'fields' => array_merge(array('title', 'title_rus', 'detail_num', 'code', 'brand_id', 'cat_id'), $aFields)
         );
         
         $detail_num = '';
         if (isset($this->request->named['Product.detail_num']) && ($detail_num = $this->request->named['Product.detail_num'])) {
         	if ((strpos($detail_num, '*') !== false) || (strpos($detail_num, '~') !== false)) {
-				/*
-        		$lFindSame = (strpos($detail_num, '~') !== false); // поиск похожих
-				$lFindLike = (strpos($detail_num, '*') !== false); // поиск по части номера
-				$_detail_num = str_replace('~', '', $detail_num);
-				*/
         		$detail_num = str_replace(array('*', '~'), '', $detail_num);
         		$this->set('detail_num', $detail_num);
         		if ($detail_num) {
-
+					$this->processFilter($detail_num);
+					/*
 					if (Configure::read('Search.detail_nums')) {
-						$this->loadModel('DetailNum');
-						$product_ids = $this->DetailNum->findDetails($this->DetailNum->stripList('*'.$detail_num.'*'), true);
-						$this->paginate['conditions'] = array('Product.id' => $product_ids);
-						$_detail_num = $this->DetailNum->strip($detail_num);
-						$order = array("Product.code = '{$detail_num}' DESC", "Product.code = '{$_detail_num}' DESC");
-						foreach ($product_ids as $id) {
-							$order[] = 'Product.id = ' . $id . ' DESC';
-						}
-						$this->paginate['order'] = implode(', ', $order);
+
 					} else {
 
 						$numbers = explode(' ', str_replace(',', ' ', $detail_num));
@@ -126,6 +114,7 @@ class AdminProductsController extends AdminController {
 						$this->paginate['conditions'] = array('OR' => $ors);
 						$this->paginate['order'] = implode(', ', $order);
 					}
+					*/
         		}
 			}
             unset($this->request->params['named']['Product.detail_num']);
@@ -186,7 +175,7 @@ class AdminProductsController extends AdminController {
 			$this->layout = 'print_xls';
 			$this->_processParams();
 			$aID = explode(',', $this->request->data('aID'));
-			$this->paginate['fields'][] = 'Product.cat_id';
+			// $this->paginate['fields'][] = 'Product.cat_id'; уже добавлено
 			$this->paginate['fields'][] = 'Product.subcat_id';
 			// $this->paginate['fields'][] = 'Product.brand_id'; уже добавлено
 			$this->paginate['conditions'] = array('Product.id' => $aID);
@@ -212,17 +201,62 @@ class AdminProductsController extends AdminController {
 		}
 	}
 
+	private function processFilter($value) {
+		// очищаем от лишних пробелов
+		$_value = $this->Search->stripSpaces(mb_strtolower($value));
+
+		// если ввели только номер - поиск по номерам
+		$aWords = explode(' ', $_value);
+		if (count($aWords) == 1 && $this->DetailNum->isDigitWord($value)) {
+			$this->processNumber($value);
+			return;
+		}
+		$aWords = $this->Search->processTextRequest($_value);
+		$this->paginate['conditions']['Search.body LIKE '] = '%'.implode('%', $aWords).'%';
+		if ($this->Search->isRu($_value)) {
+			$this->paginate['order'] = 'Product.title_rus LIKE "'.$_value.'%" DESC';
+		} else {
+			$this->paginate['order'] = 'Product.title LIKE "'.$_value.'%" DESC';
+		}
+	}
+
+	private function processNumber($detail_num) {
+		$product_ids = $this->DetailNum->findDetails($this->DetailNum->stripList('*'.$detail_num.'*'), true);
+		$this->paginate['conditions'] = array('Product.id' => $product_ids);
+
+		$_detail_num = $this->DetailNum->strip($detail_num);
+		$order = array("Product.code = '{$detail_num}' DESC", "Product.code = '{$_detail_num}' DESC");
+		foreach ($product_ids as $id) {
+			$order[] = 'Product.id = ' . $id . ' DESC';
+		}
+		$this->paginate['order'] = implode(', ', $order);
+	}
+
     public function index() {
     	set_time_limit(60 * 5); //
+		$this->Product->unbindModel(array(
+			'belongsTo' => array('Category', 'Subcategory', 'Brand'),
+			'hasOne' => array('Seo', 'Media')
+		), false);
+		// $this->Product->belongsTo = false;
     	$this->_processParams();
 
         $aRowset = $this->PCTableGrid->paginate('Product');
         $this->set('aRowset', $aRowset);
-        
+
+		$aCategories = $this->Category->findAllById(Hash::extract($aRowset, '{n}.Product.cat_id'));
+		$aCategories = Hash::combine($aCategories, '{n}.Category.id', '{n}.Category');
+		$this->set('aCategories', $aCategories);
+
+		$product_ids = Hash::extract($aRowset, '{n}.Product.id');
+		$aProductMedia = $this->Media->getList(array('media_type' => 'image', 'object_type' => 'Product', 'object_id' => $product_ids, 'main' => 1));
+		$aProductMedia = Hash::combine($aProductMedia, '{n}.Media.object_id', '{n}');
+		$this->set('aProductMedia', $aProductMedia);
+
         $brand_ids = Hash::extract($aRowset, '{n}.Product.brand_id');
         $brand_ids = array_unique($brand_ids);
-        
-        $aBrandMedia = $this->Media->getList(array('object_type' => 'Brand', 'object_id' => $brand_ids, 'main' => 1));
+
+		$aBrandMedia = $this->Media->getList(array('media_type' => 'image', 'object_type' => 'Brand', 'object_id' => $brand_ids, 'main' => 1));
         $aBrandMedia = Hash::combine($aBrandMedia, '{n}.Media.object_id', '{n}');
 		$this->set('aBrandMedia', $aBrandMedia);
 		

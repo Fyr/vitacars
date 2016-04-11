@@ -38,11 +38,13 @@
     );
     $columns['Category.title']['label'] = 'Брeнд';
 	$columns['Product.detail_num']['format'] = 'string';
-    
+    /*
     unset($columns['Media.id']);
     unset($columns['Media.object_type']);
     unset($columns['Media.file']);
     unset($columns['Media.ext']);
+    */
+	unset($columns['Product.cat_id']);
     unset($columns['Product.brand_id']);
     unset($columns['PMFormData.fk_23']);
     foreach($columns as $key => &$column) {
@@ -52,11 +54,12 @@
     }
     $aColors = array();
     foreach($aRowset as &$row) {
-    	$img = $this->Media->imageUrl($row, '100x');
+		$row['Category']['title'] = $aCategories[$row['Product']['cat_id']]['title'];
+    	$img = (isset($aProductMedia[$row['Product']['id']])) ? $this->Media->imageUrl($aProductMedia[$row['Product']['id']], '100x') : array();
     	if ($img) {
 	    	$row['Product']['image'] = $this->Html->link(
 	    		$this->Html->image($img),
-	    		$this->Media->imageUrl($row, 'noresize'),
+	    		$this->Media->imageUrl($aProductMedia[$row['Product']['id']], 'noresize'),
 	    		array('escape' => false, 'class' => 'fancybox', 'rel' => 'gallery')
 	    	);
     	} else {

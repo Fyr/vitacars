@@ -234,7 +234,7 @@ class AdminUpdateController extends AdminController {
 		while (file_get_contents('cont.log') && $rows = $this->Product->find('all', compact('fields', 'conditions', 'page', 'limit', 'order', 'recursive'))) {
 			$page++;
 			foreach($rows as $row) {
-				$detail_nums = explode(',', str_replace(array('   ', '  ', ' '), ' ', trim($row['Product']['detail_num'])));
+				$detail_nums = $this->DetailNum->stripList($row['Product']['detail_num']); // explode(',', str_replace(array('   ', '  ', ' '), ' ', trim($row['Product']['detail_num'])));
 				fdebug($row, 'products.log');
 				$count_rows++;
 				foreach($detail_nums as $dn) {
@@ -243,7 +243,7 @@ class AdminUpdateController extends AdminController {
 						fdebug("{$dn}\r\n", 'detail_nums.log');
 						$count_nums++;
 						$this->DetailNum->clear();
-						$this->DetailNum->save(array('detail_num' => $dn, 'product_id' => $row['Product']['id']));
+						$this->DetailNum->save(array('detail_num' => mb_strtolower($dn), 'product_id' => $row['Product']['id'], 'num_type' => DetailNum::ORIG));
 					}
 				}
 				$this->Product->clear();
@@ -271,7 +271,6 @@ class AdminUpdateController extends AdminController {
 		$count_nums = 0;
 		while ($rows = $this->FormData->find('all', compact('fields', 'conditions', 'page', 'limit', 'order', 'recursive'))) {
 			$page++;
-			fdebug($rows, 'tmp1.log');
 			foreach($rows as $row) {
 				$detail_nums = trim($row['FormData']['fk_60']);
 				$detail_nums = str_replace(array("\r\n", "\r", "\n"), ',', $detail_nums); // разделяем строки номеров
@@ -285,10 +284,10 @@ class AdminUpdateController extends AdminController {
 						$dn = $this->DetailNum->strip($dn);
 						if ($r = $this->DetailNum->findByProductIdAndDetailNum($row['FormData']['object_id'], $dn)) {
 						} else {
-							fdebug("{$dn}\r\n", 'detail_nums.log');
+							fdebug("{$dn}\r\n", 'detail_nums_cross.log');
 							$count_nums++;
 							$this->DetailNum->clear();
-							$this->DetailNum->save(array('detail_num' => mb_strtolower($dn), 'product_id' => $row['FormData']['object_id']));
+							$this->DetailNum->save(array('detail_num' => mb_strtolower($dn), 'product_id' => $row['FormData']['object_id'], 'num_type' => DetailNum::CROSS));
 						}
 					}
 				}
