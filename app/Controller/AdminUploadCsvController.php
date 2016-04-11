@@ -50,13 +50,10 @@ class AdminUploadCsvController extends AdminController {
 				if (count($aID) > 100) {
 					$file = Configure::read('tmp_dir').'user_products_'.$this->Auth->user('id').'.tmp';
 					file_put_contents($file, implode("\r\n", $aID));
-					// $this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => 'list'));
+					$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => 'list'));
 				} else {
-					// $this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
+					$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
 				}
-
-
-				//$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index')); // , 'Product.id' => implode(',', $aID)
 			}
 		} catch (Exception $e) {
 			$this->Product->getDataSource()->rollback();
