@@ -146,9 +146,11 @@
 
 ?>
 <br />
-<h3 class="text-left">Поиск от партнеров</h3>
 <?
 	if (isset($gpzData) || isset($gpzError)) {
+?>
+<h3 class="text-left">Региональные склады</h3>
+<?
 		echo $this->element('/AdminProduct/gpz_search');
 	}
 ?>

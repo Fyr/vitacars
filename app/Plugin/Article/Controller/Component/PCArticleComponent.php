@@ -67,7 +67,7 @@ class PCArticleComponent extends Component {
 				$id = $this->model()->id;
 				$lSaved = true;
 			}
-			$this->_->request->data = array_merge($this->_->request->data, $article);
+			$this->_->request->data = Hash::merge($this->_->request->data, $article);
 		} elseif ($id) {
 			// Set up flags
 			foreach($aFlags as $field) {
