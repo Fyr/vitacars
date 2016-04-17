@@ -2,15 +2,7 @@
 App::uses('AppModel', 'Model');
 class Search extends AppModel {
 	public $useTable = 'search';
-
-	protected $domain;
-
-	protected function _beforeInit() {
-		list($this->domain) = explode('.', $_SERVER['SERVER_NAME']);
-		if ($this->domain !== 'vitacars') {
-			$this->useDbConfig = 'vitacars';
-		}
-	}
+	protected $altDbConfig = 'vitacars';
 
 	public function processTextRequest($_value) {
 		$this->DetailNum = $this->loadModel('DetailNum');
@@ -40,7 +32,7 @@ class Search extends AppModel {
 	private function getExactWords($q) {
 		$_q = array();
 
-		if ($this->domain == 'vitacars') {
+		if ($this->getDomain() == 'vitacars') {
 			$this->VcarsArticle = $this->loadModel('Article.Article');
 			$this->VcarsArticle->alias = 'VcarsArticle';
 		} else {

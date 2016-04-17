@@ -1,4 +1,4 @@
-			<a href="#" class="brand">CMS <?=DOMAIN_TITLE?></a>
+			<a href="#" class="brand">CMS <?=Configure::read('domain.title')?></a>
 			<ul class="nav nav-pills">
 				<li class="divider-vertical"></li>
 <?

@@ -48,7 +48,7 @@ class PCArticleComponent extends Component {
 	}
 	
 	public function edit($id = 0, $lSaved = false) {
-		$aFlags = array('published', 'featured', 'active', 'show_detailnum', 'load_counters', 'view_brands'); // можно перечислять любые поля, даже с других моделей
+		$aFlags = array('published', 'featured', 'active', 'show_detailnum', 'load_counters', 'view_brands', 'gpz_fullinfo'); // можно перечислять любые поля, даже с других моделей
 		$article = $this->model()->findById($id);
 		if ($this->_->request->is('post') || $this->_->request->is('put')) {
 			if ($id && !$this->_->request->data($this->field('id'))) {

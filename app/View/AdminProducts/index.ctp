@@ -95,7 +95,8 @@
     	}
     }
 ?>
-<?=$this->element('admin_title', compact('title'))?>
+<?//$this->element('admin_title', compact('title'))?>
+<h3 class="text-left"><?=$title?></h3>
 <div class="">
 <?
 	if ($isAdmin) {
@@ -144,11 +145,18 @@
     ));
 
 ?>
+<br />
+<h3 class="text-left">Поиск от партнеров</h3>
+<?
+	if (isset($gpzData) || isset($gpzError)) {
+		echo $this->element('/AdminProduct/gpz_search');
+	}
+?>
 
 <style>
-	.grid .fixed { position: fixed; top: 43px; left: 40px; margin-left: 1px;}
-	.grid .duplicateHead .grid-filter { display: none !important;}
-	.grid .originalHead .grid-filter { background: #fff;}
+	#grid_Product .grid .fixed { position: fixed; top: 43px; left: 40px; margin-left: 1px;}
+	#grid_Product .grid .duplicateHead .grid-filter { display: none !important;}
+	#grid_Product .grid .originalHead .grid-filter { background: #fff;}
 </style>
 
 <script type="text/javascript">
@@ -162,16 +170,16 @@ $(document).ready(function(){
 	}
 
 
-	var tableHeadWidth = $('.grid thead').width();
+	var tableHeadWidth = $('#grid_Product .grid thead').width();
 	
-	$('.grid thead').clone().insertAfter('.grid thead').addClass('duplicateHead');
-	$('.grid .duplicateHead').hide();
-	$('.grid .duplicateHead input').prop('id', '').prop('name', '').prop('class', '');
+	$('#grid_Product .grid thead').clone().insertAfter('#grid_Product .grid thead').addClass('duplicateHead');
+	$('#grid_Product .grid .duplicateHead').hide();
+	$('#grid_Product .grid .duplicateHead input').prop('id', '').prop('name', '').prop('class', '');
 	
-	$('.grid thead:first-child').addClass('originalHead');
-	$('.grid .originalHead').width(tableHeadWidth);
+	$('#grid_Product .grid thead:first-child').addClass('originalHead');
+	$('#grid_Product .grid .originalHead').width(tableHeadWidth);
 	
-	$('.grid .originalHead .first th').each( function(index,element) {
+	$('#grid_Product .grid .originalHead .first th').each( function(index,element) {
 		$(this).css({"max-width":$(this).width()+"px", "min-width":$(this).width()+"px"});
 	});
 	
@@ -179,17 +187,17 @@ $(document).ready(function(){
 		var topOfWindow = $(window).scrollTop();
 		var leftOfWindow = $(window).scrollLeft();
 		
-		$('.grid .originalHead').css("left", -leftOfWindow+40+"px");
+		$('#grid_Product .grid .originalHead').css("left", -leftOfWindow+40+"px");
 		
 		if ( topOfWindow > 154 ) {
-			$('.grid .duplicateHead').show();
-			$('.grid .originalHead').addClass('fixed');
-			$('.grid .originalHead .grid-filter th').css('border-bottom',"1px solid #dddddd");
+			$('#grid_Product .grid .duplicateHead').show();
+			$('#grid_Product .grid .originalHead').addClass('fixed');
+			$('#grid_Product .grid .originalHead .grid-filter th').css('border-bottom',"1px solid #dddddd");
 		}
 		else {
-			$('.grid .duplicateHead').hide();
-			$('.grid .originalHead').removeClass('fixed');
-			$('.grid .originalHead .grid-filter th').css('border-bottom',"none");
+			$('#grid_Product .grid .duplicateHead').hide();
+			$('#grid_Product .grid .originalHead').removeClass('fixed');
+			$('#grid_Product .grid .originalHead .grid-filter th').css('border-bottom',"none");
 		}
 		
 	});

@@ -19,7 +19,7 @@ class SiteEmailComponent extends Component {
 	public function notify($to, $subj, $template, $data = null) {
 		$Email->template($template, 'email')->viewVars( array('userId' => $userId, 'userName' => $userName, 'userMail' => $userMail, 'token' => $pass))
 			->emailFormat('html')
-			->from('admin@'.DOMAIN_NAME)
+			->from('admin@'.Configure::read('domain.url'))
 			->to($to)
 			->subject($subj)
 			->send();

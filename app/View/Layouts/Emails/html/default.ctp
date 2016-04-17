@@ -26,7 +26,7 @@ td, th { padding: 3px 5px }
 <?php echo $this->fetch('content'); ?>
 <p>
 	С уважением, <br>
-	Админицстрация <?=DOMAIN_TITLE?>
+	Админицстрация <?=Configure::read('domain.title')?>
 </p>
 </body>
 </html>

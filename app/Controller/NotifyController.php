@@ -23,10 +23,10 @@ class NotifyController extends AppController {
 		$Email = new CakeEmail();
 		$Email->template('notify_lowremains')->viewVars(compact('aRowset', 'aParams'))
 			->emailFormat('html')
-			->from('info@'.DOMAIN_NAME)
+			->from('info@'.Configure::read('domain.url'))
 			->to($mails)
 			->bcc(Configure::read('Settings.admin_email'))
-			->subject(DOMAIN_TITLE.': Критические остатки на складе')
+			->subject(Configure::read('domain.url').': Критические остатки на складе')
 			->send();
 	}
 }

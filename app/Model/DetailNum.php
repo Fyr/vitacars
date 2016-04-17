@@ -1,16 +1,10 @@
 <?php
 App::uses('AppModel', 'Model');
 class DetailNum extends AppModel {
+	protected $altDbConfig = 'vitacars';
 
 	const ORIG = 1;
 	const CROSS = 2;
-
-	protected function _beforeInit() {
-		list($domain) = explode('.', $_SERVER['SERVER_NAME']);
-		if ($domain !== 'vitacars') {
-			$this->useDbConfig = 'vitacars';
-		}
-	}
 
 	public function strip($q) {
 		return str_replace(array('.', '-', '/', '\\'), '', $q);
@@ -48,10 +42,15 @@ class DetailNum extends AppModel {
 		if (!$lFindSame) {
 			return $product_ids;
 		}
-		$aRows = $this->find('all', array('conditions' => array('product_id' => $product_ids)));
+
+		$conditions = array('product_id' => $product_ids);
+		if ($numType) {
+			$conditions['num_type'] = $numType;
+		}
+		$aRows = $this->find('all', compact('conditions'));
 		$nums = array_unique(Hash::extract($aRows, '{n}.DetailNum.detail_num'));
 		if (count($detail_nums) != count($nums) && count($nums) < 1000) {
-			return $this->findDetails($nums);
+			return $this->findDetails($nums, $lFindSame, $numType);
 		}
 		return $product_ids;
 	}

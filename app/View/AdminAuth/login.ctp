@@ -1,6 +1,6 @@
 <form class="form-signin" action="" method="post">
 	<div align="center">
-		<h2 class="form-signin-heading"><?=DOMAIN_TITLE?> CMS</h2>
+		<h2 class="form-signin-heading"><?=Configure::read('domain.title')?> CMS</h2>
 	</div>
 <?
 	$error = $this->Session->flash('auth');

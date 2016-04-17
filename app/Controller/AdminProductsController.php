@@ -7,7 +7,7 @@ class AdminProductsController extends AdminController {
     public $name = 'AdminProducts';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
     public $uses = array('Product', 'Form.PMForm', 'Form.PMFormField', 'Form.PMFormData', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media', 'Search', 'DetailNum');
-    public $helpers = array('ObjectType', 'Form.PHFormFields', 'Form.PHFormData');
+    public $helpers = array('ObjectType', 'Form.PHFormFields', 'Form.PHFormData', 'Price');
     
     private $paramDetail, $aFormula, $aFieldKeys, $aBrandOptions;
 
@@ -73,6 +73,15 @@ class AdminProductsController extends AdminController {
         		$detail_num = str_replace(array('*', '~'), '', $detail_num);
         		$this->set('detail_num', $detail_num);
         		if ($detail_num) {
+					try {
+						App::uses('GpzApi', 'Model');
+						$this->GpzApi = new GpzApi();
+						$gpzData = $this->GpzApi->search($detail_num);
+						$this->set(compact('gpzData'));
+					} catch (Exception $e) {
+						$this->set('gpzError', $e->getMessage());
+					}
+
 					$this->processFilter($detail_num);
 					/*
 					if (Configure::read('Search.detail_nums')) {
@@ -343,10 +352,47 @@ class AdminProductsController extends AdminController {
 			$this->request->data('Product.brand_id', 2166); // brand = Deutz
 		}
 	}
-/*
-	public function delete($id) {
 
-		parent::delete($id);
+	public function price() {
+		$number = $this->request->query('number');
+		$brand = $this->request->query('brand');
+
+		$aSorting = array(
+			'brand' => 'Производитель',
+			'partnumber' => 'Номер',
+			'image' => 'Фото',
+			'title' => 'Наименование',
+			'qty' => 'Наличие',
+			'price2' => 'Цена'
+		);
+		$this->set('aSorting', $aSorting);
+		$aOrdering = array(
+			'asc' => 'по возрастанию',
+			'desc' => 'по убыванию'
+		);
+		$this->set('aOrdering', $aOrdering);
+
+		$sort = $this->request->query('sort');
+		if (!$sort || !in_array($sort, array_keys($aSorting))) {
+			$sort = 'price2';
+		}
+		$order = $this->request->query('order');
+		if (!$order || !in_array($order, array_keys($aOrdering))) {
+			$order = 'asc';
+		}
+		$this->set('sort', $sort);
+		$this->set('order', $order);
+
+		$lFullInfo = AuthComponent::user('gpz_fullinfo');
+		try {
+			App::uses('GpzApi', 'Model');
+			$this->GpzApi = new GpzApi();
+			$gpzData = $this->GpzApi->getPrices($brand, $number, $sort, $order, $lFullInfo);
+			$this->set(compact('gpzData'));
+			$this->set('lFullInfo', $lFullInfo);
+			$this->set('aOfferTypeOptions', GpzOffer::options());
+		}  catch (Exception $e){
+			$this->set('gpzError', $e->getMessage());
+		}
 	}
-*/
 }

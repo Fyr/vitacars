@@ -20,15 +20,17 @@ Configure::write('Config.language', 'rus');
 
 CakePlugin::loadAll();
 
+Configure::write('domain', array(
+	'url' => 'vitacars.dev',
+	'title' => 'VitaCars.dev'
+));
+
 // Values from google recaptcha account
 define('RECAPTCHA_PUBLIC_KEY', '6Lezy-QSAAAAAJ_mJK5OTDYAvPEhU_l-EoBN7rxV');
 define('RECAPTCHA_PRIVATE_KEY', '6Lezy-QSAAAAACCM1hh6ceRr445OYU_D_uA79UFZ');
 
 Configure::write('Recaptcha.publicKey', RECAPTCHA_PUBLIC_KEY);
 Configure::write('Recaptcha.privateKey', RECAPTCHA_PRIVATE_KEY);
-
-define('DOMAIN_NAME', 'VitaCars.ru');
-define('DOMAIN_TITLE', 'VitaCars.ru');
 
 define('AUTH_ERROR', __('Invalid username or password, try again'));
 define('TEST_ENV', isset($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] == '192.168.1.22');
@@ -61,6 +63,8 @@ Configure::write('import', array(
 	'folder' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'csv'.DS,
 	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'import.log'
 ));
+
+require_once('api.php');
 
 function fdebug($data, $logFile = 'tmp.log', $lAppend = true) {
 	file_put_contents($logFile, mb_convert_encoding(print_r($data, true), 'cp1251', 'utf8'), ($lAppend) ? FILE_APPEND : null);
