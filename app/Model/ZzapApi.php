@@ -375,7 +375,7 @@ class ZzapApi extends AppModel {
 				'price' => $this->getPrice($item),
 				'price2' => $this->getPrice2($item),
 				'price_orig' => $item['price'],
-				'price_descr' => $item['descr_price'],
+				'price_descr' => $item['descr_price'].'<br/>Цена поставщика в RUR. Формирование цены: настройки GiperZap (курсы + наценка Zzap)',
 				'provider_descr' => implode('<br/>', array($item['class_user'], $item['descr_address'], $item['phone1']))
 			);
 		}
@@ -383,19 +383,27 @@ class ZzapApi extends AppModel {
 	}
 	
 	/**
-	 * Оригинальная цена в BYR без наценки
+	 * Оригинальная цена без наценки
 	 */
 	private function getPrice($item) {
 		$price = floatval(str_replace(array('р.', ' '), '', $item['price']));
-		return round(Configure::read('Settings.xchg_rur') * $price, -2); // переводим в BYR по курсу из настроек
+		$currency = Configure::read('Settings.price_currency'); // валюта в которой показываем цену
+		$rate = Configure::read('Settings.xchg_'.$currency);
+		if ($currency == 'byr') {
+			$rate = $rate / 10000; // коррекция курса
+		}
+		$round_by = Configure::read('Settings.round_'.$currency);
+		return round($price / $rate, $round_by); // переводим по курсу из настроек
 	}
 	
 	/**
 	 * Цена в BYR с наценкой
 	 */
 	private function getPrice2($item) {
-		$priceRatio = 1 + (Configure::read('Settings.price_ratio')/100);
-		return round($priceRatio * $this->getPrice($item), -2);
+		$priceRatio = 1 + (Configure::read('Settings.zz_price_ratio')/100);
+		$currency = Configure::read('Settings.price_currency');
+		$round_by = Configure::read('Settings.round_'.$currency);
+		return round($priceRatio * $this->getPrice($item), $round_by);
 	}
 	
 	private function getQtyDescr($item) {

@@ -534,3 +534,12 @@ msgstr "Тип события"
 
 msgid "Print"
 msgstr "Печать"
+
+msgid "Admin Email"
+msgstr "Email админа"
+
+msgid "Manager Emails"
+msgstr "Email менеджеров"
+
+msgid "Gpz Stop"
+msgstr "Стоп-слова для поиска (giperzap)"

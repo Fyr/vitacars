@@ -73,13 +73,15 @@ class AdminProductsController extends AdminController {
         		$detail_num = str_replace(array('*', '~'), '', $detail_num);
         		$this->set('detail_num', $detail_num);
         		if ($detail_num) {
-					try {
-						App::uses('GpzApi', 'Model');
-						$this->GpzApi = new GpzApi();
-						$gpzData = $this->GpzApi->search($detail_num);
-						$this->set(compact('gpzData'));
-					} catch (Exception $e) {
-						$this->set('gpzError', $e->getMessage());
+					if (!in_array($detail_num, Configure::read('Settings.gpz_stop'))) {
+						try {
+							App::uses('GpzApi', 'Model');
+							$this->GpzApi = new GpzApi();
+							$gpzData = $this->GpzApi->search($detail_num);
+							$this->set(compact('gpzData'));
+						} catch (Exception $e) {
+							$this->set('gpzError', $e->getMessage());
+						}
 					}
 
 					$this->processFilter($detail_num);
@@ -356,6 +358,18 @@ class AdminProductsController extends AdminController {
 	public function price() {
 		$number = $this->request->query('number');
 		$brand = $this->request->query('brand');
+		$currency = $this->request->query('currency');
+		if (!$currency) {
+			$currency = 'byr';
+		}
+		Configure::write('Settings.price_currency', $currency);
+
+		$aCurrency = array(
+			'byr' => 'BYR Белорусские рубли',
+			'rur' => 'RUR Российские рубли',
+			'usd' => 'USD Доллары США',
+			'eur' => 'EUR Евро'
+		);
 
 		$aSorting = array(
 			'brand' => 'Производитель',
@@ -380,8 +394,8 @@ class AdminProductsController extends AdminController {
 		if (!$order || !in_array($order, array_keys($aOrdering))) {
 			$order = 'asc';
 		}
-		$this->set('sort', $sort);
-		$this->set('order', $order);
+
+		$this->set(compact('sort', 'order', 'aCurrency', 'currency'));
 
 		$lFullInfo = AuthComponent::user('gpz_fullinfo');
 		try {

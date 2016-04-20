@@ -80,7 +80,7 @@ class ZapTradeApi extends AppModel {
 				'price' => $this->getPrice($item), 
 				'price2' => $this->getPrice2($item),
 				'price_orig' => $item['price'].' RUR',
-				'price_descr' => 'Цены поставщиков в RUR. Формирование цены - см. настройки ZapTrade + GiperZap',
+				'price_descr' => 'Цена поставщика в RUR. Формирование цены: настройки бэк-оффиса ZapTrade, настройки GiperZap(курсы + наценка Zaptrade)',
 				'provider_descr' => 'Поставщик: '.$item['source']
 			);
 		}
@@ -88,11 +88,18 @@ class ZapTradeApi extends AppModel {
 	}
 	
 	/**
-	 * Оригинальная цена в BYR без наценки
+	 * Оригинальная цена без наценки
+	 * Рассчитываем сначала цену без наценки по крусу, т.к. при расчете наценки а потом курса могут быть погрешности округления
 	 */
 	private function getPrice($item) {
 		$price = floatval($item['price']);
-		return round(Configure::read('Settings.xchg_rur') * $price, -2); // переводим в BYR по курсу из настроек
+		$currency = Configure::read('Settings.price_currency'); // валюта в которой показываем цену
+		$rate = Configure::read('Settings.xchg_'.$currency);
+		if ($currency == 'byr') {
+			$rate = $rate / 10000; // коррекция курса
+		}
+		$round_by = Configure::read('Settings.round_'.$currency);
+		return round($price / $rate, $round_by); // переводим по курсу из настроек
 	}
 	
 	/**
@@ -100,6 +107,8 @@ class ZapTradeApi extends AppModel {
 	 */
 	private function getPrice2($item) {
 		$priceRatio = 1 + (Configure::read('Settings.zt_price_ratio')/100);
-		return round($priceRatio * $this->getPrice($item), -2);
+		$currency = Configure::read('Settings.price_currency');
+		$round_by = Configure::read('Settings.round_'.$currency);
+		return round($priceRatio * $this->getPrice($item), $round_by);
 	}
 }

@@ -22,8 +22,16 @@
 	} elseif (isset($gpzData) && $gpzData) {
 ?>
 		<div align="left" style="margin-bottom: 10px;">
-			Сортировать по <?=$this->Form->input('sort', array('options' => $aSorting, 'value' => $sort, 'div' => false, 'label' => false))?>
-			<?=$this->Form->input('order', array('options' => $aOrdering, 'value' => $order, 'div' => false, 'label' => false))?>
+			<form id="filterForm" action="/AdminProducts/price" method="get">
+				<?=$this->Form->hidden('brand', array('name' => 'brand', 'value' => $this->request->query('brand')))?>
+				<?=$this->Form->hidden('number', array('name' => 'number', 'value' => $this->request->query('number')))?>
+				Сортировать по <?=$this->Form->input('sort', array('name' => 'sort', 'options' => $aSorting, 'value' => $sort, 'div' => false, 'label' => false))?>
+				<?=$this->Form->input('order', array('name' => 'order', 'options' => $aOrdering, 'value' => $order, 'div' => false, 'label' => false))?>
+				<div class="pull-right">
+					Показывать цены в
+					<?=$this->Form->input('currency', array('name' => 'currency', 'options' => $aCurrency, 'value' => $currency, 'div' => false, 'label' => false))?>
+				</div>
+			</form>
 		</div>
 
 		<table align="left" class="grid table-bordered shadow" border="0" cellpadding="0" cellspacing="0">
@@ -163,6 +171,9 @@
 		font-weight: bold;
 		padding: 10px 0 5px 10px;
 	}
+	.row-fluid select {
+		position: relative; top: 3px;
+	}
 </style>
 <script type="text/javascript">
 function sortBy(key, dir) {
@@ -182,8 +193,9 @@ function sortBy(key, dir) {
 }
 
 $(function(){
-	$('#sort, #order').change(function(){
-		sortBy($('#sort').val(), $('#order').val());
+	$('#sort, #order, #currency').change(function(){
+		$('#filterForm').submit();
+		// sortBy($('#sort').val(), $('#order').val());
 	});
 	
 	$('.fancybox').fancybox({

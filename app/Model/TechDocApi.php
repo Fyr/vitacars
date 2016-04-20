@@ -165,10 +165,10 @@ class TechDocApi extends AppModel {
 					'qty' => $price['box'],
 					'qty_descr' => '',
 					'qty_order' => '',
-					'price' => $this->getPrice($price), // цена уже в BYR - просто округляем
+					'price' => $this->getPrice($price),
 					'price2' => $this->getPrice2($price),
 					'price_orig' => $price['price'].' '.$price['currency'],
-					'price_descr' => 'Цены поставщиков в '.$price['currency'].' по курсу '.$price['rate'],
+					'price_descr' => 'Цена поставщика в '.$price['currency'].'. Формирование цены: настройки Giperzap (курсы + наценка TecDoc)',
 					'provider_descr' => 'Поставщик: '.$price['provider']
 				);
 			}
@@ -180,15 +180,30 @@ class TechDocApi extends AppModel {
 	 * Оригинальная цена в BYR без наценки
 	 */
 	private function getPrice($price) {
-		$currency = strtolower($price['currency']);
-		if (in_array($currency, array('rur', 'usd', 'eur'))) {
-			$rate = Configure::read('Settings.xchg_'.$currency);
-		} else {
-			$rate = 1;
+		$currency2 = strtolower($price['currency']);
+
+		$currency = Configure::read('Settings.price_currency'); // валюта в которой показываем цену
+		if ($currency == $currency2) {
+			return floatval($price['price']);
 		}
-		
-		$_item['_rate'] = $rate;
-		return round(floatval($price['price']) * $rate, -2);
+
+		// приводим к RUR
+		if (in_array($currency2, array('usd', 'eur'))) {
+			$rate2 = Configure::read('Settings.xchg_'.$currency2);
+		} elseif ($currency2 == 'byr') { // цена в BYR по курсу 10000 BYR = x RUR
+			$rate2 = Configure::read('Settings.xchg_byr') / 10000;
+		} else {
+			$rate2 = 1;
+		}
+
+		// конвертируем RUR в валюту, в которой показываем цены
+		$rate = Configure::read('Settings.xchg_' . $currency);
+		if ($currency == 'byr') {
+			$rate = $rate / 10000; // коррекция курса
+		}
+
+		$round_by = Configure::read('Settings.round_'.$currency);
+		return round(floatval($price['price']) * $rate2 / $rate, $round_by);
 	}
 	
 	/**
@@ -196,7 +211,9 @@ class TechDocApi extends AppModel {
 	 */
 	private function getPrice2($price) {
 		$priceRatio = 1 + (Configure::read('Settings.td_price_ratio')/100);
-		return round($priceRatio * $this->getPrice($price), -2);
+		$currency = Configure::read('Settings.price_currency');
+		$round_by = Configure::read('Settings.round_'.$currency);
+		return round($priceRatio * $this->getPrice($price), $round_by);
 	}
 	
 	private function getTitle($title) {
