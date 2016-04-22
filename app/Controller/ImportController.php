@@ -132,4 +132,10 @@ class ImportController extends AppController {
 		$string = date('d-m-Y H:i:s').' '.$actionType.' '.$data;
 		file_put_contents(Configure::read('import.log'), $string."\r\n", FILE_APPEND);
 	}
+
+	public function test() {
+		$this->autoRender = false;
+		fdebug($_GET, '_get.log');
+		fdebug($_POST, '_post.log');
+	}
 }

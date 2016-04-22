@@ -7,7 +7,11 @@ class DetailNum extends AppModel {
 	const CROSS = 2;
 
 	public function strip($q) {
-		return str_replace(array('.', '-', '/', '\\'), '', $q);
+		$q = str_replace(array('.', '-', '/', '\\'), '', $q);
+		while (strpos($q, '0') === 0) { // вырезаем лидирующие нули
+			$q = substr($q, 1);
+		}
+		return $q;
 	}
 
 	public function stripList($detail_nums) {
