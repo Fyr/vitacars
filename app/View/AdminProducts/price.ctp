@@ -174,6 +174,8 @@
 	.row-fluid select {
 		position: relative; top: 3px;
 	}
+	.grid .product-img {max-width: 100px;}
+	.grid .brand-logo {max-width: 50px;}
 </style>
 <script type="text/javascript">
 function sortBy(key, dir) {

@@ -80,3 +80,7 @@
 <?
 	}
 ?>
+<style type="text/css">
+	.grid .product-img {max-width: 100px;}
+	.grid .brand-logo {max-width: 50px;}
+</style>

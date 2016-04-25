@@ -219,7 +219,7 @@ class AdminProductsController extends AdminController {
 		// если ввели только номер - поиск по номерам
 		$aWords = explode(' ', $_value);
 		if (count($aWords) == 1 && $this->DetailNum->isDigitWord($value)) {
-			$this->processNumber($this->DetailNum->strip($value));
+			$this->processNumber($value);
 			return;
 		}
 		$aWords = $this->Search->processTextRequest($_value);
@@ -232,10 +232,10 @@ class AdminProductsController extends AdminController {
 	}
 
 	private function processNumber($detail_num) {
-		$product_ids = $this->DetailNum->findDetails($this->DetailNum->stripList('*'.$detail_num.'*'), true);
+		$_detail_num = $this->DetailNum->strip($detail_num);
+		$product_ids = $this->DetailNum->findDetails($this->DetailNum->stripList('*'.$_detail_num.'*'), true);
 		$this->paginate['conditions'] = array('Product.id' => $product_ids);
 
-		$_detail_num = $this->DetailNum->strip($detail_num);
 		$order = array("Product.code = '{$detail_num}' DESC", "Product.code = '{$_detail_num}' DESC");
 		foreach ($product_ids as $id) {
 			$order[] = 'Product.id = ' . $id . ' DESC';

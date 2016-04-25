@@ -2,6 +2,7 @@
 App::uses('Controller', 'Controller');
 class AppController extends Controller {
     public $paginate;
+	// public $components = array('DebugKit.Toolbar');
 	public $aNavBar = array(), $aBottomLinks = array(), $currMenu = '', $currLink = '', $pageTitle = '';
 	
 	protected $Settings;
