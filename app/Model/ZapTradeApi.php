@@ -80,7 +80,7 @@ class ZapTradeApi extends AppModel {
 				'price' => $this->getPrice($item), 
 				'price2' => $this->getPrice2($item),
 				'price_orig' => $item['price'].' RUR',
-				'price_descr' => 'Цена поставщика в RUR. Формирование цены: настройки бэк-оффиса ZapTrade, настройки GiperZap(курсы + наценка Zaptrade)',
+				'price_descr' => 'Цена поставщика в RUR',
 				'provider_descr' => 'Поставщик: '.$item['source']
 			);
 		}

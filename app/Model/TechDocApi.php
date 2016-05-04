@@ -168,7 +168,7 @@ class TechDocApi extends AppModel {
 					'price' => $this->getPrice($price),
 					'price2' => $this->getPrice2($price),
 					'price_orig' => $price['price'].' '.$price['currency'],
-					'price_descr' => 'Цена поставщика в '.$price['currency'].'. Формирование цены: настройки Giperzap (курсы + наценка TecDoc)',
+					'price_descr' => 'Цена поставщика в '.$price['currency'],
 					'provider_descr' => 'Поставщик: '.$price['provider']
 				);
 			}

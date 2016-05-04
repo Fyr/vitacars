@@ -375,7 +375,7 @@ class ZzapApi extends AppModel {
 				'price' => $this->getPrice($item),
 				'price2' => $this->getPrice2($item),
 				'price_orig' => $item['price'],
-				'price_descr' => $item['descr_price'].'<br/>Цена поставщика в RUR. Формирование цены: настройки GiperZap (курсы + наценка Zzap)',
+				'price_descr' => $item['descr_price'].'<br/>Цена поставщика в RUR',
 				'provider_descr' => implode('<br/>', array($item['class_user'], $item['descr_address'], $item['phone1']))
 			);
 		}
