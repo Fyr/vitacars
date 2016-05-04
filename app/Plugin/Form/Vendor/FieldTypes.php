@@ -46,7 +46,7 @@ class FieldTypes {
 	
 	static function getSqlTypes($id = false) {
 		$aTypes = array(
-			self::STRING => '`fk_%d` varchar(1023) DEFAULT ""',
+			self::STRING => '`fk_%d` varchar(300) DEFAULT ""',
 			self::INT => '`fk_%d` int(11) DEFAULT "0"',
 			self::FLOAT => '`fk_%d` float(12,2) DEFAULT "0.00"',
 			self::DATE => '`fk_%d` date DEFAULT NULL',
@@ -59,7 +59,7 @@ class FieldTypes {
 			// self::URL => __d('form', 'URL'),
 			// self::UPLOAD_FILE => __d('form', 'Upload file'),
 			// self::EDITOR => __d('form', 'Editor'),
-			self::FORMULA => '`fk_%d` varchar(1023) DEFAULT ""'
+			self::FORMULA => '`fk_%d` varchar(60) DEFAULT ""'
 		);
 		return ($id) ? Hash::get($aTypes, $id) : $aTypes;
 	}

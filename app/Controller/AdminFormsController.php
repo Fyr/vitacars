@@ -3,7 +3,7 @@ App::uses('AdminController', 'Controller');
 App::uses('FieldTypes', 'Form.Vendor');
 class AdminFormsController extends AdminController {
 	public $name = 'AdminForms';
-	public $uses = array('Form.PMFormField', 'Form.PMFormKey', 'Form.PMFormData');
+	public $uses = array('Form.PMFormField', 'Form.PMFormKey', 'Form.PMFormData', 'Form.PMFormConst');
 	
 	public function beforeFilter() {
 		if (!$this->isAdmin()) {
@@ -59,19 +59,26 @@ class AdminFormsController extends AdminController {
     }
     
     public function recalcFormula() {
-    	set_time_limit(3600);
+		/*
+		$fields = array('key', 'value');
+		$conditions = array('PMFormConst.object_type' => 'SubcategoryParam');
+		$aConst = $this->PMFormConst->find('list', compact('fields', 'conditions'));
+
     	$page = 1;
-    	$limit = 10;
+    	$limit = 1000;
     	$count = 0;
     	$fields = $this->PMFormField->getObjectList('SubcategoryParam', '');
     	while ($rowset = $this->PMFormData->find('all', compact('page', 'limit'))) {
     		$page++;
     		foreach($rowset as $row) {
     			$count++;
-    			$this->PMFormData->recalcFormula($row['PMFormData']['id'], $fields);
+    			// $this->PMFormData->recalcFormula($row['PMFormData']['id'], $fields);
+				$this->PMFormData->_recalcFormula($row, $fields, $aConst);
 			}
     	}
     	$this->Session->setFlash(__('%s products have been updated', $count), 'default', array(), 'success');
     	$this->redirect(array('action' => 'index'));
+		*/
     }
+
 }

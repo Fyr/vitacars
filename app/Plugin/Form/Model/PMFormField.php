@@ -82,11 +82,11 @@ class PMFormField extends AppModel {
 	
 	public function calcFormula($options, $aData) {
 		$formula = $this->unpackFormulaOptions($options);
-    	extract($aData);
-    	$_res = 0;
-    	eval('$_res = '.$formula['formula'].';');
-    	return $this->formatFormula($_res, $formula);
-    }
+		extract($aData);
+		$_res = 0;
+		eval('$_res = '.$formula['formula'].';');
+		return $this->formatFormula($_res, $formula);
+	}
     
 	public function formatFormula($_res, $formula) {
     	return ($_res) ? number_format($_res, $formula['decimals'], $formula['div_float'], $formula['div_int']) : '';

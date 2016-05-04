@@ -99,22 +99,23 @@ class PMFormData extends AppModel {
 
 		$aData = array_merge($aData, $aConst);
 
-		$_data = array('PMFormData' => array('id' => $data['PMFormData']['id']));
+		$_data = array('PMFormData' => array('id' => $data['PMFormData']['id'], 'recalc' => 1));
+		$_ret = true;
 		if ($aFormula) {
 			$this->PMFormField = $this->loadModel('Form.PMFormField');
 			foreach($aFormula as $formula) {
 				$field_id = $formula['id'];
 				$_data['PMFormData']['fk_'.$field_id] = $this->PMFormField->calcFormula($formula['options'], $aData);
 			}
+			$_ret = $this->save($_data);
 		}
-		return $this->save($_data);
+		return $_ret;
 	}
 	
 	public function recalcFormula($id, $aFormFields) {
-		$this->PMFormConst = $this->loadModel('Form.PMFormConst');
-
 		$data = $this->findById($id);
 
+		$this->PMFormConst = $this->loadModel('Form.PMFormConst');
 		$fields = array('key', 'value');
 		$conditions = array('PMFormConst.object_type' => 'SubcategoryParam');
 		$aConst = $this->PMFormConst->find('list', compact('fields', 'conditions'));

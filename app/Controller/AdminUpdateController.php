@@ -310,8 +310,15 @@ class AdminUpdateController extends AdminController {
 		$proc = $this->Product->find('count', compact('conditions', 'recursive'));
 		echo "{$proc} / {$total} (".round($proc / $total * 100, 1)."%)";
 	}
+*/
 
     public function test() {
+		$this->autoRender = false;
+		echo 'Run...';
+		// echo system('../Console/cake hello < /dev/null > script.log &');
+		$this->runBkg('recalc_formula');
+		echo 'Done!';
+		/*
 		ignore_user_abort(true);
 		set_time_limit(0);
 		$this->autoRender = false;
@@ -323,6 +330,31 @@ class AdminUpdateController extends AdminController {
 			sleep(1);
 		}
 		echo 'Done!';
+		*/
 	}
-*/
+
+	public function test2() {
+		$this->autoRender = false;
+
+		$this->loadModel('Form.PMFormField');
+		$formula = '$A / $B'; $decimals = 2; $div_float = '.'; $div_int = ',';
+		$options = serialize(compact('formula', 'decimals', 'div_float', 'div_int'));
+		$aData = array('A' => 2, 'B' => 0);
+		try {
+			echo $this->PMFormField->calcFormula($options, $aData);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+
+		echo 'Done';
+	}
+
+	public function test3() {
+		$this->autoRender = false;
+		$this->loadModel('Form.PMFormField');
+		$fields = $this->PMFormField->getObjectList('SubcategoryParam', '');
+		$this->loadModel('Form.PMFormData');
+		$this->PMFormData->recalcFormula(306857, $fields);
+		echo 'Done';
+	}
 }
