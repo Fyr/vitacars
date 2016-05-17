@@ -1,19 +1,40 @@
 <?php
 App::uses('Shell', 'Console');
 App::uses('AppShell', 'Console/Command');
-class TestProgressTask extends AppShell {
+class RecalcFormulaTask extends AppShell {
+    public $uses = array('Form.PMFormConst', 'Form.PMFormData', 'Form.PMFormField');
 
-    public function execute($params) {
+    public function execute() {
 
-        $this->Task->setProgress($this->id, 0, 3); // 3 subtasks
+        $total = $this->PMFormData->find('count');
+        $this->Task->setProgress($this->id, 0, $total);
         $this->Task->setStatus($this->id, Task::RUN);
 
-        $total = $params['total'];
-        $this->run(1, $total);
-        $this->run(2, $total);
-        $this->run(3, $total);
+        $fields = array('key', 'value');
+        $conditions = array('PMFormConst.object_type' => 'SubcategoryParam');
+        $aConst = $this->PMFormConst->find('list', compact('fields', 'conditions'));
 
-        $this->Task->setData($this->id, 'xdata', $total * 3);
+        $page = 1;
+        $limit = 1000;
+        $fields = $this->PMFormField->getObjectList('SubcategoryParam', '');
+        $i = 0;
+        while ($rowset = $this->PMFormData->find('all', compact('page', 'limit'))) {
+            $page++;
+            foreach($rowset as $row) {
+                $status = $this->Task->getStatus($this->id);
+                if ($status == Task::ABORT) {
+                    throw new Exception(__('Processing was aborted by user'));
+                }
+
+                $this->PMFormData->_recalcFormula($row, $fields, $aConst);
+
+                $i++;
+                $this->Task->setProgress($this->id, $i);
+            }
+
+        }
+
+        $this->Task->setData($this->id, 'xdata', $total);
         $this->Task->setStatus($this->id, Task::DONE);
     }
 

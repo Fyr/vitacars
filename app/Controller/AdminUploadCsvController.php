@@ -85,6 +85,9 @@ class AdminUploadCsvController extends AdminController {
 			}
 
 			$task = $this->Task->getFullData($id);
+			if (!isset($task['subtask'])) {
+				$task['subtask'] = true;
+			}
 		} else {
 			if ($file = Hash::get($_FILES, 'csv_file.tmp_name')) {
 				$_file = Configure::read('tmp_dir').basename($file, '.tmp').'.csv';

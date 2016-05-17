@@ -1,8 +1,6 @@
 <?
 App::uses('AppShell', 'Console/Command');
 class BkgServiceShell extends AppShell {
-    public $uses = array('Form.PMFormConst', 'Form.PMFormData', 'Form.PMFormField');
-    // public $tasks = array('UploadCounters');
 
     public function main() {
         ignore_user_abort(true);
@@ -44,12 +42,12 @@ class BkgServiceShell extends AppShell {
         $id = $this->args[0];
         $taskData = $this->Task->findById($id);
         $taskName = $taskData['Task']['task_name'];
-        $aParams = unserialize($taskData['Task']['params']);
         $task = $this->Tasks->load($taskName);
         $task->id = $id;
         $task->user_id = $taskData['Task']['user_id'];
+        $task->params = unserialize($taskData['Task']['params']);
         try {
-            $task->execute($aParams);
+            $task->execute();
         } catch (Exception $e) {
             $status = $this->Task->getStatus($id);
             $status = ($status == Task::ABORT) ? Task::ABORTED : Task::ERROR;

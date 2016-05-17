@@ -28,5 +28,5 @@ App::uses('Shell', 'Console');
 class AppShell extends Shell {
     public $uses = array('Task');
 
-    protected $id = 0, $user_id = 0;
+    public $id = 0, $user_id = 0, $params = array();
 }

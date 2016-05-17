@@ -5,15 +5,20 @@
 	<br />
 	<span id="task"><?=$task_name?></span><br />
 	<br />
+<?
+	if (isset($subtask) && $subtask) {
+?>
 	<div id="progressSubtask">
-		<span class="info">&nbsp;<!-- Прогресс: 5% (5/100) Время: 00:15:49 Осталось: ~00:10:34--></span>
+		<span class="info">&nbsp;</span>
 		<div class="progress progress-primary progress-striped">
 			<div class="bar"></div>
 		</div>
 	</div>
-
+<?
+	}
+?>
 	<div id="progressTotal">
-		<span class="info">&nbsp;<!-- Всего: 5% (1/3) Время: 00:15:49 Осталось: ~00:10:34 --></span>
+		<span class="info">&nbsp;</span>
 		<div class="progress progress-primary progress-striped">
 			<div class="bar"></div>
 		</div>

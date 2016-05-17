@@ -5,13 +5,13 @@ App::uses('CsvReader', 'Vendor');
 class UploadCountersTask extends AppShell {
     public $uses = array('Product', 'Form.PMFormConst', 'Form.PMFormData', 'Form.PMFormField', 'DetailNum');
 
-    public function execute($params) {
+    public function execute() {
         $this->Task->setProgress($this->id, 0, 3); // 3 subtasks
         $this->Task->setStatus($this->id, Task::RUN);
 
-        $aData = CsvReader::parse($params['csv_file']);
+        $aData = CsvReader::parse($this->params['csv_file']);
 
-        $fieldRights = $params['fieldRights'];
+        $fieldRights = $this->params['fieldRights'];
         $keyField = 'code';
         foreach($aData['keys'] as $fk_id) {
             $f_id = str_replace('fk_', '', $fk_id);
@@ -34,6 +34,7 @@ class UploadCountersTask extends AppShell {
 
         $this->Task->setData($this->id, 'xdata', $aID);
         $this->Task->setStatus($this->id, Task::DONE);
+        unlink($this->params['csv_file']);
     }
 
     /**
