@@ -26,5 +26,7 @@ App::uses('Shell', 'Console');
  * @package       app.Console.Command
  */
 class AppShell extends Shell {
+    public $uses = array('Task');
 
+    protected $id = 0, $user_id = 0;
 }

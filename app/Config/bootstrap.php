@@ -64,6 +64,16 @@ Configure::write('import', array(
 	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'import.log'
 ));
 
+Cache::config('tasks', array(
+	'engine' => 'File',
+	'duration' => '+999 days',
+	'probability' => 100,
+	'prefix' => 'tasks_',
+	'serialize' => true,
+	'mask' => 0664,
+));
+
+
 require_once('api.php');
 
 function fdebug($data, $logFile = 'tmp.log', $lAppend = true) {

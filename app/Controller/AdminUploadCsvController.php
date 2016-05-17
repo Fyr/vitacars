@@ -7,7 +7,7 @@ App::uses('PMFormField', 'Form.Model');
 class AdminUploadCsvController extends AdminController {
     public $name = 'AdminUploadCsv';
     public $layout = 'admin';
-    public $uses = array('Product', 'Form.PMFormData', 'Form.PMFormField', 'Brand', 'Category', 'Subcategory', 'Seo.Seo', 'ProductRemain', 'DetailNum');
+    public $uses = array('Product', 'Form.PMFormData', 'Form.PMFormField', 'Brand', 'Category', 'Subcategory', 'Seo.Seo', 'ProductRemain', 'DetailNum', 'Task');
     
     const CSV_DIV = ';';
     private $errLine = 0, $errLog;
@@ -21,7 +21,87 @@ class AdminUploadCsvController extends AdminController {
 		*/
 		parent::beforeFilter();
 	}
-    
+/*
+	public function test() {
+		$user_id = AuthComponent::user('id');
+		$task = $this->Task->getActiveTask('TestProgress', $user_id);
+		if ($task) {
+			$id = Hash::get($task, 'Task.id');
+			$status = $this->Task->getStatus($id);
+			if ($status == Task::DONE) {
+				$xdata = $this->Task->getData($id, 'xdata');
+				$this->setFlash(__('Test task completed. %s items processed', $xdata), 'success');
+			} elseif ($status == Task::ABORTED) {
+				$this->setFlash(__('Test task aborted'), 'error');
+			}  elseif ($status == Task::ERROR) {
+				$xdata = $this->Task->getData($id, 'xdata');
+				$this->setFlash(__('Error! %s', $xdata), 'error');
+			}
+			if (in_array($status, array(Task::ABORTED, Task::DONE, Task::ERROR))) {
+				$this->Task->close($id);
+				$this->redirect(array('action' => 'test'));
+				return;
+			}
+
+			$task = $this->Task->getFullData($id);
+		} else {
+			if ($this->request->is('post')) {
+				$id = $this->Task->add($user_id, 'TestProgress', $this->request->data);
+				$this->Task->runBkg($id);
+				$this->redirect(array('action' => 'test'));
+			}
+		}
+		$this->set('task', $task);
+	}
+*/
+	public function index() {
+		$user_id = AuthComponent::user('id');
+		$task = $this->Task->getActiveTask('UploadCounters', $user_id);
+		if ($task) {
+			$id = Hash::get($task, 'Task.id');
+			$status = $this->Task->getStatus($id);
+			if ($status == Task::DONE) {
+				$aID = $this->Task->getData($id, 'xdata');
+				$this->Task->close($id);
+				$this->setFlash(__('%s products have been successfully updated', count($aID)), 'success');
+				if (count($aID) > 50) {
+					$file = Configure::read('tmp_dir').'user_products_'.$user_id.'.tmp';
+					file_put_contents($file, implode("\r\n", $aID));
+					$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => 'list'));
+				} else {
+					$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
+				}
+				return;
+			} elseif ($status == Task::ABORTED) {
+				$this->setFlash(__('Processing was aborted by user'), 'error');
+			}  elseif ($status == Task::ERROR) {
+				$xdata = $this->Task->getData($id, 'xdata');
+				$this->setFlash(__('Process execution error! %s', $xdata), 'error');
+			}
+			if (in_array($status, array(Task::ABORTED, Task::ERROR))) {
+				$this->Task->close($id);
+				$this->redirect(array('action' => 'index'));
+				return;
+			}
+
+			$task = $this->Task->getFullData($id);
+		} else {
+			if ($file = Hash::get($_FILES, 'csv_file.tmp_name')) {
+				$_file = Configure::read('tmp_dir').basename($file, '.tmp').'.csv';
+				move_uploaded_file($file, $_file);
+				$params = array('csv_file' => $_file, 'fieldRights' => $this->_getFieldRights());
+
+				$id = $this->Task->add($user_id, 'UploadCounters', $params);
+				$this->Task->runBkg($id);
+				$this->redirect(array('action' => 'index'));
+				return;
+			}
+			$this->set('avgTime', $this->Task->avgExecTime('UploadCounters'));
+		}
+		$this->set('task', $task);
+	}
+
+	/*
 	public function index() {
 		// set_time_limit(60 * 10);
 		ignore_user_abort(true);
@@ -29,7 +109,7 @@ class AdminUploadCsvController extends AdminController {
 		try {
 			if (isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name']) {
 				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
-				
+
 				$fieldRights = $this->_getFieldRights();
 				$keyField = 'code';
 				foreach($aData['keys'] as $fk_id) {
@@ -61,6 +141,7 @@ class AdminUploadCsvController extends AdminController {
 			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'index'));
 		}
 	}
+	*/
 	
 	/**
 	 * Получить данные из CSV файла в виде ассоц.массива 

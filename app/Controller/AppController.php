@@ -59,7 +59,7 @@ class AppController extends Controller {
 		if (TEST_ENV) {
 			fdebug('../Console/cake.bat bkg_service '.$method."\r\n", 'run.bat', false);
 		} else {
-			system("../Console/cake bkg_service {$method} < /dev/null > script.log &");
+			system("../Console/cake bkg_service {$method} < /dev/null > task.log &");
 		}
 	}
 }

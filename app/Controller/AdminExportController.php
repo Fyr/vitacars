@@ -77,7 +77,7 @@ class AdminExportController extends AdminController {
     	$this->xParamObject = $this->ExportParamsObjects;
     	$this->xParamValue = $this->ExportParamsValues;
     	$this->xSeo = $this->ExportSeo;
-    	
+
     	try {
 	    	fdebug('', 'export.log', false); // чистим лог
 	    	foreach(array('agromotors_by', 'agromotors_ru') as $dataSource) { //

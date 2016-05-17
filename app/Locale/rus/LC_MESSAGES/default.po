@@ -385,9 +385,6 @@ msgstr "На складе"
 msgid "Uploadings"
 msgstr "Загрузка"
 
-msgid "Upload counters"
-msgstr "Загрузка счетчиков"
-
 msgid "Upload new products"
 msgstr "Загрузка новой продукции"
 
@@ -543,3 +540,24 @@ msgstr "Email менеджеров"
 
 msgid "Gpz Stop"
 msgstr "Стоп-слова для поиска (giperzap)"
+
+msgid "Invalid file path"
+msgstr "Некоррекное имя(путь) файла"
+
+msgid "Processing was aborted by user"
+msgstr "Выполнение процесса было прервано пользователем"
+
+msgid "Upload counters"
+msgstr "Загрузка счетчиков"
+
+msgid "UploadCounters_initCounters"
+msgstr "1. Инициализация счетчиков..."
+
+msgid "UploadCounters_updateCounters"
+msgstr "2. Обновление счетчиков..."
+
+msgid "UploadCounters_updateRest"
+msgstr "3. Обновление БД и пересчет формул..."
+
+msgid "Process execution error! %s"
+msgstr "Ошибка выполнения процесса! %s"
