@@ -119,4 +119,10 @@ class Product extends Article {
 			}
 		}
 	}
+
+	public function beforeDelete($cascade = true) {
+		$this->loadModel('DetailNum');
+		$this->DetailNum->deleteAll(array('product_id' => $this->id));
+		return true;
+	}
 }
