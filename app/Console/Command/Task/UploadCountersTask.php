@@ -59,7 +59,7 @@ class UploadCountersTask extends AppShell {
             list($number) = array_values($row);
             $ids = array();
             if ($keyField == 'detail_num') {
-                $conditions = array('detail_num' => $this->DetailNum->strip($number));
+                $conditions = array('detail_num' => $this->DetailNum->strip($number), 'num_type' => DetailNum::ORIG);
                 $ids = $this->DetailNum->find('all', compact('conditions'));
                 $ids = Hash::extract($ids, '{n}.DetailNum.product_id');
                 $ids = array_unique($ids);
