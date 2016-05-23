@@ -19,7 +19,7 @@
     $aTabs = array(
         'General' => $this->element('/AdminProduct/admin_edit_General'),
 		'Text' => $this->element('Article.edit_body'),
-		'SEO' => $this->element('Seo.edit'),
+		'SEO' => $this->element('/AdminProduct/admin_edit_Seo'),
 		'Tech-params' => $this->element('/AdminProduct/admin_edit_TechParams', compact('form', 'formValues'))
     );
     if ($id) {
