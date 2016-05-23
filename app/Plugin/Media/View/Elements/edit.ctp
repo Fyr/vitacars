@@ -72,6 +72,16 @@
 					<button type="button" class="btn"><i class="icon icon-refresh"></i></button>
 				</div>
 				<?=__d('media', 'Media URL')?>: <input type="text" id="media-url" value="" readonly="readonly" onfocus="this.select()" />
+				<br/>
+				<br/>
+				Alt:
+				<input type="text" id="media-alt" value="{%=o.alt%}" onfocus="this.select()" onchange="mediaGrid.actionUpdate({%=o.id%})" style="width: 70%" />
+				<span class="media-alt">
+					<button type="button" class="btn"><i class="icon icon-refresh"></i></button>
+				</span>
+				<span class="media-alt-loader" style="display: none">
+					&nbsp;&nbsp;<img src="/img/ajax_loader.gif" alt=""/>
+				</span>
 				{% } %}
 			</script>
 			
@@ -85,6 +95,7 @@ var mediaURL = {
 	move: '<?=$this->Html->url(array('plugin' => 'media', 'controller' => 'ajax', 'action' => 'move'))?>.json',
 	list: '<?=$this->Html->url(array('plugin' => 'media', 'controller' => 'ajax', 'action' => 'getList', $object_type, $object_id))?>.json',
 	delete: '<?=$this->Html->url(array('plugin' => 'media', 'controller' => 'ajax', 'action' => 'delete', $object_type, $object_id))?>/{$id}.json',
-	setMain: '<?=$this->Html->url(array('plugin' => 'media', 'controller' => 'ajax', 'action' => 'setMain', $object_type, $object_id))?>/{$id}.json'
+	setMain: '<?=$this->Html->url(array('plugin' => 'media', 'controller' => 'ajax', 'action' => 'setMain', $object_type, $object_id))?>/{$id}.json',
+	update: '<?=$this->Html->url(array('plugin' => 'media', 'controller' => 'ajax', 'action' => 'update', $object_type, $object_id))?>/{$id}.json'
 };
 </script>

@@ -151,5 +151,20 @@ MediaGrid = function(config) {
 		});
 	}
 
+	this.actionUpdate = function(id) {
+		data = {data: {id: id, alt: $('#media-alt').val()}};
+		$('.media-alt').hide();
+		$('.media-alt-loader').show();
+		console.log(self.getActionURL(self.actions.update, id));
+		$.post(self.getActionURL(self.actions.update, id), data, function(response) {
+			if (checkJson(response)) {
+				mediaGrid.setData(response.data);
+				mediaGrid.showInfo(id);
+				$('.media-alt-loader').hide();
+				$('.media-alt').show();
+			}
+		});
+	}
+
 	self.init(config);
 }
