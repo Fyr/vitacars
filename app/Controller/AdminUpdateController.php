@@ -313,57 +313,78 @@ class AdminUpdateController extends AdminController {
 */
 
     public function update8() {
+		$this->autoRender = true;
+		$this->layout = 'print_xls';
 		ignore_user_abort(true);
 		set_time_limit(0);
-
-		$this->loadModel('Product');
-		$this->loadModel('Form.PMFormData');
-		$sql = "SELECT code, COUNT(*) AS count FROM articles WHERE object_type = 'Product' AND code GROUP BY code HAVING count > 1";
-		$res = $this->Product->query($sql);
-		$codes = Hash::extract($res, '{n}.articles.code');
-		$aProducts = array();
-		$deleted = 0;
-		foreach($codes as $i => $code) {
-			$products = $this->Product->findAllByObjectTypeAndCode('Product', $code, null, 'Product.id');
-			$product = array_shift($products);
-			$products = array_reverse($products);
-
-			$lFlag = false;
-			$aFK = array();
-			foreach($products as &$_product) {
-
-				foreach($_product['PMFormData'] as $fk_id => $val) {
-					if (strpos($fk_id, 'fk_') !== false) {
-						if (!$product['PMFormData'][$fk_id] && $val) {
-							$product['PMFormData'][$fk_id] = $val;
-							$lFlag = true;
-							$aFK[] = $fk_id;
-						}
-					}
-				}
-				$deleted++;
-				fdebug($_product['Product'], 'deleted.log');
-				$this->Product->delete($_product['Product']['id']);
-			}
-			if ($lFlag) {
-				fdebug(array($aFK, $product['PMFormData'], $products), 'tmp2.log');
-				$this->PMFormData->save($product['PMFormData']);
-			}
-		}
-		echo 'Deleted '.$deleted.' products';
-		/*
-		$this->set(compact('aProducts'));
 
 		$this->loadModel('Form.PMFormField');
 		$aParams = $this->PMFormField->getFieldsList('SubcategoryParam', '');
 		$this->set('aParams', $aParams);
 		$aLabels = array();
 		foreach($aParams as $id => $_field) {
-				$alias = 'PMFormData.fk_'.$id;
-				$aLabels[$alias] = $_field['PMFormField']['label'];
+			$alias = 'PMFormData.fk_'.$id;
+			$aLabels[$alias] = $_field['PMFormField']['label'];
 		}
 		$this->set('aLabels', $aLabels);
-		*/
+
+		$this->loadModel('Product');
+		$this->loadModel('Form.PMFormData');
+		$sql = "SELECT code, COUNT(*) AS count FROM articles WHERE object_type = 'Product' AND code != '' GROUP BY code HAVING count > 1";
+		$res = $this->Product->query($sql);
+		$codes = Hash::extract($res, '{n}.articles.code');
+		$aProducts = array();
+		$aDeleted = array();
+		$deleted = 0;
+		foreach($codes as $i => $code) {
+			$products = $this->Product->findAllByObjectTypeAndCode('Product', $code, null, 'Product.id');
+			$product = array_shift($products);
+			$aProducts[] = $product;
+			$aDeleted[$code] = $products;
+			$products = array_reverse($products);
+
+			$lFlag = false;
+			$aFK = array();
+			foreach($products as $_product) {
+
+				foreach($_product['PMFormData'] as $fk_id => $_val) {
+					if (strpos($fk_id, 'fk_') !== false) {
+						$val = (is_numeric($product['PMFormData'][$fk_id])) ? floatval($product['PMFormData'][$fk_id]) : trim($product['PMFormData'][$fk_id]);
+						$_val = (is_numeric($_val)) ? floatval($_val) : trim($_val);
+						if (!$val && $_val) {
+							$product['PMFormData'][$fk_id] = $_val;
+							$lFlag = true;
+							$aFK[] = 'PMFormData.'.$fk_id;
+						}
+					}
+				}
+				$this->Product->delete($_product['Product']['id']);
+			}
+			if ($lFlag) {
+				$aData[$code] = array('fks' => $aFK, 'data' => $product['PMFormData']);
+				$this->PMFormData->save($product['PMFormData']);
+			}
+		}
+		$this->set(compact('aProducts', 'aDeleted', 'aData'));
+
+		$this->loadModel('Category');
+		$this->loadModel('Subcategory');
+		$this->loadModel('Brand');
+		$ids = array_unique(Hash::extract($aProducts, '{n}.Product.cat_id'));
+		$conditions = array('Category.object_type' => 'Category', 'Category.id' => $ids);
+		$aCategories = $this->Category->find('list', compact('conditions'));
+
+		$ids = array_unique(Hash::extract($aProducts, '{n}.Product.subcat_id'));
+		$conditions = array('Subcategory.object_type' => 'Subcategory', 'Subcategory.id' => $ids);
+		$aSubcategories = $this->Subcategory->find('list', compact('conditions'));
+
+		$ids = array_unique(Hash::extract($aProducts, '{n}.Product.brand_id'));
+		$conditions = array('Brand.object_type' => 'Brand', 'Brand.id' => $ids);
+		$aBrands = $this->Brand->find('list', compact('conditions'));
+
+		$this->set(compact('aCategories', 'aSubcategories', 'aBrands'));
+
+
 	}
 
 }

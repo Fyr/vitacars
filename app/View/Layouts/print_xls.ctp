@@ -21,6 +21,10 @@ td {
 img {
     display: block;
 }
+.even-changed {
+	background-color: #eee;
+	border: 1px solid #00f;
+}
 </style>
 </head>
 <body>
