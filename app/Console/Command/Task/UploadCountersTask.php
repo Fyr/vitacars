@@ -193,7 +193,7 @@ class UploadCountersTask extends AppShell {
         }
         */
 
-        $conditions = array('object_type' => 'ProductParam', 'NOT' => array('object_id' => array_keys($aParams)), 'OR' => $aKeys);
+        $conditions = array('object_type' => 'ProductParam', 'NOT' => array('object_id' => array_keys($aParams), 'OR' => $aKeys));
         $total = $this->PMFormData->find('count', compact('conditions'));
 
         $subtask_id = $this->Task->add(0, 'UploadCounters_updateRest', null, $this->id);
