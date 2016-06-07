@@ -92,8 +92,11 @@ class AdminUploadCsvController extends AdminController {
 			if ($file = Hash::get($_FILES, 'csv_file.tmp_name')) {
 				$_file = Configure::read('tmp_dir').basename($file, '.tmp').'.csv';
 				move_uploaded_file($file, $_file);
-				$params = array('csv_file' => $_file, 'fieldRights' => $this->_getFieldRights());
 
+				$status = $this->request->data('UploadCsv.status');
+				$set_zero = is_array($status) && in_array('set_zero', array_values($status));
+
+				$params = array('csv_file' => $_file, 'fieldRights' => $this->_getFieldRights(), 'set_zero' => $set_zero);
 				$id = $this->Task->add($user_id, 'UploadCounters', $params);
 				$this->Task->runBkg($id);
 				$this->redirect(array('action' => 'index'));

@@ -6,7 +6,7 @@ class UploadCountersTask extends AppShell {
     public $uses = array('Product', 'Form.PMFormConst', 'Form.PMFormData', 'Form.PMFormField', 'DetailNum');
 
     public function execute() {
-        $this->Task->setProgress($this->id, 0, 3); // 3 subtasks
+        $this->Task->setProgress($this->id, 0, $this->params['set_zero'] ? 3 : 2); // 3 subtasks
         $this->Task->setStatus($this->id, Task::RUN);
 
         $aData = CsvReader::parse($this->params['csv_file']);
@@ -185,6 +185,9 @@ class UploadCountersTask extends AppShell {
         $this->Task->setStatus($subtask_id, Task::DONE);
         $this->Task->setProgress($this->id, 2);
         $this->Task->saveStatus($this->id);
+        if (!$this->params['set_zero']) {
+            return $aID;
+        }
 
         $outcomeY = 'fk_'.Configure::read('Params.outcomeY');
         /*
