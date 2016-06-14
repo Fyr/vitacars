@@ -70,7 +70,16 @@
     		$row['Product']['image'] = ($img) ? $this->Html->image($img) : '<img src="/img/default_product100.png" style="width: 100px; alt="" />';
     	}
 	    	
-    	$row['Product']['detail_num'] = str_replace(' ', '<br />', $row['Product']['detail_num']);
+    	// $row['Product']['detail_num'] = str_replace(' ', '<br />', $row['Product']['detail_num']);
+		$detail_nums = explode("\n", str_replace(', ', "\n", $row['Product']['detail_num']));
+		if (count($detail_nums) > 2) {
+			$num_1st = array_shift($detail_nums);
+			$row['Product']['detail_num'] = $num_1st;
+			$row['Product']['detail_num'] .= $this->element('AdminProduct/detail_nums', compact('detail_nums'));
+		} else {
+			$row['Product']['detail_num'] = implode('<br />', $detail_nums);
+		}
+		// '<a href="javascript:;" class="btn btn-mini">+ 2 номера <b class="caret"></b></a>'
     	/*
     	if (isset($paramMotor) && Hash::check($row, 'PMFormData.'.$paramMotor)) {
     		$row['PMFormData'][$paramMotor] = str_replace(',', '<br />', $row['PMFormData'][$paramMotor]);
@@ -159,6 +168,7 @@
 	#grid_Product .grid .fixed { position: fixed; top: 43px; left: 40px; margin-left: 1px;}
 	#grid_Product .grid .duplicateHead .grid-filter { display: none !important;}
 	#grid_Product .grid .originalHead .grid-filter { background: #fff;}
+	.detail-nums a {display: block; width: 90px;}
 </style>
 
 <script type="text/javascript">
@@ -242,7 +252,21 @@ $(document).ready(function(){
 	$('.fancybox').fancybox({
 		padding: 5
 	});
-	
+
+	$('.detail-nums .expand-num').click(function(){
+		$(this).hide();
+		$(this).parent().find('.collapse-num').show();
+		$(this).parent().find('div').slideDown('fast', function(){
+			// $(this).parent().find('.collapse-num').show();
+		});
+	});
+	$('.detail-nums .collapse-num').click(function(){
+		$(this).parent().find('div').slideUp('fast', function(){
+			$(this).parent().find('.collapse-num').hide();
+			$(this).parent().find('.expand-num').show();
+		});
+
+	});
 
 	aColors = <?=json_encode($aColors)?>;
 	if (aColors[2]) {
