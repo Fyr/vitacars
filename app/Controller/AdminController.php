@@ -106,7 +106,7 @@ class AdminController extends AppController {
 				list($plugin, $model) = explode('.',$model);
 			}
 			$ids = explode(',', $id);
-			$this->{$model}->deleteAll(array($model.'.id' => $ids));
+			$this->{$model}->deleteAll(array($model.'.id' => $ids), true, true);
 		}
 		if ($backURL = $this->request->query('backURL')) {
 			$this->redirect($backURL);
