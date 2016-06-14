@@ -3,12 +3,12 @@ App::uses('AdminController', 'Controller');
 App::uses('Product', 'Model');
 App::uses('FieldTypes', 'Form.Vendor');
 class AdminProductsController extends AdminController {
-	
+
     public $name = 'AdminProducts';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
     public $uses = array('Product', 'Form.PMForm', 'Form.PMFormField', 'Form.PMFormData', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media', 'Search', 'DetailNum');
     public $helpers = array('ObjectType', 'Form.PHFormFields', 'Form.PHFormData', 'Price');
-    
+
     private $paramDetail, $aFormula, $aFieldKeys, $aBrandOptions;
 
 	public function beforeFilter() {
@@ -17,7 +17,7 @@ class AdminProductsController extends AdminController {
 		$order = 'Brand.title';
 		$this->aBrandOptions = $this->Brand->find('list', compact('conditions', 'order'));
 	}
-    
+
     public function beforeRender() {
     	parent::beforeRender();
     	$this->set('objectType', $this->Product->objectType);
@@ -56,7 +56,7 @@ class AdminProductsController extends AdminController {
 	    		$alias = 'PMFormData.fk_'.$id;
 				$aFields[] = $alias;
 				$aLabels[$alias] = $_field['PMFormField']['label'];
-				
+
 				if ($_field['PMFormField']['id'] == Product::MOTOR) {
 					$this->set('paramMotor', 'fk_'.$id);
 				}
@@ -66,7 +66,7 @@ class AdminProductsController extends AdminController {
         $this->paginate = array(
            	'fields' => array_merge(array('title', 'title_rus', 'detail_num', 'code', 'brand_id', 'cat_id'), $aFields)
         );
-        
+
         $detail_num = '';
         if (isset($this->request->named['Product.detail_num']) && ($detail_num = $this->request->named['Product.detail_num'])) {
         	if ((strpos($detail_num, '*') !== false) || (strpos($detail_num, '~') !== false)) {
@@ -130,7 +130,7 @@ class AdminProductsController extends AdminController {
 			}
             unset($this->request->params['named']['Product.detail_num']);
         }
-        
+
         if (isset($this->request->named['PMFormData.fk_6']) && $motor = $this->request->named['PMFormData.fk_6']) {
         	$motor = explode(' ', str_replace('*', '', $motor));
         	$ors = array();
@@ -141,7 +141,7 @@ class AdminProductsController extends AdminController {
         	$this->set('motorFilterValue', $motor);
         	unset($this->request->params['named']['PMFormData.fk_6']);
         }
-        
+
         if (!$this->isAdmin()) {
         	if (!$detail_num) {
         		// запретить не-админам показывать полный список
@@ -175,12 +175,12 @@ class AdminProductsController extends AdminController {
 				unset($this->request->params['named']['Product.id']);
 			}
         }
-        
+
         if (TEST_ENV) {
         	$this->paginate['limit'] = 10;
         }
     }
-    
+
 	public function printXls() {
 		if($this->request->data('aID')){
 			$this->layout = 'print_xls';
@@ -193,19 +193,19 @@ class AdminProductsController extends AdminController {
 			$this->paginate['order'] = 'FIELD (Product.id, '.$this->request->data('aID').') ASC';
 			$this->paginate['limit'] = count($aID);
 			$aRowset = $this->PCTableGrid->paginate('Product');
-			
+
 			$ids = array_unique(Hash::extract($aRowset, '{n}.Product.cat_id'));
 			$conditions = array('Category.object_type' => 'Category', 'Category.id' => $ids);
 			$aCategories = $this->Category->find('list', compact('conditions'));
-			
+
 			$ids = array_unique(Hash::extract($aRowset, '{n}.Product.subcat_id'));
 			$conditions = array('Subcategory.object_type' => 'Subcategory', 'Subcategory.id' => $ids);
 			$aSubcategories = $this->Subcategory->find('list', compact('conditions'));
-			
+
 			$ids = array_unique(Hash::extract($aRowset, '{n}.Product.brand_id'));
 			$conditions = array('Brand.object_type' => 'Brand', 'Brand.id' => $ids);
 			$aBrands = $this->Brand->find('list', compact('conditions'));
-			
+
 			$this->set(compact('aRowset', 'aCategories', 'aSubcategories', 'aBrands'));
 		} else {
 			$this->redirect(array('action' => 'index'));
@@ -260,22 +260,22 @@ class AdminProductsController extends AdminController {
 		$this->set('aCategories', $aCategories);
 
 		$product_ids = Hash::extract($aRowset, '{n}.Product.id');
-		$aProductMedia = $this->Media->getList(array('media_type' => 'image', 'object_type' => 'Product', 'object_id' => $product_ids, 'main' => 1));
+		$aProductMedia = $this->Media->getList(array('media_type' => 'image', 'object_type' => 'Product', 'object_id' => $product_ids, 'main_by' => 1));
 		$aProductMedia = Hash::combine($aProductMedia, '{n}.Media.object_id', '{n}');
 		$this->set('aProductMedia', $aProductMedia);
 
         $brand_ids = Hash::extract($aRowset, '{n}.Product.brand_id');
         $brand_ids = array_unique($brand_ids);
 
-		$aBrandMedia = $this->Media->getList(array('media_type' => 'image', 'object_type' => 'Brand', 'object_id' => $brand_ids, 'main' => 1));
+		$aBrandMedia = $this->Media->getList(array('media_type' => 'image', 'object_type' => 'Brand', 'object_id' => $brand_ids, 'main_by' => 1));
         $aBrandMedia = Hash::combine($aBrandMedia, '{n}.Media.object_id', '{n}');
 		$this->set('aBrandMedia', $aBrandMedia);
-		
+
         $field = $this->PMFormField->findByLabel('Мотор');
         $this->set('motorOptions', $field);
 		$this->set('aBrandOptions', $this->_getBrandOptions());
 	}
-    
+
 	public function edit($id = 0) {
 		if (!$this->isAdmin()) {
 			return $this->redirect(array('action' => 'index'));
@@ -286,7 +286,7 @@ class AdminProductsController extends AdminController {
 			$this->request->data('Seo.object_type', $this->Product->objectType);
 			$this->request->data('PMFormData.object_type', 'ProductParam');
 		}
-		
+
 		$remain = 0;
 		if ($this->request->is(array('post', 'put'))) {
 			$this->request->data('Product.motor', $this->request->data('PMFormData.fk_6'));
@@ -300,31 +300,31 @@ class AdminProductsController extends AdminController {
 			}
 			$remain = (intval($this->request->data($a1)) - $a1_val) + (intval($this->request->data($a2)) - $a2_val);
 		}
-		
+
 		$fields = $this->PMFormField->getObjectList('SubcategoryParam', '', 'PMFormField.sort_order');
 		$this->PCArticle->setModel('Product')->edit(&$id, &$lSaved);
 		if ($lSaved) {
 			if ($remain) {
 				$product_id = $id;
 				$this->ProductRemain->save(compact('product_id', 'remain'));
-				
+
 				// скорректировать статистику за год
 				$field = 'fk_'.Configure::read(($remain > 0) ? 'Params.incomeY' : 'Params.outcomeY');
 				$this->PMFormData->saveField($field, intval($this->PMFormData->field($field)) + $remain); // уже выставлен нужный $this->PMFormData->id
 			}
 			$this->PMFormData->recalcFormula($this->PMFormData->id, $fields);
-			
+
 			$baseRoute = array('action' => 'index');
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
 		}
-		
+
 		$field_rights = $this->_getFieldRights();
 		$fieldsAvail = array();
 		foreach($fields as $_field) {
 			$_field_id = $_field['PMFormField']['id'];
 			if ((!$field_rights || in_array($_field_id, $field_rights)) && $_field['PMFormField']['field_type'] != FieldTypes::FORMULA) {
 				$fieldsAvail[] = $_field;
-				
+
 				if (!$id) {
 					if ($_field['PMFormField']['field_type'] == FieldTypes::INT) {
 						$this->request->data('PMFormData.fk_'.$_field_id, '0');
@@ -336,15 +336,15 @@ class AdminProductsController extends AdminController {
 			}
 		}
 		$this->set('form', $fieldsAvail);
-		
+
 		$this->set('aCategories', $this->Category->getOptions('Category'));
 		$this->set('aSubcategories', $this->Subcategory->find('all', array(
 			'fields' => array('id', 'object_id', 'title', 'Category.id', 'Category.title'),
 			'order' => 'object_id'
 		)));
-		
+
 		$this->set('aBrandOptions', $this->Brand->getOptions());
-		
+
 		if (!$id) {
 			// выставляем значения по умолчанию
 			$this->request->data('Product.status', array('published', 'active', 'show_detailnum'));

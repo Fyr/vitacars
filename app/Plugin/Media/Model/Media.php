@@ -4,6 +4,7 @@ class Media extends AppModel {
     const MKDIR_MODE = 0755;
     
     public $types = array('image', 'audio', 'video', 'bin_file');
+
     protected $PHMedia;
 
     protected function _afterInit() {
@@ -71,7 +72,7 @@ class Media extends AppModel {
 			$this->save(array('id' => $id, 'orig_w' => $image->getSizeX(), 'orig_h' => $image->getSizeY(), 'orig_fsize' => filesize($file)));
 			
 			// Set main image if it was first image
-			$this->initMain($object_type, $object_id);
+			// $this->initMain($object_type, $object_id);
 		}
 		
 		return $id;
@@ -113,18 +114,26 @@ class Media extends AppModel {
      * @param unknown_type $object_type
      * @param unknown_type $object_id
      */
-	public function setMain($id , $object_type = null, $object_id = null) {
+	public function setMain($id , $object_type = null, $object_id = null, $lang = null) {
 		// Clear main flag for all media
 		if ($object_id && $object_type) {
 			$conditions = compact('object_type', 'object_id');
 			$conditions['media_type'] = 'image';
-			$this->updateAll(array('main' => 0), $conditions);
+			if ($lang) {
+				$this->updateAll(array('main_'.$lang => 0), $conditions);
+			} else {
+				$this->updateAll(array('main_by' => 0, 'main_ru' => 0), $conditions);
+			}
 		} else {
 			$media = $this->findById($id);
-			$this->setMain($id, $media[$this->alias]['object_type'], $media[$this->alias]['object_id']);
+			$this->setMain($id, $media[$this->alias]['object_type'], $media[$this->alias]['object_id'], $lang);
 			return;
 		}
-		$this->save(array('id' => $id, 'main' => 1));
+		if ($lang) {
+			$this->save(array('id' => $id, 'main_'.$lang => 1));
+		} else {
+			$this->save(array('id' => $id, 'main_by' => 1, 'main_ru' => 1));
+		}
 	}
 	
 	/**
@@ -133,6 +142,7 @@ class Media extends AppModel {
 	 * @param str $object_type
 	 * @param int $object_id
 	 */
+	/*
 	public function initMain($object_type, $object_id) {
 		$media = $this->find('first', array(
 			'conditions' => array('object_type' => $object_type, 'object_id' => $object_id, 'media_type' => 'image'),
@@ -146,6 +156,7 @@ class Media extends AppModel {
 			}
 		} // no records
 	}
+	*/
 	
     /**
      * Removes actual media-files before delete a record
@@ -195,5 +206,39 @@ class Media extends AppModel {
 				}
 			}
 		}
+	}
+
+	public function checkImageFlags($object_type, $object_id = '') {
+		// check shown and main media files
+		$conditions = array('object_type' => $object_type, 'media_type' => 'image');
+		if ($object_id) {
+			$conditions['object_id'] = $object_id;
+		}
+		$data = $this->find('all', compact('conditions'));
+		if ($data) {
+			foreach (Configure::read('domains') as $lang) {
+				$chkSumShow = array_sum(Hash::extract($data, '{n}.'.$this->alias.'.show_'.$lang));
+				$chkSumMain = array_sum(Hash::extract($data, '{n}.'.$this->alias.'.main_'.$lang));
+				if (!$chkSumShow && $chkSumMain) { // ни одно фото не показываем - снимаем флаг осн.
+					$this->updateAll(array('main_'.$lang => 0), $conditions);
+				} elseif ($chkSumShow == 1) { // только для одной фотки флаг показывать - для нее же и ставим main
+					foreach($data as $row) {
+						if ($row[$this->alias]['show_'.$lang]) {
+							$this->clear();
+							$this->setMain($row[$this->alias]['id'], $object_type, $object_id, $lang);
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public function update($id, $data) {
+		$data['id'] = $id;
+		$this->save($data);
+
+		$media = $this->findById($id);
+		$this->checkImageFlags($media[$this->alias]['object_type'], $media[$this->alias]['object_id']);
 	}
 }

@@ -38,17 +38,18 @@ class AjaxController extends PAjaxController {
 	
 	public function delete($object_type, $object_id, $id) {
 		$this->Media->delete($id);
-		$this->Media->initMain($object_type, $object_id);
+		$this->Media->checkImageFlags($object_type, $object_id);
 		$this->setResponse($this->Media->getList(compact('object_type', 'object_id')));
 	}
 	
-	public function setMain($object_type, $object_id, $id) {
-		$this->Media->setMain($id, $object_type, $object_id);
+	public function setMain($object_type, $object_id, $id, $lang = '') {
+		$this->Media->setMain($id, $object_type, $object_id, $lang);
 		$this->setResponse($this->Media->getList(compact('object_type', 'object_id')));
 	}
 
 	public function update($object_type, $object_id, $id) {
-		$this->Media->save($this->request->data);
+		$this->Media->update($id, $this->request->data);
 		$this->setResponse($this->Media->getList(compact('object_type', 'object_id')));
 	}
+
 }

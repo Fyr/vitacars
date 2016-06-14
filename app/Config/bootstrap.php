@@ -64,6 +64,8 @@ Configure::write('import', array(
 	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'import.log'
 ));
 
+Configure::write('domains', array('by', 'ru', 'bg'));
+
 Cache::config('tasks', array(
 	'engine' => 'File',
 	'duration' => '+999 days',
@@ -76,7 +78,12 @@ Cache::config('tasks', array(
 
 require_once('api.php');
 
+require_once('assert.php');
 function fdebug($data, $logFile = 'tmp.log', $lAppend = true) {
 	file_put_contents($logFile, mb_convert_encoding(print_r($data, true), 'cp1251', 'utf8'), ($lAppend) ? FILE_APPEND : null);
 	return $data;
 }
+
+
+
+

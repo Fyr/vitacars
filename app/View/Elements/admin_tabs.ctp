@@ -1,7 +1,7 @@
 <?
     $this->Html->script('admin_tabs', array('inline' => false));
 ?>
-<ul class="nav nav-tabs">
+<ul id="navTabs" class="nav nav-tabs">
 <?
 	if (!isset($active)) {
 		list($active) = array_keys($aTabs); // activate 1st tab

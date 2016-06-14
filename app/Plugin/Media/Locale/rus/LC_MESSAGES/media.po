@@ -51,3 +51,9 @@ msgstr "Скачать"
 
 msgid "For download"
 msgstr "Для скачивания"
+
+msgid "No media files found"
+msgstr "Медиа-файлов не найдено"
+
+msgid "No media data"
+msgstr "Нет медиа-данных"

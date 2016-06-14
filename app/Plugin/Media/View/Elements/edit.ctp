@@ -39,11 +39,62 @@
 		</td>
 		<td class="media-info form-horizontal" width="35%">
 			<script type="text/x-tmpl" id="media-info">
-				{% if (o.media_type == 'image') { %}
-				<button type="button" class="btn btn-success" onclick="mediaGrid.actionSetMain({%=o.id%})"><i class="icon-white icon-ok"></i> <?=__d('media', 'Set as main')?></button>
-				{% } %}
-				<button type="button" class="btn btn-danger" onclick="if (confirm('<?=__d('media', 'Are your sure to delete this record?')?>')) { mediaGrid.actionDelete({%=o.id%}); }"><i class="icon-white icon-trash"></i> <?=__d('media', 'Delete')?></button>
-				<br/>
+			<button type="button" class="btn btn-danger pull-right" onclick="if (confirm('<?=__d('media', 'Are your sure to delete this record?')?>')) { mediaGrid.actionDelete({%=o.id%}); }"><i class="icon-white icon-trash"></i> <?=__d('media', 'Delete')?></button>
+				<ul class="nav nav-tabs">
+<?
+	foreach(Configure::read('domains') as $tab) {
+?>
+					<li id="tab-<?=$tab?>"><a href="javascript:;"><?=strtoupper($tab)?></a></li>
+<?
+	}
+?>
+				</ul>
+				{%
+					if (o.media_type == 'image') {
+				 		aLang = ['by', 'ru', 'bg'];
+				 		for(var i = 0; i < aLang.length; i++) {
+				 			var lang = aLang[i];
+
+				 			var checked = (o['show_' + lang]) ? 'checked="checked"' : '';
+				 			var _class = 'btn btn-success pull-right', disabled = '';
+				 			if (!checked || o['main_' + lang]) {
+				 				_class+= ' disabled';
+				 				disabled = 'disabled="disabled"';
+				 			}
+				%}
+				<div id="media-tab-content-{%=lang%}" class="media-tab-content" style="display: none;">
+					<span class="pull-left" style="position: relative; top: 10px;">Показывать</span>
+					<input type="checkbox" {%=checked%} onchange="mediaGrid.actionUpdate({%=o.id%}, {show_{%=lang%}: (this.checked) ? 1 : 0})" style="position: relative; top: 7px;"/>
+					&nbsp;&nbsp;
+				{%
+							if (o['main_' + lang]) {
+				%}
+					<span class="pull-right" style="position: relative; top: 10px;"><i class="icon-ok"></i> Осн.</span>
+				{%
+							} else {
+				%}
+					<button type="button" class="{%=_class%}" {%=disabled%} onclick="mediaGrid.actionSetMain({%=o.id%}, '{%=lang%}')" style="position: relative; top: 5px;">
+						<i class="icon-white icon-ok"></i> Осн.
+					</button>
+				{%
+							}
+				%}
+					<br/><br/>
+					Alt (.{%=lang%}):
+					<input type="text" onfocus="this.select()" value="{%=o['alt_' + lang]%}" onchange="mediaGrid.actionUpdate({%=o.id%}, {alt_{%=lang%}: this.value})" style="width: 60%" />
+					<span class="media-alt">
+						<button type="button" class="btn"><i class="icon icon-refresh"></i></button>
+					</span>
+					<span class="media-alt-loader" style="display: none">
+						&nbsp;&nbsp;<img src="/img/ajax_loader.gif" alt=""/>
+					</span>
+				</div>
+				{%
+				 		}
+					}
+				%}
+
+				<hr style="border-color: #ddd;"/>
 				<h5><?=__d('media', 'Original file')?></h5>
 				<?=__d('media', 'Uploaded')?>: {%=o.created%}<br/>
 				<?=__d('media', 'File name')?>: {%=o.orig_fname%}<br/>
@@ -72,16 +123,6 @@
 					<button type="button" class="btn"><i class="icon icon-refresh"></i></button>
 				</div>
 				<?=__d('media', 'Media URL')?>: <input type="text" id="media-url" value="" readonly="readonly" onfocus="this.select()" />
-				<br/>
-				<br/>
-				Alt:
-				<input type="text" id="media-alt" value="{%=o.alt%}" onfocus="this.select()" onchange="mediaGrid.actionUpdate({%=o.id%})" style="width: 70%" />
-				<span class="media-alt">
-					<button type="button" class="btn"><i class="icon icon-refresh"></i></button>
-				</span>
-				<span class="media-alt-loader" style="display: none">
-					&nbsp;&nbsp;<img src="/img/ajax_loader.gif" alt=""/>
-				</span>
 				{% } %}
 			</script>
 			
@@ -95,7 +136,11 @@ var mediaURL = {
 	move: '<?=$this->Html->url(array('plugin' => 'media', 'controller' => 'ajax', 'action' => 'move'))?>.json',
 	list: '<?=$this->Html->url(array('plugin' => 'media', 'controller' => 'ajax', 'action' => 'getList', $object_type, $object_id))?>.json',
 	delete: '<?=$this->Html->url(array('plugin' => 'media', 'controller' => 'ajax', 'action' => 'delete', $object_type, $object_id))?>/{$id}.json',
-	setMain: '<?=$this->Html->url(array('plugin' => 'media', 'controller' => 'ajax', 'action' => 'setMain', $object_type, $object_id))?>/{$id}.json',
+	setMain: '<?=$this->Html->url(array('plugin' => 'media', 'controller' => 'ajax', 'action' => 'setMain', $object_type, $object_id))?>/{$id}/{$lang}.json',
 	update: '<?=$this->Html->url(array('plugin' => 'media', 'controller' => 'ajax', 'action' => 'update', $object_type, $object_id))?>/{$id}.json'
 };
+var mediaLocale = {
+	noFiles: '<?=__d('media', 'No media files found')?>',
+	noData: '<?=__d('media', 'No media data')?>'
+}
 </script>

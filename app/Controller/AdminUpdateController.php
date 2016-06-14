@@ -383,8 +383,101 @@ class AdminUpdateController extends AdminController {
 		$aBrands = $this->Brand->find('list', compact('conditions'));
 
 		$this->set(compact('aCategories', 'aSubcategories', 'aBrands'));
+	}
 
+
+	public function test() {
+		$this->loadModel('Media.Media');
+		$this->_resetDB();
+
+		// Тест на установку флага main, если устанавливается 1 флаг для показа
+		$this->Media->update(1865, array('show_ru' => 1));
+		$fields = array('id', 'main_by', 'main_ru', 'main_bg', 'show_by', 'show_ru', 'show_bg');
+		$aRows = $this->Media->find('all', compact('fields'));
+		$aExpect = array(
+			array('Media' => array('id' => 1864, 'main_by' => false, 'main_ru' => false, 'main_bg' => false, 'show_by' => false, 'show_ru' => false, 'show_bg' => false)),
+			array('Media' => array('id' => 1865, 'main_by' => false, 'main_ru' => true, 'main_bg' => false, 'show_by' => false, 'show_ru' => true, 'show_bg' => false)),
+			array('Media' => array('id' => 1866, 'main_by' => false, 'main_ru' => false, 'main_bg' => false, 'show_by' => false, 'show_ru' => false, 'show_bg' => false))
+		);
+		Assert::equal('Test 1.1. Set main if 1 media is shown', $aRows, $aExpect);
+
+		$this->Media->update(1864, array('show_by' => 1));
+		$fields = array('id', 'main_by', 'main_ru', 'main_bg', 'show_by', 'show_ru', 'show_bg');
+		$aRows = $this->Media->find('all', compact('fields'));
+		$aExpect = array(
+			array('Media' => array('id' => 1864, 'main_by' => true, 'main_ru' => false, 'main_bg' => false, 'show_by' => true, 'show_ru' => false, 'show_bg' => false)),
+			array('Media' => array('id' => 1865, 'main_by' => false, 'main_ru' => true, 'main_bg' => false, 'show_by' => false, 'show_ru' => true, 'show_bg' => false)), // ru флаги остались
+			array('Media' => array('id' => 1866, 'main_by' => false, 'main_ru' => false, 'main_bg' => false, 'show_by' => false, 'show_ru' => false, 'show_bg' => false))
+		);
+		Assert::equal('Test 1.2. Set main if 1 media is shown', $aRows, $aExpect);
+
+		$this->Media->update(1865, array('show_by' => 1));
+		$fields = array('id', 'main_by', 'main_ru', 'main_bg', 'show_by', 'show_ru', 'show_bg');
+		$aRows = $this->Media->find('all', compact('fields'));
+		$aExpect = array(
+			array('Media' => array('id' => 1864, 'main_by' => true, 'main_ru' => false, 'main_bg' => false, 'show_by' => true, 'show_ru' => false, 'show_bg' => false)),
+			array('Media' => array('id' => 1865, 'main_by' => false, 'main_ru' => true, 'main_bg' => false, 'show_by' => true, 'show_ru' => true, 'show_bg' => false)), // ru флаги остались
+			array('Media' => array('id' => 1866, 'main_by' => false, 'main_ru' => false, 'main_bg' => false, 'show_by' => false, 'show_ru' => false, 'show_bg' => false))
+		);
+		Assert::equal('Test 2.1 Set shown media normally', $aRows, $aExpect);
+
+		$this->Media->update(1866, array('show_ru' => 1));
+		$fields = array('id', 'main_by', 'main_ru', 'main_bg', 'show_by', 'show_ru', 'show_bg');
+		$aRows = $this->Media->find('all', compact('fields'));
+		$aExpect = array(
+			array('Media' => array('id' => 1864, 'main_by' => true, 'main_ru' => false, 'main_bg' => false, 'show_by' => true, 'show_ru' => false, 'show_bg' => false)),
+			array('Media' => array('id' => 1865, 'main_by' => false, 'main_ru' => true, 'main_bg' => false, 'show_by' => true, 'show_ru' => true, 'show_bg' => false)), // ru флаги остались
+			array('Media' => array('id' => 1866, 'main_by' => false, 'main_ru' => false, 'main_bg' => false, 'show_by' => false, 'show_ru' => true, 'show_bg' => false))
+		);
+		Assert::equal('Test 2.2 Set shown media normally', $aRows, $aExpect);
+
+		$this->Media->update(1865, array('show_ru' => 0));
+		$fields = array('id', 'main_by', 'main_ru', 'main_bg', 'show_by', 'show_ru', 'show_bg');
+		$aRows = $this->Media->find('all', compact('fields'));
+		$aExpect = array(
+			array('Media' => array('id' => 1864, 'main_by' => true, 'main_ru' => false, 'main_bg' => false, 'show_by' => true, 'show_ru' => false, 'show_bg' => false)),
+			array('Media' => array('id' => 1865, 'main_by' => false, 'main_ru' => false, 'main_bg' => false, 'show_by' => true, 'show_ru' => false, 'show_bg' => false)), // ru флаги остались
+			array('Media' => array('id' => 1866, 'main_by' => false, 'main_ru' => true, 'main_bg' => false, 'show_by' => false, 'show_ru' => true, 'show_bg' => false))
+		);
+		Assert::equal('Test 3.1 Reset main flag if shown flag is reset (set main for shown)', $aRows, $aExpect);
+
+		$this->Media->update(1865, array('show_by' => 0));
+		$fields = array('id', 'main_by', 'main_ru', 'main_bg', 'show_by', 'show_ru', 'show_bg');
+		$aRows = $this->Media->find('all', compact('fields'));
+		$aExpect = array(
+			array('Media' => array('id' => 1864, 'main_by' => true, 'main_ru' => false, 'main_bg' => false, 'show_by' => true, 'show_ru' => false, 'show_bg' => false)),
+			array('Media' => array('id' => 1865, 'main_by' => false, 'main_ru' => false, 'main_bg' => false, 'show_by' => false, 'show_ru' => false, 'show_bg' => false)), // ru флаги остались
+			array('Media' => array('id' => 1866, 'main_by' => false, 'main_ru' => true, 'main_bg' => false, 'show_by' => false, 'show_ru' => true, 'show_bg' => false))
+		);
+		Assert::equal('Test 3.2 Reset main flag if shown flag is reset (main flag remains for shown)', $aRows, $aExpect);
+
+		$this->Media->update(1864, array('show_by' => 0));
+		$fields = array('id', 'main_by', 'main_ru', 'main_bg', 'show_by', 'show_ru', 'show_bg');
+		$aRows = $this->Media->find('all', compact('fields'));
+		$aExpect = array(
+			array('Media' => array('id' => 1864, 'main_by' => false, 'main_ru' => false, 'main_bg' => false, 'show_by' => false, 'show_ru' => false, 'show_bg' => false)),
+			array('Media' => array('id' => 1865, 'main_by' => false, 'main_ru' => false, 'main_bg' => false, 'show_by' => false, 'show_ru' => false, 'show_bg' => false)), // ru флаги остались
+			array('Media' => array('id' => 1866, 'main_by' => false, 'main_ru' => true, 'main_bg' => false, 'show_by' => false, 'show_ru' => true, 'show_bg' => false))
+		);
+		Assert::equal('Test 4.1 Reset all main flags if no shown media', $aRows, $aExpect);
+
+		$this->Media->update(1866, array('show_ru' => 0));
+		$fields = array('id', 'main_by', 'main_ru', 'main_bg', 'show_by', 'show_ru', 'show_bg');
+		$aRows = $this->Media->find('all', compact('fields'));
+		$aExpect = array(
+			array('Media' => array('id' => 1864, 'main_by' => false, 'main_ru' => false, 'main_bg' => false, 'show_by' => false, 'show_ru' => false, 'show_bg' => false)),
+			array('Media' => array('id' => 1865, 'main_by' => false, 'main_ru' => false, 'main_bg' => false, 'show_by' => false, 'show_ru' => false, 'show_bg' => false)), // ru флаги остались
+			array('Media' => array('id' => 1866, 'main_by' => false, 'main_ru' => false, 'main_bg' => false, 'show_by' => false, 'show_ru' => false, 'show_bg' => false))
+		);
+		Assert::equal('Test 4.2 Reset all main flags if no shown media', $aRows, $aExpect);
+
+		//$this->_resetDB();
 
 	}
 
+	private function _resetDB() {
+		foreach(Configure::read('domains') as $lang) {
+			$this->Media->updateAll(array('show_'.$lang => 0, 'main_'.$lang => 0));
+		}
+	}
 }

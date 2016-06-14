@@ -1,4 +1,4 @@
-MediaGrid = function(config) {
+var MediaGrid = function(config) {
 	var self = this;
 
 	self.container = config.container;
@@ -9,6 +9,8 @@ MediaGrid = function(config) {
 		model: 'Media',
 		primaryKey: 'Media.id',
 	};
+	self.tab = '';
+	self.selected = 0;
 	
 	this.init = function(config) {
 		// load template
@@ -16,7 +18,17 @@ MediaGrid = function(config) {
 		
 		self.setData(config.data);
 		self.actions = config.actions;
+		self.tab = 'by';
+		self.initSelected();
 		self.update();
+	}
+
+	this.initSelected = function() {
+		if (self.data && self.data.length) {
+			self.selected = self.getID(self.data[0]);
+		} else {
+			self.selected = 0;
+		}
 	}
 	
 	this.update = function() {
@@ -57,9 +69,9 @@ MediaGrid = function(config) {
 	this.render = function() {
 		$('.media-thumbs', $self).html(self.renderThumbs());
 		if (self.data && self.data.length) {
-			self.showInfo(self.getID(self.data[0]));
+			self.showInfo(self.selected);
 		} else {
-			$('.media-info', $self).html('No media data');
+			$('.media-info', $self).html(mediaLocale.noData);
 		}
 	}
 	
@@ -70,23 +82,44 @@ MediaGrid = function(config) {
 			    html+= self.renderThumb(self.data[i]);
 			}
 		} else {
-			html = Format.tag('div', {class: 'alert well-large'}, 'No media files found')
+			html = Format.tag('div', {class: 'alert well-large'}, mediaLocale.noFiles)
 		}
 		return html;
 	}
 		
 	this.renderThumb = function(rowData) {
 		var _class = 'img-rounded pull-left thumb';
+		var lang = self.tab;
 		if (self.getValue(self.settings.model + '.media_type', rowData) != 'image') {
 			_class+= ' non-image';
 		}
-		if (self.getValue(self.settings.model + '.main', rowData)) {
+		if (!self.getValue(self.settings.model + '.show_' + lang, rowData)) {
+			_class+= ' non-shown';
+		}
+		if (self.getValue(self.settings.model + '.main_' + lang, rowData)) {
 			_class+= ' main-thumb';
+		}
+		if (self.getID(rowData) == self.selected) {
+			_class+= ' selected';
 		}
 		return Format.tag('div', 
 			{class: _class, 'data-thumb': self.getID(rowData)}, 
 			Format.tag('img', {src: self.getValue(self.settings.model + '.image', rowData), alt: ''})
 		);
+	}
+
+	this.activateTab = function(tab) {
+		if (tab) {
+			self.tab = tab;
+		} else {
+			tab = self.tab;
+		}
+
+		var context = $('.media-info');
+		$('ul.nav.nav-tabs > li', context).removeClass('active');
+		$('ul.nav.nav-tabs > #tab-' + tab, context).addClass('active');
+		$('.media-tab-content', context).hide();
+		$('#media-tab-content-' + tab, context).show();
 	}
 	
 	this.bindEvents = function() {
@@ -95,10 +128,14 @@ MediaGrid = function(config) {
 	
 	this.bindSelectImage = function() {
 		$('.media-thumbs .thumb', $self).click(function(){
-			$('.thumb').removeClass('selected');
-			$(this).addClass('selected');
-			self.showInfo($(this).data('thumb'));
+			// $('.thumb').removeClass('selected');
+			// $(this).addClass('selected');
+			var id = $(this).data('thumb');
+			self.selected = id;
+			// self.showInfo(id);
+			self.update();
 		});
+		// $('.media-thumbs .thumb:first', $self).click();
 	}
 	
 	this.showInfo = function(id) {
@@ -106,6 +143,7 @@ MediaGrid = function(config) {
 		self.renderInfo(rowData[self.settings.model]);
 		self.bindInfo(rowData);
 		self.updateImageURL(id);
+		self.activateTab();
 	}
 	
 	this.renderInfo = function(rowData) {
@@ -126,24 +164,34 @@ MediaGrid = function(config) {
 	}
 	
 	this.bindInfo = function(rowData) {
-		
+		var context = $('.media-info');
+		$('ul.nav.nav-tabs > li > a', context).click(function(){
+			var tab = $(this, context).parent().get(0).id.replace(/tab\-/, '');
+			self.activateTab(tab);
+			self.update();
+		});
 	}
 	
-	this.getActionURL = function(url, id) {
-		return url.replace(/\{\$id\}/ig, id);
+	this.getActionURL = function(url, id, lang) {
+		var url = url.replace(/\{\$id\}/ig, id);
+		if (lang) {
+			url = url.replace(/\{\$lang\}/ig, lang);
+		}
+		return url;
 	}
 	
 	this.actionDelete = function(id) {
 		$.get(self.getActionURL(self.actions.delete, id), null, function(response) {
 			if (checkJson(response)) {
 	            mediaGrid.setData(response.data);
+				self.initSelected();
 	            mediaGrid.update();
 		    }
 		});
 	}
 	
-	this.actionSetMain = function(id) {
-		$.get(self.getActionURL(self.actions.setMain, id), null, function(response) {
+	this.actionSetMain = function(id, lang) {
+		$.get(self.getActionURL(self.actions.setMain, id, lang), null, function(response) {
 			if (checkJson(response)) {
 	            mediaGrid.setData(response.data);
 	            mediaGrid.update();
@@ -151,15 +199,14 @@ MediaGrid = function(config) {
 		});
 	}
 
-	this.actionUpdate = function(id) {
-		data = {data: {id: id, alt: $('#media-alt').val()}};
+	this.actionUpdate = function(id, data) { // id, lang, value
+		// data = {data: {id: id, alt: value, lang: lang}};
 		$('.media-alt').hide();
 		$('.media-alt-loader').show();
-		console.log(self.getActionURL(self.actions.update, id));
-		$.post(self.getActionURL(self.actions.update, id), data, function(response) {
+		$.post(self.getActionURL(self.actions.update, id), {data: data}, function(response) {
 			if (checkJson(response)) {
 				mediaGrid.setData(response.data);
-				mediaGrid.showInfo(id);
+				mediaGrid.update();
 				$('.media-alt-loader').hide();
 				$('.media-alt').show();
 			}

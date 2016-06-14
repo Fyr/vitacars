@@ -7,6 +7,9 @@
 	echo $this->element('admin_content');
 	echo $this->PHForm->input('field_type', array('options' => $aFieldTypes, 'onchange' => 'FieldType_onChange(this)'));
 	echo $this->PHForm->input('label', array('class' => 'input-medium'));
+	echo $this->PHForm->input('label_bg', array('class' => 'input-medium', 'label' => array(
+		'class' => 'control-label', 'text' => 'Метка для .bg'
+	)));
 	echo $this->PHForm->input('key', array('class' => 'input-medium'));
 	// echo $this->PHForm->input('fieldset', array('class' => 'input-medium'));
 	echo $this->PHForm->input('options');
