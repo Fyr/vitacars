@@ -51,6 +51,9 @@ Configure::write('Params', array(
 	'A2' => (TEST_ENV) ? 19 : 27,
 	'incomeY' => (TEST_ENV) ? 26 : 27,
 	'outcomeY' => (TEST_ENV) ? 27 : 32,
+	'crossNumber' => 60,
+	'motor' => 6,
+	'motorTS' => 34
 ));
 
 Configure::write('Search', array(

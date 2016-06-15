@@ -18,11 +18,14 @@ class RecalcFormulaTask extends AppShell {
         $limit = 1000;
         $fields = $this->PMFormField->getObjectList('SubcategoryParam', '');
         $i = 0;
+
+        $this->PMFormData->trxBegin();
         while ($rowset = $this->PMFormData->find('all', compact('page', 'limit'))) {
             $page++;
             foreach($rowset as $row) {
                 $status = $this->Task->getStatus($this->id);
                 if ($status == Task::ABORT) {
+                    $this->PMFormData->trxCommit(); // по любому сохраняем рез-ты пересчета
                     throw new Exception(__('Processing was aborted by user'));
                 }
 
@@ -31,13 +34,13 @@ class RecalcFormulaTask extends AppShell {
                 $i++;
                 $this->Task->setProgress($this->id, $i);
             }
-
         }
+        $this->PMFormData->trxCommit();
 
         $this->Task->setData($this->id, 'xdata', $total);
         $this->Task->setStatus($this->id, Task::DONE);
     }
-
+/*
     private function run($taskI, $total) {
         $subtask_id = $this->Task->add(0, 'TestProgress_task'.$taskI, null, $this->id);
         $this->Task->setData($this->id, 'subtask_id', $subtask_id);
@@ -67,4 +70,5 @@ class RecalcFormulaTask extends AppShell {
         $this->Task->setProgress($this->id, $taskI);
         $this->Task->saveStatus($this->id);
     }
+*/
 }

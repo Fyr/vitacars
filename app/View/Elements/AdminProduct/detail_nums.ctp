@@ -1,6 +1,6 @@
 <span class="detail-nums">
-    <a href="javascript:;" class="btn btn-mini expand-num"> + <?=count($detail_nums)?> номер(ов) <b class="caret"></b></a>
-    <div style="display: none">
+    <a href="javascript:;" class="btn btn-mini expand-num"> + <?=count($detail_nums)?> <?=$items?> <b class="caret"></b></a>
+    <div style="white-space: nowrap; display: none">
 <?
     foreach($detail_nums as $num) {
 ?>

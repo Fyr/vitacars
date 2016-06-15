@@ -38,6 +38,15 @@
     );
     $columns['Category.title']['label'] = 'Брeнд';
 	$columns['Product.detail_num']['format'] = 'string';
+
+	$field = 'PMFormData.fk_'.Configure::read('Params.crossNumber');
+	if (isset($columns[$field])) {
+		$columns[$field]['format'] = 'string';
+	}
+	$field = 'PMFormData.fk_'.Configure::read('Params.motor');
+	if (isset($columns[$field])) {
+		$columns[$field]['format'] = 'string';
+	}
     /*
     unset($columns['Media.id']);
     unset($columns['Media.object_type']);
@@ -47,6 +56,7 @@
 	unset($columns['Product.cat_id']);
     unset($columns['Product.brand_id']);
     unset($columns['PMFormData.fk_23']);
+
     foreach($columns as $key => &$column) {
     	if (isset($aLabels[$key])) {
     		$column['label'] = $aLabels[$key];
@@ -70,16 +80,14 @@
     		$row['Product']['image'] = ($img) ? $this->Html->image($img) : '<img src="/img/default_product100.png" style="width: 100px; alt="" />';
     	}
 	    	
-    	// $row['Product']['detail_num'] = str_replace(' ', '<br />', $row['Product']['detail_num']);
-		$detail_nums = explode("\n", str_replace(', ', "\n", $row['Product']['detail_num']));
+		$detail_nums = explode("\n", str_replace(', ', ",\n", $row['Product']['detail_num']));
 		if (count($detail_nums) > 2) {
 			$num_1st = array_shift($detail_nums);
-			$row['Product']['detail_num'] = $num_1st;
-			$row['Product']['detail_num'] .= $this->element('AdminProduct/detail_nums', compact('detail_nums'));
+			$items = 'номер(ов)';
+			$row['Product']['detail_num'] = $num_1st.$this->element('AdminProduct/detail_nums', compact('detail_nums', 'items'));
 		} else {
 			$row['Product']['detail_num'] = implode('<br />', $detail_nums);
 		}
-		// '<a href="javascript:;" class="btn btn-mini">+ 2 номера <b class="caret"></b></a>'
     	/*
     	if (isset($paramMotor) && Hash::check($row, 'PMFormData.'.$paramMotor)) {
     		$row['PMFormData'][$paramMotor] = str_replace(',', '<br />', $row['PMFormData'][$paramMotor]);
@@ -101,7 +109,22 @@
 			if ($field_id == Configure::read('Params.color')) { // цвет
 				$aColors[$_val][] = $row['Product']['id'];
 			}
-    	}
+
+			if (in_array($field_id, array(Configure::read('Params.crossNumber'), Configure::read('Params.motor'), Configure::read('Params.motorTS')))) { //
+				if ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::STRING) {
+					$detail_nums = explode("<br>", str_replace(array(', ', ','), '<br>', $row['PMFormData'][$_field]));
+				} else {
+					$detail_nums = explode("<br>", str_replace(array('<br />', '<br/>'), '<br>', $row['PMFormData'][$_field]));
+				}
+				if (count($detail_nums) > 2) {
+					$num_1st = array_shift($detail_nums);
+					$items = 'строк(а)';
+					$row['PMFormData'][$_field] = $num_1st.$this->element('AdminProduct/detail_nums', compact('detail_nums', 'items'));
+				} else {
+					$row['PMFormData'][$_field] = implode('<br />', $detail_nums);
+				}
+			}
+		}
     }
 ?>
 <?//$this->element('admin_title', compact('title'))?>
@@ -169,6 +192,8 @@
 	#grid_Product .grid .duplicateHead .grid-filter { display: none !important;}
 	#grid_Product .grid .originalHead .grid-filter { background: #fff;}
 	.detail-nums a {display: block; width: 90px;}
+	/* .grid td.format-text span.caret {width: 0; white-space: normal; text-overflow: clip; overflow: visible;}
+	*/
 </style>
 
 <script type="text/javascript">
