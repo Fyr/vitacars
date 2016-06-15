@@ -9,7 +9,6 @@
     $actions = $this->PHTableGrid->getDefaultActions($objectType);
 /*
 	unset($actions['checked'][0]);
-
 	$actions['checked']['del']['href'] = 'javascript:;';
 	$actions['checked']['del']['label'] = __('Delete');
 	$actions['checked']['del']['icon'] = 'icon-color icon-delete';
@@ -20,6 +19,12 @@
     $actions['checked']['print']['label'] = __('Print');
     $actions['checked']['print']['icon'] = 'icon-color icon-print';
     $actions['checked']['print']['onclick'] = 'sendToPrint();return false;';
+
+	$actions['checked']['print_brand']['href'] = $this->Html->url(array('action' => 'printXls'));
+	$actions['checked']['print_brand']['label'] = 'Печать брендов (фильтр)';
+	$actions['checked']['print_brand']['icon'] = 'icon-color icon-print';
+	$actions['checked']['print_brand']['onclick'] = 'sendToPrintBrands();return false;';
+
     if ($isAdmin) {
     	$actions['table']['add']['href'] = $createURL;
     	$actions['table']['add']['label'] = $createTitle;
@@ -29,6 +34,7 @@
     	$actions['table'] = array();
     	$actions['row'] = array();
     }
+
     $columns = array_merge(
     	array(
     		'Product.image' => array('key' => 'Product.image', 'label' => 'Фото', 'align' => 'center', 'showFilter' => false, 'showSorting' => false),
@@ -327,5 +333,14 @@ function sendToPrint() {
     $('#printXls').submit();
 }
 
+function sendToPrintBrands() {
+	$('input[name="brandID"]').val($('#brand').val().join(','));
+	$('input[name="aID"]').val('');
+	$('#printXls').submit();
+}
+
 </script>
-<form id="printXls" method="post" action="<?= $this->Html->url(array('controller' => 'AdminProducts', 'action' => 'printXls')) ?>"><input type="hidden" name="aID" /></form>
+<form id="printXls" method="post" action="<?= $this->Html->url(array('controller' => 'AdminProducts', 'action' => 'printXls')) ?>">
+	<input type="hidden" name="aID" />
+	<input type="hidden" name="brandID" />
+</form>

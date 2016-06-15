@@ -85,47 +85,6 @@ class AdminProductsController extends AdminController {
 					}
 
 					$this->processFilter($detail_num);
-					/*
-					if (Configure::read('Search.detail_nums')) {
-
-					} else {
-
-						$numbers = explode(' ', str_replace(',', ' ', $detail_num));
-						// if ($lFindSame) {
-							$ors = array();
-							$order = array();
-							$i = 0;
-							$count = count($numbers);
-							$_count = 0;
-							while ($i < 100 && $count !== $_count) {
-								$i++; // избегать бесконечный цикл
-								foreach ($numbers as $key_ => $value_) {
-									if (trim($value_) != '') {
-										$ors[] = array('Product.detail_num LIKE "%' . trim($value_) . '%"');
-									}
-								}
-								$products = $this->Product->find('all', array('conditions' => array('OR' => $ors)));
-								foreach ($products as $product) {
-									$numbers = array_merge($numbers, explode(' ', str_replace(',', ' ', $product['Product']['detail_num'])));
-								}
-								$numbers = array_unique($numbers);
-								$_count = $count;
-								$count = count($numbers);
-							}
-						// }
-
-						$ors = array();
-						$order = array();
-						foreach ($numbers as $key_ => $value_) {
-							if (trim($value_) != '') {
-								$ors[] = array('Product.detail_num LIKE "%' . trim($value_) . '%"');
-								$order[] = 'Product.detail_num LIKE "%' . trim($value_) . '%" DESC';
-							}
-						}
-						$this->paginate['conditions'] = array('OR' => $ors);
-						$this->paginate['order'] = implode(', ', $order);
-					}
-					*/
         		}
 			}
             unset($this->request->params['named']['Product.detail_num']);
@@ -176,23 +135,28 @@ class AdminProductsController extends AdminController {
 			}
         }
 
-        if (TEST_ENV) {
-        	$this->paginate['limit'] = 10;
-        }
     }
 
 	public function printXls() {
-		if($this->request->data('aID')){
+		if ($this->request->is(array('put', 'post'))) {
+			ignore_user_abort(true);
+			set_time_limit(0);
+
 			$this->layout = 'print_xls';
 			$this->_processParams();
-			$aID = explode(',', $this->request->data('aID'));
-			// $this->paginate['fields'][] = 'Product.cat_id'; уже добавлено
-			$this->paginate['fields'][] = 'Product.subcat_id';
-			// $this->paginate['fields'][] = 'Product.brand_id'; уже добавлено
-			$this->paginate['conditions'] = array('Product.id' => $aID);
-			$this->paginate['order'] = 'FIELD (Product.id, '.$this->request->data('aID').') ASC';
-			$this->paginate['limit'] = count($aID);
-			$aRowset = $this->PCTableGrid->paginate('Product');
+
+			if ($brands = $this->request->data('brandID')) {
+				$aRowset = $this->Product->findAllByBrandId(explode(',', $brands));
+			} elseif ($this->request->data('aID')) {
+				$aID = explode(',', $this->request->data('aID'));
+				// $this->paginate['fields'][] = 'Product.cat_id'; уже добавлено
+				$this->paginate['fields'][] = 'Product.subcat_id';
+				// $this->paginate['fields'][] = 'Product.brand_id'; уже добавлено
+				$this->paginate['conditions'] = array('Product.id' => $aID);
+				$this->paginate['order'] = 'FIELD (Product.id, ' . $this->request->data('aID') . ') ASC';
+				$this->paginate['limit'] = count($aID);
+				$aRowset = $this->PCTableGrid->paginate('Product');
+			}
 
 			$ids = array_unique(Hash::extract($aRowset, '{n}.Product.cat_id'));
 			$conditions = array('Category.object_type' => 'Category', 'Category.id' => $ids);
