@@ -385,8 +385,7 @@ class AdminUpdateController extends AdminController {
 		$this->set(compact('aCategories', 'aSubcategories', 'aBrands'));
 	}
 
-
-	public function test() {
+	public function testMedia() {
 		$this->loadModel('Media.Media');
 		$this->_resetDB();
 
@@ -479,5 +478,9 @@ class AdminUpdateController extends AdminController {
 		foreach(Configure::read('domains') as $lang) {
 			$this->Media->updateAll(array('show_'.$lang => 0, 'main_'.$lang => 0));
 		}
+	}
+
+	public function test() {
+
 	}
 }

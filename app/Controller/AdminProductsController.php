@@ -146,7 +146,15 @@ class AdminProductsController extends AdminController {
 			$this->_processParams();
 
 			if ($brands = $this->request->data('brandID')) {
-				$aRowset = $this->Product->findAllByBrandId(explode(',', $brands));
+				$skladSNG = 'PMFormData.fk_'.Configure::read('Params.skladSNG');
+				$skladOrig = 'PMFormData.fk_'.Configure::read('Params.skladOrig');
+				$skladEur = 'PMFormData.fk_'.Configure::read('Params.skladEur');
+				$conditions = array('brand_id' => explode(',', $brands), 'AND' => array('OR' => array($skladSNG, $skladOrig, $skladEur)));
+				$this->Product->unbindModel(array(
+					'belongsTo' => array('Category', 'Subcategory', 'Brand'),
+					'hasOne' => array('Media', 'Seo', 'Search')
+				));
+				$aRowset = $this->Product->find('all', compact('conditions'));
 			} elseif ($this->request->data('aID')) {
 				$aID = explode(',', $this->request->data('aID'));
 				// $this->paginate['fields'][] = 'Product.cat_id'; уже добавлено

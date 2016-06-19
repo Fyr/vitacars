@@ -53,7 +53,10 @@ Configure::write('Params', array(
 	'outcomeY' => (TEST_ENV) ? 27 : 32,
 	'crossNumber' => 60,
 	'motor' => 6,
-	'motorTS' => 34
+	'motorTS' => 34,
+	'skladSNG' => 49,
+	'skladOrig' => 72,
+	'skladEur' => 71
 ));
 
 Configure::write('Search', array(
