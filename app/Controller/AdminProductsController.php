@@ -45,7 +45,7 @@ class AdminProductsController extends AdminController {
 	}
 
     private function _processParams() {
-        $field_rights = $this->_getFieldRights();
+        $field_rights = $this->_getRights();
     	$aParams = $this->PMFormField->getFieldsList('SubcategoryParam', '');
     	$this->set('aParams', $aParams);
     	$aLabels = array();
@@ -83,7 +83,6 @@ class AdminProductsController extends AdminController {
 							$this->set('gpzError', $e->getMessage());
 						}
 					}
-
 					$this->processFilter($detail_num);
         		}
 			}
@@ -206,6 +205,9 @@ class AdminProductsController extends AdminController {
 	private function processNumber($detail_num) {
 		$_detail_num = $this->DetailNum->strip($detail_num);
 		$product_ids = $this->DetailNum->findDetails($this->DetailNum->stripList('*'.$_detail_num.'*'), true);
+		if ($this->DetailNum->isReachLimit()) {
+			$this->setFlash(__('Too many products. Try to search by more exact keyword'), 'error');
+		}
 		$this->paginate['conditions'] = array('Product.id' => $product_ids);
 
 		$order = array("Product.code = '{$detail_num}' DESC", "Product.code = '{$_detail_num}' DESC");
@@ -290,7 +292,7 @@ class AdminProductsController extends AdminController {
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
 		}
 
-		$field_rights = $this->_getFieldRights();
+		$field_rights = $this->_getRights();
 		$fieldsAvail = array();
 		foreach($fields as $_field) {
 			$_field_id = $_field['PMFormField']['id'];

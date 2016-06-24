@@ -485,7 +485,10 @@ msgid "Created"
 msgstr "Создано"
 
 msgid "Rights"
-msgstr "Права"
+msgstr "Права (поля)"
+
+msgid "Price Rights"
+msgstr "Права (цены)"
 
 msgid "Field type"
 msgstr "Тип поля"
@@ -561,3 +564,21 @@ msgstr "3. Обновление БД и пересчет формул..."
 
 msgid "Process execution error! %s"
 msgstr "Ошибка выполнения процесса! %s"
+
+msgid "Orders"
+msgstr "Счет-фактуры"
+
+msgid "Upload Order"
+msgstr "Загрузить счет-фактуру"
+
+msgid "Edit Order"
+msgstr "Редактировать счет-фактуру"
+
+msgid "%s lines processed, %s products added"
+msgstr "%s строк обработано, %s позиций добавлено"
+
+msgid "Qty"
+msgstr "Кол-во"
+
+msgid "Too many products. Try to search by more exact keyword"
+msgstr "Слишком много продуктов найдено (более 100). Попробуйте поискать по более точному запросу"

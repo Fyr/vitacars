@@ -6,6 +6,8 @@ class DetailNum extends AppModel {
 	const ORIG = 1;
 	const CROSS = 2;
 
+	private $lReachLimit = false;
+
 	public function strip($q) {
 		$q = str_replace(array('.', '-', '/', '\\'), '', $q);
 		while (strpos($q, '0') === 0) { // вырезаем лидирующие нули
@@ -28,6 +30,7 @@ class DetailNum extends AppModel {
 
 	public function findDetails($detail_nums, $lFindSame = true, $numType = false) {
 		$conditions = array('detail_num' => $detail_nums);
+		$limit = 500;
 		if (strpos(implode('', $detail_nums), '*') !== false) {
 			if (count($detail_nums) == 1) {
 				$conditions = array('detail_num LIKE ' => str_replace('*', '%', $detail_nums[0]));
@@ -41,8 +44,11 @@ class DetailNum extends AppModel {
 		if ($numType) {
 			$conditions['num_type'] = $numType;
 		}
-		$aRows = $this->find('all', compact('conditions'));
+		$aRows = $this->find('all', compact('conditions', 'limit'));
 		$product_ids = array_unique(Hash::extract($aRows, '{n}.DetailNum.product_id'));
+		if (count($product_ids) > 100) {
+			$this->lReachLimit = true;
+		}
 		if (!$lFindSame) {
 			return $product_ids;
 		}
@@ -51,9 +57,9 @@ class DetailNum extends AppModel {
 		if ($numType) {
 			$conditions['num_type'] = $numType;
 		}
-		$aRows = $this->find('all', compact('conditions'));
+		$aRows = $this->find('all', compact('conditions', 'limit'));
 		$nums = array_unique(Hash::extract($aRows, '{n}.DetailNum.detail_num'));
-		if (count($detail_nums) != count($nums) && count($nums) < 1000) {
+		if (count($detail_nums) != count($nums) && count($nums) < 500) {
 			return $this->findDetails($nums, $lFindSame, $numType);
 		}
 		return $product_ids;
@@ -68,5 +74,9 @@ class DetailNum extends AppModel {
 			}
 		}
 		return preg_match('/.*[0-9]+.*/', $q) && true;
+	}
+
+	public function isReachLimit() {
+		return $this->lReachLimit;
 	}
 }
