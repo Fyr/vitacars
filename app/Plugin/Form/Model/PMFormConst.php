@@ -10,7 +10,7 @@ class PMFormConst extends AppModel {
 			'message' => 'Неверный формат ключа. Пример: A1, B1, AA1, BB1, CCC'
 		),
 		'value' => array(
-			'rule' => 'alphaNumeric',
+			'rule' => '/^[0-9\.]+$/',
 			'required' => true,
 			'message' => 'Допускаются только цифры и точка'
 		),
