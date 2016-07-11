@@ -16,6 +16,7 @@ class ObjectTypeHelper extends AppHelper {
                 'FormConst' => __('Constants'),
                 'User' => __('Users'),
                 'Brand' => __('Brands'),
+                'Order' => __('Orders'),
             ), 
             'create' => array(
                 'Article' => __('Create Article'),
@@ -28,6 +29,7 @@ class ObjectTypeHelper extends AppHelper {
                 'FormConst' => __('Create constant'),
                 'User' => __('Create User'),
                 'Brand' => __('Create Brand'),
+                'Order' => __('Upload Order'),
             ),
             'edit' => array(
                 'Article' => __('Edit Article'),
@@ -40,6 +42,7 @@ class ObjectTypeHelper extends AppHelper {
                 'FormConst' => __('Edit constant'),
                 'User' => __('Edit User'),
                 'Brand' => __('Edit Brand'),
+                'Order' => __('Edit Order'),
             )
         );
         return $Titles;

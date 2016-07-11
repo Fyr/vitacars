@@ -25,7 +25,7 @@
 <?
 	echo $this->PHForm->input('sort_order', array('class' => 'input-mini'));
 	echo $this->PHForm->input('required');
-	echo $this->PHForm->input('exported');
+	echo $this->PHForm->input('is_price');
 	echo $this->element('admin_content_end');
 	echo $this->element('Form.form_actions', array('backURL' => $this->Html->url(array('action' => 'index'))));
 	echo $this->PHForm->end();

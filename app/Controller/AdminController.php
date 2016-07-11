@@ -29,6 +29,7 @@ class AdminController extends AppController {
 				array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index')),
 				array('label' => __('Upload new products'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'uploadNewProducts')),
 				array('label' => __('Check products'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'checkProducts')),
+				array('label' => __('Orders'), 'href' => array('controller' => 'AdminOrders', 'action' => 'index')),
 			)),
 			'Reports' => array('label' => __('Reports'), 'href' => '', 'submenu' => array(
 				array('label' => __('Sales by period'), 'href' => array('controller' => 'AdminReports', 'action' => 'sales')),
@@ -53,10 +54,16 @@ class AdminController extends AppController {
 			if (AuthComponent::user('view_brands')) {
 				$this->aNavBar['Products']['submenu']['Brands'] = array('label' => __('Brands'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Brand'));
 			}
-			if (AuthComponent::user('load_counters')) {
-				$this->aNavBar['Upload'] = array('label' => __('Uploadings'), 'href' => '', 'submenu' => array(
-					array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index')),
-				));
+			if (AuthComponent::user('load_counters') || AuthComponent::user('orders')) {
+				$this->aNavBar['Upload'] = array('label' => __('Uploadings'), 'href' => '', 'submenu' => array());
+
+				if (AuthComponent::user('load_counters')) {
+					$this->aNavBar['Upload']['submenu'][] = array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index'));
+				}
+				if (AuthComponent::user('orders')) {
+					$this->aNavBar['Upload']['submenu'][] = array('label' => __('Orders'), 'href' => array('controller' => 'AdminOrders', 'action' => 'index'));
+				}
+
 			}
 		}
 		
@@ -73,9 +80,16 @@ class AdminController extends AppController {
 	public function isAdmin() {
 		return AuthComponent::user('id') == 1;
 	}
+
+	public function currUser($key = '') {
+		if ($key) {
+			return AuthComponent::user($key);
+		}
+		return AuthComponent::user();
+	}
 	
-	protected function _getFieldRights() {
-		$field_rights = AuthComponent::user('field_rights');
+	protected function _getRights($field = 'field') {
+		$field_rights = $this->currUser($field.'_rights');
 		return ($field_rights) ? explode(',', $field_rights) : array();
 	}
 	

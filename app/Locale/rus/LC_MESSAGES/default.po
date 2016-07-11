@@ -508,6 +508,9 @@ msgstr "Адрес"
 msgid "Discount"
 msgstr "Скидка, %"
 
+msgid "Sum"
+msgstr "Сумма"
+
 msgid "Be sure to recalculate formulas"
 msgstr "Не забудьте пересчитать формулы"
 

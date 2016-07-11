@@ -8,6 +8,7 @@
 		'General' => $this->element('/AdminUsers/admin_edit_User'),
 		'Contacts' => $this->element('/AdminUsers/admin_edit_UserContacts'),
 		'Rights' => $this->element('/AdminUsers/admin_edit_UserRights'),
+		// 'Price Rights' => $this->element('/AdminUsers/admin_edit_PriceRights'),
 		'Brands' => $this->element('/AdminUsers/admin_edit_UserBrands'),
 	);
 	echo $this->element('admin_tabs', compact('aTabs'));
@@ -18,13 +19,20 @@
 <script type="text/javascript">
 $(document).ready(function(){
 	var $grid = $('#grid_FormField');
+	var $grid1 = $('#grid_PriceField');
 	var $grid2 = $('#grid_Brand');
 	
 	var vals = $('#UserFieldRights').val().split(',');
 	for(var i = 0; i < vals.length; i++) {
 		$('.grid-chbx-row[value=' + vals[i] + ']', $grid).click();
 	}
-	
+
+	/*
+	var vals = $('#UserPriceRights').val().split(',');
+	for(var i = 0; i < vals.length; i++) {
+		$('.grid-chbx-row[value=' + vals[i] + ']', $grid1).click();
+	}
+	*/
 	var vals = $('#UserBrandRights').val().split(',');
 	for(var i = 0; i < vals.length; i++) {
 		$('.grid-chbx-row[value=' + vals[i] + ']', $grid2).click();
@@ -36,6 +44,12 @@ $(document).ready(function(){
 			vals.push($(this).val());
 		});
 		$('#UserFieldRights').val(vals.join(','));
+
+		var vals = [];
+		$('.grid-chbx-row:checked', $grid1).each(function(){
+			vals.push($(this).val());
+		});
+		//$('#UserPriceRights').val(vals.join(','));
 		
 		var vals = [];
 		$('.grid-chbx-row:checked', $grid2).each(function(){

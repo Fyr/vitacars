@@ -51,13 +51,13 @@ class PHTableGridHelper extends AppHelper {
 		$this->Html->script(array('/Table/js/grid', '/Table/js/format'), array('inline' => false));
 
 		$this->paginate = $this->viewVar('_paginate.'.$modelName);
-		$container_id = 'grid_'.$modelName;
 		$paging = array(
 			'curr' => intval($this->Paginator->counter(array('model' => $modelName, 'format' => '{:page}'))),
 			'total' => intval($this->Paginator->counter(array('model' => $modelName, 'format' => '{:pages}'))),
 			'count' => $this->Paginator->counter(array('model' => $modelName, 'format' => __('Shown {:start}-{:end} of {:count} records'))),
 		);
 		$defaults = Hash::get($this->paginate, '_defaults');
+		$options['container_id'] = (isset($options['container_id'])) ? $options['container_id'] : 'grid_'.$modelName;
 		$options['baseURL'] = (isset($options['baseURL'])) ? $options['baseURL'] : $this->Html->url(array(''));
 		$options['actions'] = (isset($options['actions'])) ? $options['actions'] : $this->getDefaultActions($modelName);
 		
@@ -71,12 +71,12 @@ class PHTableGridHelper extends AppHelper {
 		}
 		
 		$html = '
-<span id="'.$container_id.'"></span>
+<span id="'.$options['container_id'].'"></span>
 <script type="text/javascript">
-var '.$container_id.' = null;
+var '.$options['container_id'].' = null;
 $(document).ready(function(){
 	var config = {
-		container: "#'.$container_id.'",
+		container: "#'.$options['container_id'].'",
 		columns: '.json_encode(array_values($options['columns'])).',
 		data: '.json_encode($options['data']).',
 		paging: '.json_encode($paging).',
@@ -84,7 +84,7 @@ $(document).ready(function(){
 		defaults: '.json_encode($defaults).',
 		actions: '.json_encode($actions).'
 	};
-	'.$container_id.' = new Grid(config);
+	'.$options['container_id'].' = new Grid(config);
 });
 </script>
 ';

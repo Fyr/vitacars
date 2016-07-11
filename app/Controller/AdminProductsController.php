@@ -148,7 +148,12 @@ class AdminProductsController extends AdminController {
 				$skladSNG = 'PMFormData.fk_'.Configure::read('Params.skladSNG');
 				$skladOrig = 'PMFormData.fk_'.Configure::read('Params.skladOrig');
 				$skladEur = 'PMFormData.fk_'.Configure::read('Params.skladEur');
-				$conditions = array('brand_id' => explode(',', $brands), 'AND' => array('OR' => array($skladSNG, $skladOrig, $skladEur)));
+
+				$conditions = array('brand_id' => explode(',', $brands));
+				if ($this->request->data('nonZeroAmount')) {
+					$conditions['AND'] = array('OR' => array($skladSNG, $skladOrig, $skladEur));
+				}
+
 				$this->Product->unbindModel(array(
 					'belongsTo' => array('Category', 'Subcategory', 'Brand'),
 					'hasOne' => array('Media', 'Seo', 'Search')
