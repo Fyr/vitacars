@@ -26,7 +26,9 @@ class RateController extends AppController {
 				$curr = (string) $rate->CharCode;
 				if (in_array($curr, $aCurrency)) {
 					$kurs = floatval($rate->Rate);
-
+					if ($curr == 'RUB') {
+						$kurs = $kurs / 100;
+					}
 					$row = $this->PMFormConst->findByKey($curr.'0');
 					if (!$row) {
 						throw new Exception("No constant key `{$curr}0`");

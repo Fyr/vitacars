@@ -2,8 +2,9 @@
 App::uses('Shell', 'Console');
 App::uses('AppShell', 'Console/Command');
 App::uses('CsvReader', 'Vendor');
+
 class UploadCountersTask extends AppShell {
-    public $uses = array('Product', 'Form.PMFormConst', 'Form.PMFormData', 'Form.PMFormField', 'DetailNum');
+    public $uses = array('Product', 'Form.PMFormConst', 'Form.PMFormData', 'Form.PMFormField', 'DetailNum', 'ProductRemain');
 
     public function execute() {
         $this->Task->setProgress($this->id, 0, $this->params['set_zero'] ? 3 : 2); // 3 subtasks

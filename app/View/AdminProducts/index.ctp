@@ -23,7 +23,12 @@
 	$actions['checked']['print_brand']['href'] = $this->Html->url(array('action' => 'printXls'));
 	$actions['checked']['print_brand']['label'] = 'Печать брендов (фильтр)';
 	$actions['checked']['print_brand']['icon'] = 'icon-color icon-print';
-	$actions['checked']['print_brand']['onclick'] = 'sendToPrintBrands();return false;';
+	$actions['checked']['print_brand']['onclick'] = 'sendToPrintBrands(1);return false;';
+
+	$actions['checked']['print_brand_all']['href'] = $this->Html->url(array('action' => 'printXls'));
+	$actions['checked']['print_brand_all']['label'] = 'Печать брендов (нул.остатки)';
+	$actions['checked']['print_brand_all']['icon'] = 'icon-color icon-print';
+	$actions['checked']['print_brand_all']['onclick'] = 'sendToPrintBrands();return false;';
 
     if ($isAdmin) {
     	$actions['table']['add']['href'] = $createURL;
@@ -197,9 +202,6 @@
 	#grid_Product .grid .fixed { position: fixed; top: 43px; left: 40px; margin-left: 1px;}
 	#grid_Product .grid .duplicateHead .grid-filter { display: none !important;}
 	#grid_Product .grid .originalHead .grid-filter { background: #fff;}
-	.detail-nums a {display: block; width: 90px;}
-	/* .grid td.format-text span.caret {width: 0; white-space: normal; text-overflow: clip; overflow: visible;}
-	*/
 </style>
 
 <script type="text/javascript">
@@ -211,7 +213,6 @@ $(document).ready(function(){
 		}
 		return getFilterURL(params);
 	}
-
 
 	var tableHeadWidth = $('#grid_Product .grid thead').width();
 	
@@ -333,9 +334,10 @@ function sendToPrint() {
     $('#printXls').submit();
 }
 
-function sendToPrintBrands() {
+function sendToPrintBrands(nonZeroAmount) {
 	$('input[name="brandID"]').val($('#brand').val().join(','));
 	$('input[name="aID"]').val('');
+	$('input[name="nonZeroAmount"]').val(nonZeroAmount);
 	$('#printXls').submit();
 }
 
@@ -343,4 +345,5 @@ function sendToPrintBrands() {
 <form id="printXls" method="post" action="<?= $this->Html->url(array('controller' => 'AdminProducts', 'action' => 'printXls')) ?>">
 	<input type="hidden" name="aID" />
 	<input type="hidden" name="brandID" />
+	<input type="hidden" name="nonZeroAmount" />
 </form>

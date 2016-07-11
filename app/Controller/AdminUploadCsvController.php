@@ -96,7 +96,7 @@ class AdminUploadCsvController extends AdminController {
 				$status = $this->request->data('UploadCsv.status');
 				$set_zero = is_array($status) && in_array('set_zero', array_values($status));
 
-				$params = array('csv_file' => $_file, 'fieldRights' => $this->_getFieldRights(), 'set_zero' => $set_zero);
+				$params = array('csv_file' => $_file, 'fieldRights' => $this->_getRights(), 'set_zero' => $set_zero);
 				$id = $this->Task->add($user_id, 'UploadCounters', $params);
 				$this->Task->runBkg($id);
 				$this->redirect(array('action' => 'index'));
