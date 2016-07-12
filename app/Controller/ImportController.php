@@ -11,21 +11,30 @@ class ImportController extends AppController {
 	public function index($file = '') {
 		$this->autoRender = false;
 		try {
+			$this->Product->trxBegin();
+			$this->Product->unbindModel(array(
+				'belongsTo' => array('Category', 'Subcategory', 'Brand'),
+				'hasOne' => array('Media', 'Seo', 'Search')
+			), false);
+
 			if (!$file) {
 				throw new Exception(__('No file passed'));
-			}	
-			
+			}
+
+			if (substr($file, 0, 7) !== 'dlt_mgr') {
+				throw new Exception(__('Incorrect file name `%s`', $file));
+			}
+
 			$fullPath = Configure::read('import.folder').$file;
 			if (!file_exists($fullPath)) {
 				throw new Exception(__('File does not exist `%s`', $fullPath));
 			}
-			
+
 			$this->_writeLog('IMPORT', $file.' Size: '.filesize($fullPath).'(bytes) Path: '.$fullPath);
 			
-			$this->Product->getDataSource()->begin();
 			$data = $this->_parseCsv($fullPath);
 			$this->_processImport($data);
-			$this->Product->getDataSource()->commit();
+			$this->Product->trxCommit();
 			
 			$this->_writeLog('PROCESSED', count($data['data']).' product(s)');
 			
@@ -46,7 +55,7 @@ class ImportController extends AppController {
 			
 			echo 'SUCCESS';
 		} catch (Exception $e) {
-			$this->Product->getDataSource()->rollback();
+			$this->Product->trxRollback();
 			$this->_writeLog('ERROR', $e->getMessage());
 			echo 'ERROR';
 		}
