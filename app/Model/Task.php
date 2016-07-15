@@ -36,7 +36,8 @@ class Task extends AppModel {
 		$this->clear();
 		$params = serialize($aParams);
 		$active = 1;
-		$this->save(compact('task_name', 'params', 'parent_id', 'user_id', 'active'));
+		$status = self::CREATED;
+		$this->save(compact('task_name', 'status', 'params', 'parent_id', 'user_id', 'active'));
 
 		// кешируем только необходимую инфу
 		$task = array(
@@ -153,7 +154,9 @@ class Task extends AppModel {
 	public function close($id) {
 		$this->clear();
 		$this->save(array('id' => $id, 'active' => 0));
-		Cache::delete($id, 'tasks');
+		if (Cache::read($id, 'tasks')) { // safe deleting cache
+			Cache::delete($id, 'tasks');
+		}
 
 		$this->closeSubtasks($id);
 	}

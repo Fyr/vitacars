@@ -67,7 +67,8 @@ Configure::write('tmp_dir', ROOT.DS.APP_DIR.DS.'tmp'.DS);
 
 Configure::write('import', array(
 	'folder' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'csv'.DS,
-	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'import.log'
+	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'import.log',
+	'db_log' => false
 ));
 
 Configure::write('domains', array('by', 'ru', 'bg'));
