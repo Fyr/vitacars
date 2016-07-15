@@ -27,7 +27,18 @@ class Import1CTask extends AppShell {
             throw new Exception(__('Incorrect CSV data'));
         }
 
-        $this->Task->setProgress($this->id, 0, count($data['data']));
+        // подсуммировать остатки по одинаковым кодам
+        $aData = array();
+        foreach($data['data'] as $i => $_data) {
+            $key = $data['keys'][1];
+            if (!isset($aData[$_data['code']])) {
+                $aData[$_data['code']] = 0;
+            }
+            $aData[$_data['code']]+= $_data[$key];
+        }
+        fdebug($aData);
+
+        $this->Task->setProgress($this->id, 0, count($aData));
         $status = $this->Task->getStatus($this->id);
         if ($status !== Task::ABORT) { // могли прервать таск до его начала - проверяем, иначе перетрем событие ABORT
             $this->Task->setStatus($this->id, Task::RUN);
@@ -36,20 +47,22 @@ class Import1CTask extends AppShell {
         $this->Logger->write('PROCESS', array('TaskID' => $this->id, 'File' => $this->params['csv_file']));
 
         $aID = array();
-        foreach($data['data'] as $i => $_data) {
+        $i = 0;
+        foreach($aData as $code => $val) {
+            $i++;
             $status = $this->Task->getStatus($this->id);
             if ($status == Task::ABORT) {
                 $this->Logger->write('ABORTED', array('TaskID' => $this->id, 'File' => $this->params['csv_file']));
                 throw new Exception(__('Processing was aborted by user'));
             }
 
-            $product = $this->Product->findByCode($_data['code']);
+            $product = $this->Product->findByCode($code);
             $key = $data['keys'][1];
             $logData = array(
-                'code' => $_data['code'],
+                'code' => $code,
                 'fk_n' => $data['keys'][1],
-                'val' => $_data[$key],
-                'data' => implode(';', $_data),
+                'val' => $val,
+                'data' => implode(';', $data['data'][$i - 1]),
                 'status' => 'ERROR'
             );
             if ($product) {
@@ -69,7 +82,7 @@ class Import1CTask extends AppShell {
                 $this->ImportLog->save($logData);
             }
 
-            $this->Task->setProgress($this->id, $i + 1);
+            $this->Task->setProgress($this->id, $i);
         }
 
         $this->Task->setData($this->id, 'xdata', $aID);
