@@ -6,7 +6,7 @@ App::uses('Product', 'Model');
 App::uses('Logger', 'Model');
 App::uses('PMFormData', 'Form.Model');
 class Import1CTask extends AppShell {
-    public $uses = array('Product', 'Form.PMFormData', 'Logger');
+    public $uses = array('Product', 'Form.PMFormData', 'Logger', 'ImportLog');
 
     public function execute() {
         $this->Logger->init(Configure::read('import.log'));
@@ -36,7 +36,6 @@ class Import1CTask extends AppShell {
             }
             $aData[$_data['code']]+= $_data[$key];
         }
-        fdebug($aData);
 
         $this->Task->setProgress($this->id, 0, count($aData));
         $status = $this->Task->getStatus($this->id);
@@ -66,9 +65,9 @@ class Import1CTask extends AppShell {
                 'status' => 'ERROR'
             );
             if ($product) {
-                $this->PMFormData->trxBegin();
-                $this->PMFormData->save(array('id' => $product['PMFormData']['id'], $key => $_data[$key]));
-                $this->PMFormData->trxCommit();
+                //$this->PMFormData->trxBegin();
+                $this->PMFormData->save(array('id' => $product['PMFormData']['id'], $key => $val));
+                // $this->PMFormData->trxCommit();
 
                 $logData['product_id'] = $product['Product']['id'];
                 $logData['form_data_id'] = $product['PMFormData']['id'];

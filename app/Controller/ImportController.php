@@ -49,6 +49,7 @@ class ImportController extends AppController {
 					$this->Task->close($task['Task']['id']);
 				}
 			}
+			echo 'SUCCESS';
 
 		} catch (Exception $e) {
 			$this->Logger->write('ERROR', array('File' => $file, 'Error' => $e->getMessage()));
