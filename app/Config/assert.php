@@ -43,7 +43,7 @@ class Assert {
 		return $aSample;
 	}
 
-	static private function cmpAsStr($_result, $_sample) {
+	static public function cmpAsStr($_result, $_sample) {
 		$status = -1;
 		$aSample = array();
 		$aResult = array();

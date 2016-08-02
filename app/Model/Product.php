@@ -50,11 +50,9 @@ class Product extends Article {
 	);
 	
 	public $objectType = 'Product';
-	protected $DetailNum;
 
 	public function afterSave($created, $options = array()) {
-
-		$this->loadModel('DetailNum');
+		$this->DetailNum = $this->loadModel('DetailNum');
 
 		$subcategory = array();
 		if (isset($this->data['Product']['subcat_id']) && $this->data['Product']['subcat_id']) {
@@ -90,7 +88,6 @@ class Product extends Article {
 		)));
 		$this->Search->save($this->data['Search']);
 
-		$this->loadModel('DetailNum');
 		$this->DetailNum->deleteAll(array('product_id' => $this->id));
 
 		$detail_nums = array();
