@@ -762,7 +762,7 @@ Grid = function(config) {
 		var pairs = [];
 		for(var key in params) {
 			// if (self.settings.baseURL) {
-				pairs.push(key + self.settings.valueDiv + decodeURI((params[key] + '').replace(/\//g, '-')));
+				pairs.push(key + self.settings.valueDiv + unescape((params[key] + '').replace(/\//g, '-')));
 			// } else {
 				// TODO: replace URL parts
 				// var re = new RegExp('/' + param + self.valueDiv + '/');
