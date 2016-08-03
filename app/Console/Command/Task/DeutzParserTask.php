@@ -1,131 +1,90 @@
 <?php
 App::uses('Shell', 'Console');
 App::uses('AppShell', 'Console/Command');
-App::uses('Curl', 'Vendor');
-App::uses('Curl', 'Vendor');
+App::uses('CsvReader', 'Vendor');
 App::import('Vendor', 'simple_html_dom');
 class DeutzParserTask extends AppShell {
     public $uses = array('Product', 'Form.PMFormData', 'DetailNum');
 
-    const FILE = 'parser.xls';
+    const FILE = 'parser.csv';
+    const REPORT = 'parser.xls';
     private $class = '';
 
     public function execute() {
-        $curl = new Curl();
-
-        $baseURL = 'http://www.technikexpert.net/motorenteile/deutz-khd?dir=asc&limit=26&order=position&p=';
-        $total = 5; // $total = 58060; // смотрю кол-во позиций и вручную делю на 26 (позиций на страницу)
-        $pages = ceil($total / 26);
+        $aData = CsvReader::parse(self::FILE);
+        $total = count($aData['data']);
 
         $this->Product->unbindModel(array(
             'hasOne' => array('Media', 'Seo')
         ));
 
-        fdebug($this->_reportHeader(), self::FILE, false);
+        fdebug($this->_reportHeader(), self::REPORT, false);
 
         $item = 0;
         $this->Task->setProgress($this->id, 0, $total);
         $this->Task->setStatus($this->id, Task::RUN);
-        for($page = 1; $page<= $pages; $page++) {
-            $curl->setUrl($baseURL . $page)
-                ->setOption(CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0');
-            $html = $curl->sendRequest();
-            fdebug($html, 'page.log');
-            $html = str_get_html($html);
-            $ol = $html->find('#products-list', 0);
-            if ($ol) {
-                $list = $ol->find('li.item h2.product-name a');
-                if ($list) {
-                    foreach ($ol->find('li.item h2.product-name a') as $a) {
-                        $this->_parsePage($a->href);
-                        $item++;
-                        $this->Task->setProgress($this->id, $item);
-                        if ($item >= $total) {
-                            break;
-                        }
-                    }
-                }
+
+        foreach ($aData['data'] as $_item) {
+            $status = $this->Task->getStatus($this->id);
+            if ($status == Task::ABORT) {
+                throw new Exception(__('Processing was aborted by user'));
+            }
+
+            $this->_parseItem($_item);
+            $item++;
+            $this->Task->setProgress($this->id, $item);
+            if ($item >= $total) {
+                break;
             }
         }
 
-        fdebug($this->_reportFooter(), self::FILE);
+        fdebug($this->_reportFooter(), self::REPORT);
 
         $this->Task->setData($this->id, 'xdata', $total);
         $this->Task->setStatus($this->id, Task::DONE);
     }
 
-    private function _parsePage($url) {
-        $curl = new Curl($url);
-        $curl->setOption(CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0');
-        $html = $curl->sendRequest();
+    private function _parseItem($item) {
+        $title = $item['title'];
+        list($code1, $code2) = explode(' ', str_replace('DEUTZ / KHD ', '', $title));
+        $code = $code1.$code2;
 
-        $html = str_get_html($html);
-        $div = $html->find('.product-view .padder .std', 0);
-        $aInfo = explode('<br/>', $div->innertext);
-        fdebug('5!');
-        if ($aInfo) {
-            $title = trim($aInfo[0]);
+        // запомнить что получили на входе для контроля (в отчет)
+        $raw_nums = 'DEUTZ / KHD '.$item['detail_nums'];
+        if (trim($item['cross_nums'])) {
+            $raw_nums.= "\n" . str_replace('|', "\n", $item['cross_nums']);
+        }
 
-            list($code1, $code2) = explode(' ', str_replace('DEUTZ / KHD ', '', $title));
-            $code = $code1.$code2;
-            fdebug('6!');
-            fdebug($code);
-            fdebug($aInfo);
-            if (count($aInfo) > 4) {
-                fdebug('7!');
-                // запомнить что получили на входе для контроля (в отчет)
-                $raw_nums = array();
-                for($i = 4; $i < count($aInfo); $i++) {
-                    if ($raw_num = trim($aInfo[$i])) {
-                        $raw_nums[] = $raw_num;
-                    }
-                }
-                $raw_nums = implode("\n", $raw_nums);
+        $detail_nums = $this->stripSpaces('DEUTZ / KHD '.$item['detail_nums']);
+        $cross_nums = array();
+        if (trim($item['cross_nums'])) {
+            $cross_nums = explode('|', $item['cross_nums']);
 
-                /*
-                $detail_nums = str_replace(array('DEUTZ / KHD ', ', '), array('', ','), $aInfo[4]);
-
-                // очистить номера от пробелов и дублей
-                $detail_nums = array_unique(explode(',', str_replace(' ', '', $detail_nums)));
-                */
-                fdebug('1!');
-                $detail_nums = $this->stripSpaces($aInfo[4]);
-                fdebug('2!');
-                $cross_nums = array();
-                for($i = 5; $i < count($aInfo); $i++) {
-                    if (isset($aInfo[$i]) && trim($aInfo[$i])) {
-                        $cross_nums[] = trim($aInfo[$i]);
-                    }
-                }
-
-                // очистить кросс-номера от пробелов и дублей
-                foreach($cross_nums as &$str) {
-                    $str = $this->stripSpaces($str);
-                }
-                unset($str);
-
-                fdebug('3!'.$code.'!');
-                $product = $this->Product->findByCode($code);
-                if ($product) {
-                    fdebug('4!');
-                    $key = 'fk_'.Configure::read('Params.crossNumber');
-                    $val = implode(', ', $detail_nums);
-                    if ($cross_nums) {
-                        $val = $val.", \n".implode(", \n", $cross_nums).'.';
-                    }
-
-                    // Пересохраняем продукт, чтобы переформировать поисковую инфу
-                    // иначе снова придется запускать тяжелые скрипты
-                    $product['PMFormData'][$key] = $val;
-                    $data = array(
-                        'Product' => $product['Product'],
-                        'PMFormData' => $product['PMFormData']
-                    );
-                    // $this->Product->saveAll($data);
-                    $html = $this->_reportDetail(array('product' => $product, 'rawNumber' => $raw_nums, 'crossNumber' => $val, 'url' => $url));
-                    fdebug($html, self::FILE);
-                }
+            // очистить кросс-номера от пробелов и дублей
+            foreach ($cross_nums as &$str) {
+                $str = $this->stripSpaces($str);
             }
+            unset($str);
+        }
+
+        $product = $this->Product->findByCode($code);
+        if ($product) {
+            $key = 'fk_'.Configure::read('Params.crossNumber');
+            $val = $detail_nums;
+            if ($cross_nums) {
+                $val = $val.", \n".implode(", \n", $cross_nums).'.';
+            }
+
+            // Пересохраняем продукт, чтобы переформировать поисковую инфу
+            // иначе снова придется запускать тяжелые скрипты
+            $product['PMFormData'][$key] = $val;
+            $data = array(
+                'Product' => $product['Product'],
+                'PMFormData' => $product['PMFormData']
+            );
+            $this->Product->saveAll($data);
+            $html = $this->_reportDetail(array('product' => $product, 'rawNumber' => $raw_nums, 'crossNumber' => $val, 'url' => $item['url']));
+            fdebug($html, self::REPORT);
         }
         return false;
     }

@@ -484,6 +484,7 @@ class AdminUpdateController extends AdminController {
 		$this->layout = 'admin';
 		$this->autoRender = true;
 		$this->loadModel('Task');
+
 		$task = $this->Task->getActiveTask('DeutzParser', 0);
 		if ($task) {
 			$id = Hash::get($task, 'Task.id');
