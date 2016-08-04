@@ -87,8 +87,10 @@ class AdminContentController extends AdminController {
 				}
 				
 				// по моему это не нужно
+				/*
 				$fields = $this->request->data('FormKey.field_id');
 				$this->PMForm->bindFields($formID, ($fields) ? explode(',', $fields) : array());
+				*/
 			}
 			if (in_array($objectType, array('Category', 'Subcategory', 'Brand'))) {
 				$this->loadModel('Seo.Seo');
@@ -123,14 +125,16 @@ class AdminContentController extends AdminController {
 	    	$this->set('formKeys', $formKeys);
 		}
 		
-		if ($id && in_array($objectType, array('Category', 'Subcategory', 'Brand'))) {
-			$this->loadModel('Seo.Seo');
-			$seo = $this->Seo->getObject($objectType, $id);
-			if ($seo) {
-				$this->request->data('Seo', $seo['Seo']);
+		if (in_array($objectType, array('Category', 'Subcategory', 'Brand'))) {
+			if ($id) {
+				$this->loadModel('Seo.Seo');
+				$seo = $this->Seo->getObject($objectType, $id);
+				if ($seo) {
+					$this->request->data('Seo', $seo['Seo']);
+				}
+			} else {
+				$this->request->data('Article.sorting', '0');
 			}
-			// $this->request->data('Seo.title', Hash::get($seo, 'Seo.title');
-				
 		}
 	}
 }

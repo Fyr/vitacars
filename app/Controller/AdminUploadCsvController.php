@@ -2,8 +2,8 @@
 App::uses('AdminController', 'Controller');
 App::uses('Product', 'Model');
 App::uses('DetailNum', 'Model');
-App::uses('PMFormValue', 'Form.Model');
 App::uses('PMFormField', 'Form.Model');
+App::uses('PMFormData', 'Form.Model');
 class AdminUploadCsvController extends AdminController {
     public $name = 'AdminUploadCsv';
     public $layout = 'admin';

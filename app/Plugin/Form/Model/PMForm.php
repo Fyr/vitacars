@@ -1,7 +1,6 @@
 <?
 App::uses('AppModel', 'Model');
 App::uses('PMFormKey', 'Form.Model');
-App::uses('PMFormValue', 'Form.Model');
 App::uses('PMFormField', 'Form.Model');
 class PMForm extends AppModel {
 	public $useTable = 'forms';
@@ -23,8 +22,6 @@ class PMForm extends AppModel {
 		$aID = $this->getFormKeys($formID);
 		
 		$delID = array_values(array_diff($aID, $aFieldID)); // fields to remove from form
-		$this->PMFormValue = new PMFormValue();
-		$this->PMFormValue->deleteAll(array('PMFormValue.form_id' => $formID, 'PMFormValue.field_id' => $delID)); // remove values from all forms of this type
 		$this->FormKey->deleteAll(array('form_id' => $formID, 'field_id' => $delID));
 		
 		$addID = array_diff($aFieldID, $aID); // fields to add to form
