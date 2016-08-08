@@ -594,3 +594,6 @@ msgstr "Пр.цены"
 
 msgid "Rates refreshing"
 msgstr "Обновление курсов"
+
+msgid "%s products have been deleted"
+msgstr "%s позиций было удалено"

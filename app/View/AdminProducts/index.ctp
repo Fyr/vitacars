@@ -7,14 +7,13 @@
     $createTitle = $this->ObjectType->getTitle('create', $objectType);
 
     $actions = $this->PHTableGrid->getDefaultActions($objectType);
+	// unset($actions['checked'][0]);
 /*
-	unset($actions['checked'][0]);
 	$actions['checked']['del']['href'] = 'javascript:;';
 	$actions['checked']['del']['label'] = __('Delete');
 	$actions['checked']['del']['icon'] = 'icon-color icon-delete';
 	$actions['checked']['del']['onclick'] = 'deleteChecked();return false;';
 */
-	// $actions['checked']['del'] = $this->Html->link('!!!');
     $actions['checked']['print']['href'] = $this->Html->url(array('action' => 'printXls'));
     $actions['checked']['print']['label'] = __('Print');
     $actions['checked']['print']['icon'] = 'icon-color icon-print';
@@ -212,6 +211,22 @@ $(document).ready(function(){
 			params['Product.brand_id'] = $('#brand').val().join(' ');
 		}
 		return getFilterURL(params);
+	}
+
+	var deleteChecked = grid_Product.deleteChecked;
+	grid_Product.deleteChecked = function(deleteURL) {
+		if (confirm('Вы уверены, что хотите удалить помеченные записи?')) {
+			var checkedAll = $('.grid-chbx-checkAll:checked').length && $('.grid-chbx-row:checked').length == $('.grid-chbx-row').length;
+			console.log($('#brand').val(), $('#motor').val());
+			var brandChecked = ($('#brand').val() && $('#brand').val().length) ? $('#brand').val().join(',') : '';
+			var motorChecked = ($('#motor').val() && $('#motor').val().length) ? $('#motor').val().join(',') : '';
+			if (checkedAll && !$('#filterByNumber input').val() && (brandChecked || motorChecked)) {
+				deleteURL = deleteURL.replace(/\{\$id\}/, '') + '&brand_id=' + brandChecked + '&motor=' + motorChecked;
+				window.location.href = deleteURL + '&backURL=' + this.getURL();
+			} else {
+				deleteChecked(deleteURL);
+			}
+		}
 	}
 
 	var tableHeadWidth = $('#grid_Product .grid thead').width();

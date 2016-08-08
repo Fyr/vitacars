@@ -388,4 +388,41 @@ class AdminProductsController extends AdminController {
 			$this->set('gpzError', $e->getMessage());
 		}
 	}
+
+	public function delete($id = '')
+	{
+		ignore_user_abort(true);
+		set_time_limit(0);
+
+		$brand_id = $this->request->query('brand_id');
+		$motor = $this->request->query('motor');
+		$conditions = array();
+		if ($brand_id || $motor) {
+			$ors = array();
+			if ($brand_id) {
+				$conditions[] = array('Product.brand_id' => explode(',', $brand_id));
+			}
+			if ($motor) {
+				foreach(explode(',', $motor) as $_motor) {
+					$ors[] = 'PMFormData.fk_' . Configure::read('Params.motor') . ' LIKE "%' . $_motor . '%"';
+				}
+				$conditions[] = array('OR' => $ors);
+			}
+		} elseif ($id) {
+			$ids = explode(',', $id);
+			$conditions = array('Product.id' => $ids);
+		}
+
+		if ($conditions) {
+			$total = $this->Product->find('count', compact('conditions'));
+			$this->Product->deleteAll($conditions, true, true);
+			$this->setFlash(__('%s products have been deleted', $total), 'success');
+		}
+
+		if ($backURL = $this->request->query('backURL')) {
+			$this->redirect($backURL);
+			return;
+		}
+		$this->redirect(array('controller' => 'AdminProduct', 'action' => 'index'));
+	}
 }
