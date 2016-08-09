@@ -105,14 +105,25 @@ class Product extends Article {
 			}
 		}
 
-		$detail_nums = $this->DetailNum->stripList($this->data['Product']['detail_num']);
-		foreach($detail_nums as $dn) {
-			$dn = $this->DetailNum->strip($dn);
-			if ($this->DetailNum->isDigitWord($dn)) {
+		// убить пробелы внутри номеров для таблицы DetailNum - части номера записываются как отдельные номера
+		if (isset($this->data['Product']['detail_num'])) {
+			$detail_nums = $this->data['Product']['detail_num'];
+			$detail_nums = ($detail_nums) ? explode(',', $detail_nums) : array();
+			$_detail_nums = array();
+			foreach ($detail_nums as $dn) {
+				$_detail_nums[] = str_replace(' ', '', $dn);
+			}
+			$this->data['Product']['detail_num'] = implode(',', $_detail_nums);
+
+			$detail_nums = $this->DetailNum->stripList($this->data['Product']['detail_num']);
+			foreach ($detail_nums as $dn) {
 				$dn = $this->DetailNum->strip($dn);
-				$data = array('detail_num' => mb_strtolower($dn), 'product_id' => $this->id, 'num_type' => DetailNum::ORIG);
-				$this->DetailNum->clear();
-				$this->DetailNum->save($data);
+				if ($this->DetailNum->isDigitWord($dn)) {
+					$dn = $this->DetailNum->strip($dn);
+					$data = array('detail_num' => mb_strtolower($dn), 'product_id' => $this->id, 'num_type' => DetailNum::ORIG);
+					$this->DetailNum->clear();
+					$this->DetailNum->save($data);
+				}
 			}
 		}
 	}
