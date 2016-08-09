@@ -415,8 +415,16 @@ class AdminProductsController extends AdminController {
 
 		if ($conditions) {
 			$total = $this->Product->find('count', compact('conditions'));
-			$this->Product->deleteAll($conditions, true, true);
-			$this->setFlash(__('%s products have been deleted', $total), 'success');
+			try {
+				$this->Product->trxBegin();
+				$this->Product->deleteAll($conditions, true, true);
+				$this->Product->trxCommit();
+
+				$this->setFlash(__('%s products have been deleted', $total), 'success');
+			} catch (Exception $e) {
+				$this->setFlash(__('Process execution error! %s', $e->getMessage()), 'error');
+			}
+
 		}
 
 		if ($backURL = $this->request->query('backURL')) {
