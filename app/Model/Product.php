@@ -95,13 +95,18 @@ class Product extends Article {
 			$detail_nums = str_replace(array("\r\n", "\r", "\n"), ',', $this->data['PMFormData']['fk_60']);
 			$detail_nums = str_replace(array('   ', '  ', ' '), ',', $detail_nums);
 			$detail_nums = explode(',', $detail_nums);
+			$dns = array();
 			foreach($detail_nums as $dn) {
 				if ($this->DetailNum->isDigitWord($dn)) {
-					$dn = $this->DetailNum->strip($dn);
-					$data = array('detail_num' => mb_strtolower($dn), 'product_id' => $this->id, 'num_type' => DetailNum::CROSS);
-					$this->DetailNum->clear();
-					$this->DetailNum->save($data);
+					$dn = mb_strtolower($this->DetailNum->strip($dn));
+					$dns[] = $dn;
 				}
+			}
+
+			foreach(array_unique($dns) as $dn) {
+				$data = array('detail_num' => $dn, 'product_id' => $this->id, 'num_type' => DetailNum::CROSS);
+				$this->DetailNum->clear();
+				$this->DetailNum->save($data);
 			}
 		}
 
