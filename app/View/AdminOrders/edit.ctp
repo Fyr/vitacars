@@ -1,9 +1,26 @@
 <?
-    $this->Html->script('vendor/tmpl.min', array('inline' => false));
+    $this->Html->css(array('jquery.fancybox', 'bootstrap-multiselect'), array('inline' => false));
+    $this->Html->script(array('vendor/jquery/jquery.fancybox', 'vendor/bootstrap-multiselect', 'vendor/tmpl.min'), array('inline' => false));
+
     $objectType = 'OrderProduct';
     $title = 'Счет-фактура N '.$order['Order']['id'].' от '.date('d.m.Y', strtotime($order['Order']['created']));
     echo $this->element('admin_title', compact('title'));
-
+?>
+    <div style="margin: 10px 0;">
+        Фильтр:
+<?
+    $options = array(
+        'label' => false, 'class' => 'multiselect grid-filter-input', 'type' => 'select', 'multiple' => true,
+        'div' => array('class' => 'inline multiMotors'),
+        'options' => $aBrandOptions,
+        'value' => (isset($filterBrand)) ? $filterBrand :  null
+    );
+    echo $this->PHForm->input('brand', $options);
+?>
+        <button id="submitFilter" class="btn" type="button"><i class="icon icon-search"></i> Найти</button>
+        <button id="clearFilter" class="btn" type="button"><i class="icon icon-remove"></i> Очистить</button>
+    </div>
+<?
     $actions = $this->PHTableGrid->getDefaultActions($objectType);
     $actions['table'] = array();
     $actions['row'] = array();
@@ -106,7 +123,8 @@
         }
     }
     $data = $aRowset;
-    echo $this->PHTableGrid->render($objectType, compact('actions', 'columns', 'data'));
+    $baseURL = $this->Html->url(array('action' => 'edit', $order['Order']['id']));
+    echo $this->PHTableGrid->render($objectType, compact('actions', 'columns', 'data', 'baseURL'));
     $aNumbers = array_values(array_unique($aNumbers));
     $ofs = 7;
 ?>
@@ -303,6 +321,19 @@ $(function() {
             id = id.replace(/row_/, '');
             recalcRow(id);
         }
+    });
+
+    $('#brand').multiselect({
+        nonSelectedText: 'Выберите бренд',
+        nSelectedText: 'выбрано'
+    });
+
+    $('#submitFilter').click(function(){
+        window.location.href = grid_OrderProduct.getURL({'Product.brand_id': $('#brand').val()});
+    });
+
+    $('#clearFilter').click(function(){
+        window.location.href = grid_OrderProduct.settings.baseURL;
     });
 });
 </script>
