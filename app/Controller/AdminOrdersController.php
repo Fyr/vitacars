@@ -44,6 +44,14 @@ class AdminOrdersController extends AdminController {
 		}
 		$this->set(compact('order'));
 
+		if ($this->request->is(array('post', 'put'))) {
+			$xdata = $this->request->data('xdata');
+			$this->request->data('Order', array('id' => $order_id, 'xdata' => $xdata));
+			$this->Order->save($this->request->data('Order'));
+
+			$this->redirect(array('action' => 'details', $order_id));
+			return;
+		}
 		// Загружаем права доступа на поля для ордера
 		if ($this->isAdmin()) {
 			if ($this->currUser('id') != $user_id) { // если админ просматривает чужой

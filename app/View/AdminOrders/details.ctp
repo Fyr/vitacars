@@ -143,12 +143,24 @@
     $aNumbers = array_values(array_unique($aNumbers));
     $ofs = 7;
 ?>
-<div class="pull-left">
-    <a class="btn" href="<?=$this->Html->url(array('action' => 'index'))?>">
-        <i class="icon-chevron-left"></i>
-        К списку
-    </a>
-</div>
+
+<table class="form-3actions" width="100%">
+<tr>
+    <td width="30%">
+        <a class="btn" href="<?=$this->Html->url(array('action' => 'index'))?>">
+            <i class="icon-chevron-left"></i>
+            К списку
+        </a>
+    </td>
+    <td width="40%" align="center">
+        <?=$this->PHForm->button('<i class="icon-white icon-ok"></i> '.__('Save'), array('class' => 'btn btn-primary', 'name' => 'save', 'value' => 'save', 'onclick' => 'saveXData()'))?>
+    </td>
+    <td width="30%">
+        <?//$this->PHForm->submit(__('Apply').' <i class="icon-white icon-chevron-right"></i>', array('class' => 'btn btn-success pull-right', 'name' => 'apply', 'value' => 'apply'))?>
+    </td>
+</tr>
+</table>
+
 <style type="text/css">
     .grid-header {background: #eee !important; font-weight: bold; color: #000;}
     .grid-header span {cursor: pointer; }
@@ -328,7 +340,20 @@ $(function() {
         setTimeout(recalcAllRows, 200);
     });
 
+<?
+    if ($order['Order']['xdata']) {
+?>
+    var xdata = JSON.parse('<?=$order['Order']['xdata']?>');
+    applyXData(xdata);
+<?
+    } else {
+?>
+
     $('.grid-chbx-checkAll').click();
+<?
+    }
+?>
+
 
     $('#brand').multiselect({
         nonSelectedText: 'Выберите бренд',
@@ -356,18 +381,38 @@ $(function() {
     }
 });
 
-function sendToPrint() {
+function getXData() {
     var json_data = {};
     $('.grid-chbx-row:checked').each(function(){
         var id = this.value;
-        var price_id = $('[name="price-' + id + '"]:checked').prop('id').replace(/select/, '');
+        var price_id = $('[name="price-' + id + '"]:checked').prop('id');
         var qty = normalizeSum($('#qty-' + id).val());
-        var price = normalizeSum($('#' + price_id).html());
+        var price = normalizeSum($('#' + price_id.replace(/select/, '')).html());
         var discount = normalizeSum($('#discount-' + id).val());
-        json_data[id] = {price: price, qty: qty, discount: discount};
+        json_data[id] = {price: price, qty: qty, discount: discount, price_id: price_id};
     });
-    $('#json_data').val(JSON.stringify(json_data));
+    return json_data;
+}
+
+function saveXData() {
+    $('#xdata').val(JSON.stringify(getXData()));
+    $('#saveForm').submit();
+}
+
+function sendToPrint() {
+    $('#json_data').val(JSON.stringify(getXData()));
     $('#printForm').submit();
+}
+
+function applyXData(xdata) {
+    console.log(xdata);
+    for(var id in xdata) {
+        var row = xdata[id];
+        $('#qty-' + id).val(row.qty);
+        $('#discount-' + id).val(row.discount);
+        $('#' + row.price_id).click();
+        $('.grid-chbx-row[value="' + id + '"]').click();
+    }
 }
 </script>
 <script type="text/x-tmpl" id="grid-header">
@@ -378,6 +423,11 @@ function sendToPrint() {
     </td>
 </tr>
 </script>
+<form id="saveForm" action="<?=$this->Html->url(array('action' => 'details', $order['Order']['id']))?>" method="post">
+<?
+    echo $this->Form->hidden('xdata');
+?>
+</form>
 <form id="printForm" action="<?=$this->Html->url(array('action' => 'printXls', $order['Order']['id']))?>" method="post">
 <?
     echo $this->Form->hidden('json_data');
