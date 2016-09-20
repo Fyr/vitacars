@@ -46,11 +46,11 @@ define('SEPARATOR_DEICHARGE', '&nbsp;');
 define('SEPARATOR_DECIMAL', ',');
 
 Configure::write('Params', array(
-	'color' => (TEST_ENV) ? 23 : 43,
+	'color' => 43,
 	'A1' => 22,
-	'A2' => (TEST_ENV) ? 19 : 27,
-	'incomeY' => (TEST_ENV) ? 26 : 27,
-	'outcomeY' => (TEST_ENV) ? 27 : 32,
+	'A2' => 27,
+	'incomeY' => 27,
+	'outcomeY' => 32,
 	'crossNumber' => 60,
 	'motor' => 6,
 	'motorTS' => 34,

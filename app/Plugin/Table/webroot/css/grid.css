@@ -189,9 +189,12 @@ td.align-right {
 .grid .grid-row.legend-red td {
 	background-color: #fdd !important;
 }
-.grid .grid-row.legend-red.grid-row-selected td, .grid .grid-row.legend-yellow.grid-row-selected td {
+.grid .grid-row.legend-red.grid-row-selected td, .grid .grid-row.legend-yellow.grid-row-selected td, .grid .grid-row.legend-green.grid-row-selected td {
 	background-color: #a2bdff  !important;
 }
 .grid .grid-row.legend-yellow td {
 	background-color: #ffd !important;
+}
+.grid .grid-row.legend-green td {
+	background-color: #bdb !important;
 }

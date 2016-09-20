@@ -6,10 +6,27 @@
     $actions = $this->PHTableGrid->getDefaultActions($objectType);
     $actions['table']['add']['href'] = $createURL;
     $actions['table']['add']['label'] = $createTitle;
+
+    $detailURL = $this->Html->url(array('action' => 'details')).'/{$id}';
+    $actions['row']['info'] = $this->Html->link('', $detailURL, array('class' => 'icon-color icon-open-folder', 'title' => 'Посмотреть позиции'));
     
     $backURL = $this->Html->url(array('action' => 'index'));
     $deleteURL = $this->Html->url(array('action' => 'delete')).'/{$id}?model=Order&backURL='.urlencode($backURL);
     $actions['row']['delete'] = $this->Html->link('', $deleteURL, array('class' => 'icon-color icon-delete', 'title' => __('Delete record')), __('Are you sure to delete this record?'));
+
+    $columns = $this->PHTableGrid->getDefaultColumns($objectType);
+    $columns['Order.agent_id']['label'] = 'Поставщик';
+    $columns['Order.agent2_id']['label'] = 'Получатель';
+    $columns['Order.agent_id']['format'] = 'string';
+    $columns['Order.agent2_id']['format'] = 'string';
+    $columns['Order.items']['label'] = 'Позиций';
+    $columns['Order.nds']['label'] = 'НДС, %';
+
+    foreach($aRowset as &$row) {
+        $row['Order']['agent_id'] = $aAgentOptions[$row['Order']['agent_id']];
+        $row['Order']['agent2_id'] = $aAgentOptions[$row['Order']['agent2_id']];
+    }
+    $data = $aRowset;
 ?>
 <?=$this->element('admin_title', compact('title'))?>
 <div class="text-center">
@@ -19,5 +36,5 @@
 </div>
 <br/>
 <?
-    echo $this->PHTableGrid->render($objectType, array('actions' => $actions));
+    echo $this->PHTableGrid->render($objectType, compact('actions', 'columns', 'data'));
 ?>

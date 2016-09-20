@@ -38,6 +38,7 @@ class AdminController extends AppController {
 				'Export' => array('label' => __('Data export'), 'href' => array('controller' => 'AdminExport', 'action' => 'index')),
 				'Settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index')),
 				'Events' => array('label' => __('Events'), 'href' => array('controller' => 'AdminUserLogs', 'action' => 'index')),
+				'Agents' => array('label' => __('Agents'), 'href' => array('controller' => 'AdminAgents', 'action' => 'index')),
 			))
 		);
 		$this->aBottomLinks = $this->aNavBar;

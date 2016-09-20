@@ -44,7 +44,8 @@ class DetailNum extends AppModel {
 		if ($numType) {
 			$conditions['num_type'] = $numType;
 		}
-		$aRows = $this->find('all', compact('conditions', 'limit'));
+		$order = 'num_type';
+		$aRows = $this->find('all', compact('conditions', 'limit', 'order'));
 		$product_ids = array_unique(Hash::extract($aRows, '{n}.DetailNum.product_id'));
 		if (count($product_ids) > 100) {
 			$this->lReachLimit = true;

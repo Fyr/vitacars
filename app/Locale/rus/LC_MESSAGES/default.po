@@ -488,7 +488,7 @@ msgid "Rights"
 msgstr "Права (поля)"
 
 msgid "Price Rights"
-msgstr "Права (цены)"
+msgstr "Права (СФ)"
 
 msgid "Field type"
 msgstr "Тип поля"
@@ -597,3 +597,33 @@ msgstr "Обновление курсов"
 
 msgid "%s products have been deleted"
 msgstr "%s позиций было удалено"
+
+msgid "Bank"
+msgstr "Банк"
+
+msgid "Full Title"
+msgstr "Полное название"
+
+msgid "Inn"
+msgstr "ИНН"
+
+msgid "Kpp"
+msgstr "КПП"
+
+msgid "Bik"
+msgstr "БИК"
+
+msgid "Bank Name"
+msgstr "Наименование банка"
+
+msgid "Bank Rs"
+msgstr "Расчетный счет"
+
+msgid "Bank Address"
+msgstr "Адрес банка"
+
+msgid "Paid"
+msgstr "Оплачено"
+
+msgid "Agents"
+msgstr "Контрагенты"

@@ -10,7 +10,7 @@ class CsvReader {
 	 * @encoding str - исх.кодировка если нужно перекодирование в utf8
 	 * @return array
 	 */
-	static public function parse($file, $encoding = 'utf8') {
+	static public function parse($file, $keys = array()) {
 		if (!file_exists($file)) {
 			throw new Exception(__('Invalid file path'));
 		}
@@ -22,8 +22,10 @@ class CsvReader {
 			throw new Exception('Incorrect file content');
 		}
 
-		$keys = explode(self::CSV_DIV, trim($file[0]));
-		unset($file[0]);
+		if (!$keys) {
+			$keys = explode(self::CSV_DIV, trim($file[0]));
+			unset($file[0]);
+		}
 
 		$aData = array();
 		$line = 1;

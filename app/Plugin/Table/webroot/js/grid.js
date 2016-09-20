@@ -724,10 +724,10 @@ Grid = function(config) {
 		// self.update();
     }
 
-	this.getURL = function() {
+	this.getURL = function(params) {
 		// handle pagination
 		var pagination = self.paging;
-		var params = {};
+		params = params || {};
 		if (self.paging.curr > self.defaults.page) {
 			params.page = self.paging.curr;
 		}

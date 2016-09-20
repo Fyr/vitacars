@@ -17,6 +17,7 @@ class ObjectTypeHelper extends AppHelper {
                 'User' => __('Users'),
                 'Brand' => __('Brands'),
                 'Order' => __('Orders'),
+                'Agent' => __('Agents'),
             ), 
             'create' => array(
                 'Article' => __('Create Article'),
@@ -30,6 +31,7 @@ class ObjectTypeHelper extends AppHelper {
                 'User' => __('Create User'),
                 'Brand' => __('Create Brand'),
                 'Order' => __('Upload Order'),
+                'Agent' => __('Create Agent'),
             ),
             'edit' => array(
                 'Article' => __('Edit Article'),
@@ -43,6 +45,7 @@ class ObjectTypeHelper extends AppHelper {
                 'User' => __('Edit User'),
                 'Brand' => __('Edit Brand'),
                 'Order' => __('Edit Order'),
+                'Agent' => __('Edit Agent'),
             )
         );
         return $Titles;
