@@ -496,4 +496,21 @@ class AdminUpdateController extends AdminController {
 			$this->redirect(array('action' => 'update9'));
 		}
 	}
+
+	public function update10() {
+		$this->layout = 'admin';
+		$this->autoRender = true;
+		$this->loadModel('Task');
+
+		$task = $this->Task->getActiveTask('ProductParser', 0);
+		if ($task) {
+			$id = Hash::get($task, 'Task.id');
+			$task = $this->Task->getFullData($id);
+			$this->set(compact('task'));
+		} else {
+			$id = $this->Task->add(0, 'ProductParser');
+			$this->Task->runBkg($id);
+			$this->redirect(array('action' => 'update10'));
+		}
+	}
 }
