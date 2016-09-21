@@ -48,19 +48,18 @@ class AdminOrdersController extends AdminController {
 			$xdata = $this->request->data('xdata');
 			$this->request->data('Order', array('id' => $order_id, 'xdata' => $xdata));
 			$this->Order->save($this->request->data('Order'));
-
+			$this->setFlash(__('Order state is saved'), 'success');
 			$this->redirect(array('action' => 'details', $order_id));
 			return;
 		}
 		// Загружаем права доступа на поля для ордера
+		$fieldRights = $this->_getRights('price');
 		if ($this->isAdmin()) {
 			if ($this->currUser('id') != $user_id) { // если админ просматривает чужой
 				$this->loadModel('User');
 				$fieldRights = Hash::get($this->User->findById($user_id), 'User.price_rights');
 				$fieldRights = ($fieldRights) ? explode(',', $fieldRights) : array();
 			}
-		} else {
-			$fieldRights = $this->_getRights('price');
 		}
 		$aParams = $this->PMFormField->getFieldsList('SubcategoryParam', '');
 		$aFields = array();

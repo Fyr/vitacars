@@ -627,3 +627,6 @@ msgstr "Оплачено"
 
 msgid "Agents"
 msgstr "Контрагенты"
+
+msgid "Order state is saved"
+msgstr "Состояние счета-фактуры сохранено"
