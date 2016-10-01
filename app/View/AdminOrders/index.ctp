@@ -33,9 +33,14 @@
 
     foreach($aRowset as &$row) {
         $row['Order']['n_id'] = 'N '.$row['Order']['id'].' от '.date('d.m.Y', strtotime($row['Order']['created']));
-        $row['Order']['agent_id'] = $aAgentOptions[$row['Order']['agent_id']];
-        $row['Order']['agent2_id'] = $aAgentOptions[$row['Order']['agent2_id']];
-        $row['Order']['sum'] = $this->Price->format($row['Order']['sum'], $row['Order']['currency']);
+
+        $agent_id = $row['Order']['agent_id'];
+        $row['Order']['agent_id'] = (isset($aAgentOptions[$agent_id])) ? $aAgentOptions[$agent_id] : '';
+
+        $agent_id = $row['Order']['agent2_id'];
+        $row['Order']['agent2_id'] = (isset($aAgentOptions[$agent_id])) ? $aAgentOptions[$agent_id] : '';
+
+        $row['Order']['sum'] = (floatval($row['Order']['sum'])) ? $this->Price->format($row['Order']['sum'], $row['Order']['currency']) : '-';
     }
     $data = $aRowset;
 ?>
