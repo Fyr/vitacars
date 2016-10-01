@@ -15,16 +15,28 @@
     $actions['row']['delete'] = $this->Html->link('', $deleteURL, array('class' => 'icon-color icon-delete', 'title' => __('Delete record')), __('Are you sure to delete this record?'));
 
     $columns = $this->PHTableGrid->getDefaultColumns($objectType);
+    $columns = array_merge(
+        array('Order.n_id' => array(
+            'key' => 'Order.n_id',
+            'label' => 'N счет-фактуры',
+            'format' => 'string'
+        )),
+        $columns
+    );
     $columns['Order.agent_id']['label'] = 'Поставщик';
     $columns['Order.agent2_id']['label'] = 'Получатель';
     $columns['Order.agent_id']['format'] = 'string';
     $columns['Order.agent2_id']['format'] = 'string';
     $columns['Order.items']['label'] = 'Позиций';
     $columns['Order.nds']['label'] = 'НДС, %';
+    unset($columns['Order.currency']);
+    fdebug(Configure::read('Settings'));
 
     foreach($aRowset as &$row) {
+        $row['Order']['n_id'] = 'N '.$row['Order']['id'].' от '.date('d.m.Y', strtotime($row['Order']['created']));
         $row['Order']['agent_id'] = $aAgentOptions[$row['Order']['agent_id']];
         $row['Order']['agent2_id'] = $aAgentOptions[$row['Order']['agent2_id']];
+        $row['Order']['sum'] = $this->Price->format($row['Order']['sum'], $row['Order']['currency']);
     }
     $data = $aRowset;
 ?>

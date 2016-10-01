@@ -1,7 +1,8 @@
 <?
-	$tpl_data['Itogo']['k_oplate_propis'] = $this->Price->num2str($tpl_data['Itogo']['k_oplate']);
+	$currency = $tpl_data['Order']['currency'];
+	$tpl_data['Itogo']['k_oplate_propis'] = $this->Price->num2str($tpl_data['Itogo']['k_oplate'], $currency);
 	foreach(array('sum', 'nds', 'k_oplate') as $key) {
-		$tpl_data['Itogo'][$key] = $this->Price->format($tpl_data['Itogo'][$key]);
+		$tpl_data['Itogo'][$key] = $this->Price->format($tpl_data['Itogo'][$key], $currency);
 	}
 ?>
 <?=$this->Tpl->format($sf_header, $tpl_data)?>
@@ -32,10 +33,10 @@
 			<td class="<?=$class?>"><?=$Product['Product']['title']?></td>
 			<td class="<?=$class?>"><?=$Product['Product']['title_rus']?></td>
 			<td class="<?=$class?>">&nbsp;<?=$Product['Product']['code']?></td>
-			<td class="<?=$class?>">&nbsp;<?=$Product['qty']?></td>
-			<td class="<?=$class?>">&nbsp;<?=$this->Price->format($Product['price'])?></td>
-			<td class="<?=$class?>">&nbsp;<?=($Product['discount']) ? $Product['discount'].'%' : ''?></td>
-			<td class="<?=$class?>">&nbsp;<?=$this->Price->format($Product['sum'])?></td>
+			<td class="<?=$class?>" align="right">&nbsp;<?=$Product['qty']?></td>
+			<td class="<?=$class?>" align="right">&nbsp;<?=$this->Price->format($Product['price'], $currency)?></td>
+			<td class="<?=$class?>" align="right">&nbsp;<?=($Product['discount']) ? $Product['discount'].'%' : ''?></td>
+			<td class="<?=$class?>" align="right">&nbsp;<?=$this->Price->format($Product['sum'], $currency)?></td>
 		</tr>
 <?php 
 	}

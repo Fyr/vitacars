@@ -21,7 +21,7 @@ class AdminOrdersController extends AdminController {
 
 	public function index() {
 		$this->paginate = array(
-			'fields' => array('created', 'agent_id', 'agent2_id', 'items', 'nds', 'paid')
+			'fields' => array('created', 'agent_id', 'agent2_id', 'items', 'sum', 'nds', 'paid', 'currency')
 		);
 		if (!$this->isAdmin()) {
 			$this->paginate['conditions'] = array('user_id' => $this->currUser('id'));
@@ -46,7 +46,25 @@ class AdminOrdersController extends AdminController {
 
 		if ($this->request->is(array('post', 'put'))) {
 			$xdata = $this->request->data('xdata');
-			$this->request->data('Order', array('id' => $order_id, 'xdata' => $xdata));
+			$json_data = json_decode($xdata, true);
+			$aRowset = $this->OrderProduct->findAllById(array_keys($json_data));
+			$_total = 0;
+			foreach ($aRowset as &$Product) {
+				$id = $Product['OrderProduct']['id'];
+				$discount = intval($json_data[$id]['discount']);
+				$price = floatval($json_data[$id]['price']);
+				$qty = intval($json_data[$id]['qty']);
+				$sum = $price * $qty;
+				$sum = round($sum - $sum * $discount / 100, 2);
+				$_total += $sum;
+			}
+			$this->request->data('Order', array(
+				'id' => $order_id,
+				'items' => count($aRowset),
+				'xdata' => $xdata,
+				'brand_ids' => $this->request->data('brand_ids'),
+				'sum' => $_total
+			));
 			$this->Order->save($this->request->data('Order'));
 			$this->setFlash(__('Order state is saved'), 'success');
 			$this->redirect(array('action' => 'details', $order_id));
@@ -114,15 +132,20 @@ class AdminOrdersController extends AdminController {
 		$this->paginate = array(
 			'fields' => array('Product.id', 'Product.title_rus', 'Product.detail_num', 'Product.code', 'Product.cat_id', 'Product.brand_id', 'OrderProduct.number', 'OrderProduct.qty'),
 			'conditions' => compact('order_id'),
-			'order' => array('number' => 'ASC', 'id' => 'ASC')
+			'order' => array('OrderProduct.id' => 'ASC')
 		);
 
+		$filterBrand = Hash::get($order, 'Order.brand_ids');
+		$filterBrand = ($filterBrand) ? explode(',', $filterBrand) : array();
 		if (isset($this->request->named['Product.brand_id']) && $this->request->named['Product.brand_id']) {
-			$filterBrand = explode(',', $this->request->named['Product.brand_id']);
-			$this->paginate['conditions']['Product.brand_id'] = $filterBrand;
-			$this->set(compact('filterBrand'));
+			$brand_ids = $this->request->named['Product.brand_id'];
+			$filterBrand = ($brand_ids && $brand_ids !== 'null') ? explode(',', $brand_ids) : array();
 			unset($this->request->params['named']['Product.brand_id']);
 		}
+		if ($filterBrand) {
+			$this->paginate['conditions']['Product.brand_id'] = $filterBrand;
+		}
+		$this->set(compact('filterBrand'));
 
 		$aRowset = $this->PCTableGrid->paginate('OrderProduct');
 		$this->set(compact('aRowset'));
@@ -255,7 +278,7 @@ class AdminOrdersController extends AdminController {
 				'sum' => $_total,
 				'nds' => $nds,
 				'k_oplate' => $_total + $nds,
-				'k_oplate_propis' => 'сумма пропиьсю'
+				'k_oplate_propis' => 'сумма прописью'
 			);
 
 			$this->set(compact('aRowset', 'aCategories', 'aSubcategories', 'aBrands', 'tpl_data'));
@@ -277,6 +300,12 @@ class AdminOrdersController extends AdminController {
 		$conditions = array('active' => 1);
 		$order = 'title';
 		$aAgentOptions = $this->Agent->find('list', compact('conditions', 'order'));
-		$this->set(compact('aAgentOptions'));
+		$aCurrencyOptions = array(
+			'byn' => 'BYN (бел.деномин.рубль)',
+			'rur' => 'RUR (росс.рубль)',
+			'usd' => 'USD (доллар США)',
+			'eur' => 'EUR (Евро)'
+		);
+		$this->set(compact('aAgentOptions', 'aCurrencyOptions'));
 	}
 }

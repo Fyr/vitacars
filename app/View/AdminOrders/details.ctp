@@ -5,6 +5,8 @@
     $objectType = 'OrderProduct';
     $title = 'Счет-фактура N '.$order['Order']['id'].' от '.date('d.m.Y', strtotime($order['Order']['created']));
     echo $this->element('admin_title', compact('title'));
+    $currency = $order['Order']['currency'];
+    fdebug($currency, 'tmp1.log');
 ?>
     <div style="margin: 10px 0;">
         Фильтр:
@@ -13,7 +15,7 @@
         'label' => false, 'class' => 'multiselect grid-filter-input', 'type' => 'select', 'multiple' => true,
         'div' => array('class' => 'inline multiMotors'),
         'options' => $aBrandOptions,
-        'value' => (isset($filterBrand)) ? $filterBrand :  null
+        'value' => $filterBrand
     );
     echo $this->PHForm->input('brand', $options);
 ?>
@@ -181,9 +183,16 @@
     .small-input { width: 50px !important; text-align: right; }
     .price-select { float: left; }
     .grid-records-count { font-weight: bold; color: #000 !important; }
+    .no-wrap { white-space: nowrap; }
 </style>
 <script type="text/javascript">
-<?=$this->Price->jsFunction('byr', false)?>
+<?=$this->Price->jsFunction($currency, true)?>
+
+function round(number, decimals) {
+    decimals = decimals || 0;
+    return Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
+}
+
 function normalizeSum(sum) {
     if (typeof(sum) == 'undefined') {
         sum = '0';
@@ -197,7 +206,8 @@ function recalcSum(id, price_id) {
 
     var price = normalizeSum($('#' + price_id).html());
     var discount = normalizeSum($('#discount-' + id).val());
-    var sum = Math.round(qty * price - (qty * price) * discount / 100, 2);
+    var sum = qty * price;
+    sum = round(sum - sum * discount / 100, 2); // вычисляем с учетом скидки
     $('#sum-' + id).html(sum ? Price.format(sum) : '');
     return sum;
 }
@@ -208,7 +218,6 @@ function recalcRow(id) {
 }
 
 function recalcAllRows() {
-    console.log('recalcAllRows');
     var total = 0;
     $('.grid-row').each(function(){
         var id = $(this).prop('id');
@@ -265,7 +274,7 @@ $(function() {
             value: $td.html(),
             placeholder: '&gt;' + $td.html(),
             onfocus: 'this.select()',
-            onchange: 'recalcRow(' + id + ')'
+            onchange: 'recalcAllRows()'
         }));
 <?
     $i = 1;
@@ -290,9 +299,9 @@ $(function() {
                 id: 'priceselect' + id + '-fk_<?=$col['id']?>',
                 name: 'price-' + id,
                 class: 'price-select price-fk_<?=$col['id']?>',
-                onchange: 'recalcRow(' + id + ')'
+                onchange: 'recalcAllRows()'
             });
-            var htmlPrice = Format.tag('span', {id: 'price' + id + '-fk_<?=$col['id']?>'}, $td.html());
+            var htmlPrice = Format.tag('span', {id: 'price' + id + '-fk_<?=$col['id']?>', class: 'no-wrap'}, $td.html());
             $td.html(selectPrice + htmlPrice);
         }
 <?
@@ -305,13 +314,13 @@ $(function() {
             id: 'discount-' + id,
             value: $td.html(),
             onfocus: 'this.select()',
-            onchange: 'recalcRow(' + id + ')'
+            onchange: 'recalcAllRows()'
         }));
 <?
         } elseif (Hash::get($col, 'id') == 'row_sum') {
 ?>
         $td = $('td:eq(<?=$i?>)', this);
-        $td.html(Format.tag('span', {id: 'sum-' + id}));
+        $td.html(Format.tag('span', {id: 'sum-' + id, class: 'no-wrap'}));
 <?
         }
     }
@@ -396,6 +405,7 @@ function getXData() {
 
 function saveXData() {
     $('#xdata').val(JSON.stringify(getXData()));
+    $('#brand_ids').val(($('#brand').val() || []).join(','));
     $('#saveForm').submit();
 }
 
@@ -426,6 +436,7 @@ function applyXData(xdata) {
 <form id="saveForm" action="<?=$this->Html->url(array('action' => 'details', $order['Order']['id']))?>" method="post">
 <?
     echo $this->Form->hidden('xdata');
+    echo $this->Form->hidden('brand_ids');
 ?>
 </form>
 <form id="printForm" action="<?=$this->Html->url(array('action' => 'printXls', $order['Order']['id']))?>" method="post">

@@ -79,7 +79,7 @@ Grid = function(config) {
 			if (typeof(col.format) != 'undefined') {
 				if (col.format == 'boolean' || col.format == 'date' || col.format == 'datetime') {
 					self.columns[i].align = 'center';
-				} else if (col.format == 'integer' || col.format == 'filesize')  {
+				} else if (col.format == 'integer' || col.format == 'filesize' || col.format == 'float')  {
 					self.columns[i].align = 'right';
 				}
 			} else {
