@@ -14,7 +14,7 @@
 		} else {
 			$url = $this->Html->url($item['href']);
 		}
-		if ($id == $currMenu) {
+		if (strtolower($id) == strtolower($currMenu)) {
 			$class[] = 'active';
 		}
 ?>

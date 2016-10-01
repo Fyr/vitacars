@@ -29,7 +29,10 @@ class AdminController extends AppController {
 				array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index')),
 				array('label' => __('Upload new products'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'uploadNewProducts')),
 				array('label' => __('Check products'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'checkProducts')),
+			)),
+			'Orders' => array('label' => __('Orders'), 'href' => '', 'submenu' => array(
 				array('label' => __('Orders'), 'href' => array('controller' => 'AdminOrders', 'action' => 'index')),
+				array('label' => __('Agents'), 'href' => array('controller' => 'AdminAgents', 'action' => 'index')),
 			)),
 			'Reports' => array('label' => __('Reports'), 'href' => '', 'submenu' => array(
 				array('label' => __('Sales by period'), 'href' => array('controller' => 'AdminReports', 'action' => 'sales')),
@@ -38,7 +41,6 @@ class AdminController extends AppController {
 				'Export' => array('label' => __('Data export'), 'href' => array('controller' => 'AdminExport', 'action' => 'index')),
 				'Settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index')),
 				'Events' => array('label' => __('Events'), 'href' => array('controller' => 'AdminUserLogs', 'action' => 'index')),
-				'Agents' => array('label' => __('Agents'), 'href' => array('controller' => 'AdminAgents', 'action' => 'index')),
 			))
 		);
 		$this->aBottomLinks = $this->aNavBar;
@@ -49,22 +51,21 @@ class AdminController extends AppController {
 			$this->aNavBar = array(
 				'Products' => array('label' => __('Products'), 'href' => '', 'submenu' => array(
 					'Products' => array('label' => __('Products'), 'href' => array('controller' => 'AdminProducts', 'action' => 'index')),
-				))
+				)),
 			);
 			
 			if (AuthComponent::user('view_brands')) {
 				$this->aNavBar['Products']['submenu']['Brands'] = array('label' => __('Brands'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Brand'));
 			}
-			if (AuthComponent::user('load_counters') || AuthComponent::user('orders')) {
+			if (AuthComponent::user('load_counters')) {
 				$this->aNavBar['Upload'] = array('label' => __('Uploadings'), 'href' => '', 'submenu' => array());
-
-				if (AuthComponent::user('load_counters')) {
-					$this->aNavBar['Upload']['submenu'][] = array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index'));
-				}
-				if (AuthComponent::user('orders')) {
-					$this->aNavBar['Upload']['submenu'][] = array('label' => __('Orders'), 'href' => array('controller' => 'AdminOrders', 'action' => 'index'));
-				}
-
+				$this->aNavBar['Upload']['submenu'][] = array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index'));
+			}
+			if (AuthComponent::user('orders')) {
+				$this->aNavBar['Orders'] = array('label' => __('Orders'), 'href' => '', 'submenu' => array(
+					array('label' => __('Orders'), 'href' => array('controller' => 'AdminOrders', 'action' => 'index')),
+					array('label' => __('Agents'), 'href' => array('controller' => 'AdminAgents', 'action' => 'index')),
+				));
 			}
 		}
 		

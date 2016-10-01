@@ -6,7 +6,6 @@
     $title = 'Счет-фактура N '.$order['Order']['id'].' от '.date('d.m.Y', strtotime($order['Order']['created']));
     echo $this->element('admin_title', compact('title'));
     $currency = $order['Order']['currency'];
-    fdebug($currency, 'tmp1.log');
 ?>
     <div style="margin: 10px 0;">
         Фильтр:

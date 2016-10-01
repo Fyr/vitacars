@@ -14,6 +14,7 @@ class AdminAgentsController extends AdminController {
 	}
     
     public function beforeRender() {
+		$this->currMenu = 'Orders';
     	parent::beforeRender();
     	$this->set('objectType', 'Agent');
     }

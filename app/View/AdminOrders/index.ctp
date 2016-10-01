@@ -30,7 +30,6 @@
     $columns['Order.items']['label'] = 'Позиций';
     $columns['Order.nds']['label'] = 'НДС, %';
     unset($columns['Order.currency']);
-    fdebug(Configure::read('Settings'));
 
     foreach($aRowset as &$row) {
         $row['Order']['n_id'] = 'N '.$row['Order']['id'].' от '.date('d.m.Y', strtotime($row['Order']['created']));
