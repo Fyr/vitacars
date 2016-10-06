@@ -3,6 +3,12 @@
     $id = $this->request->data('Order.id');
     $title = $this->ObjectType->getTitle(($id) ? 'edit' : 'create', 'Order');
     echo $this->element('admin_title', compact('title'));
+?>
+    <div style="height: 30px; margin: 10px 0;">
+        <a class="btn pull-right" href="<?=$this->Html->url(array('action' => 'details', $id))?>">Детали <i class="icon-chevron-right"></i></a>
+    </div>
+
+<?
     echo $this->PHForm->create('Order');
 	echo $this->element('admin_content');
     echo $this->PHForm->input('agent_id', array('options' => $aAgentOptions, 'label' => array('class' => 'control-label', 'text' => 'Поставщик')));

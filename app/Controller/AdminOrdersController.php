@@ -187,7 +187,7 @@ class AdminOrdersController extends AdminController {
 		if ($file = Hash::get($_FILES, 'csv_file.tmp_name')) {
 			try {
 				$this->Order->trxBegin();
-				$aData = CsvReader::parse($file, array('code', 'qty'));
+				$aData = CsvReader::parse($file, array('detail_num', 'qty'));
 				$this->Order->save(array('user_id' => $this->currUser('id')));
 				$aProducts = $this->_processUpload($this->Order->id, $aData['data'], 'code');
 				$this->Order->save(array('items' => count($aProducts)));
@@ -220,7 +220,6 @@ class AdminOrdersController extends AdminController {
 				$ids = $this->Product->find('all', compact('fields', 'conditions'));
 				$ids = Hash::extract($ids, '{n}.Product.id');
 			}
-
 			foreach($ids as $product_id) {
 				$aProducts[] = $product_id;
 				$this->OrderProduct->clear();

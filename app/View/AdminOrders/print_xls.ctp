@@ -10,7 +10,7 @@
         <thead>
             <tr>
 <?
-	foreach(array(__('Brand'), __('Category'), __('Subcategory'), __('Title'), __('Title rus'), __('Code'), __('Qty'), __('Price'), __('Discount'), __('Sum')) as $label) {
+	foreach(array(/*__('Brand'), __('Category'), __('Subcategory'), __('Title'), */__('Title rus'), __('Code'), __('Qty'), __('Price'), __('Discount'), __('Sum')) as $label) {
 ?>
                 <th><?=$label?></th>
 <?
@@ -27,10 +27,10 @@
 		$subcat_id = $Product['Product']['subcat_id'];
 ?>
 		<tr class="row">
-			<td class="<?=$class?>"><?=$aBrands[$Product['Product']['brand_id']]?></td>
+			<!--td class="<?=$class?>"><?=$aBrands[$Product['Product']['brand_id']]?></td>
 			<td class="<?=$class?>"><?=$aCategories[$Product['Product']['cat_id']]?></td>
 			<td class="<?=$class?>"><?=(isset($aSubcategories[$subcat_id])) ? $aSubcategories[$subcat_id] : ''?></td>
-			<td class="<?=$class?>"><?=$Product['Product']['title']?></td>
+			<td class="<?=$class?>"><?=$Product['Product']['title']?></td-->
 			<td class="<?=$class?>"><?=$Product['Product']['title_rus']?></td>
 			<td class="<?=$class?>">&nbsp;<?=$Product['Product']['code']?></td>
 			<td class="<?=$class?>" align="right">&nbsp;<?=$Product['qty']?></td>
