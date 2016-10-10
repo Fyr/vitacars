@@ -634,6 +634,12 @@ msgstr "Создать контрагента"
 msgid "Edit Agent"
 msgstr "Редактировать контрагента"
 
+msgid "Agent"
+msgstr "Поставщик"
+
+msgid "Agent2"
+msgstr "Получатель"
+
 msgid "Order state is saved"
 msgstr "Состояние счета-фактуры сохранено"
 

@@ -5,14 +5,6 @@ class AdminAgentsController extends AdminController {
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
     public $uses = array('Agent', 'Form.FormField', 'Brand');
     
-    public function beforeFilter() {
-		if (!$this->isAdmin()) {
-			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
-			return;
-		}
-		parent::beforeFilter();
-	}
-    
     public function beforeRender() {
 		$this->currMenu = 'Orders';
     	parent::beforeRender();

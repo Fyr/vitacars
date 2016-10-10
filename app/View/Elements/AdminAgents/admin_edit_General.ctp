@@ -9,7 +9,9 @@
 		'label' => false, 
 		'multiple' => 'checkbox', 
 		'options' => array(
-			'active' => __('Active'), 
+			'active' => __('Active'),
+			'agent' => __('Agent'),
+			'agent2' => __('Agent2'),
 		),
 		'class' => 'checkbox inline'
 	));

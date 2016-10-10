@@ -14,7 +14,7 @@
     echo $this->PHForm->create('Order', array('type' => 'file'));
 	echo $this->element('admin_content');
     echo $this->PHForm->input('agent_id', array('options' => $aAgentOptions, 'label' => array('class' => 'control-label', 'text' => 'Поставщик')));
-    echo $this->PHForm->input('agent2_id', array('options' => $aAgentOptions, 'label' => array('class' => 'control-label', 'text' => 'Получатель')));
+    echo $this->PHForm->input('agent2_id', array('options' => $aAgent2Options, 'label' => array('class' => 'control-label', 'text' => 'Получатель')));
     echo $this->PHForm->input('currency', array('options' => $aCurrencyOptions, 'label' => array('class' => 'control-label', 'text' => 'Валюта')));
     echo $this->PHForm->input('nds', array('class' => 'input-small', 'label' => array('class' => 'control-label', 'text' => 'НДС, %')));
     echo $this->PHForm->input('paid', array('label' => array('class' => 'control-label', 'text' => 'Оплачено')));

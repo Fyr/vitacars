@@ -30,8 +30,7 @@ class AdminOrdersController extends AdminController {
 		}
 		$aRowset = $this->PCTableGrid->paginate('Order');
 
-		$order = 'title';
-		$aAgentOptions = $this->Agent->find('list', compact('order'));
+		$aAgentOptions = $this->Agent->getOptions();
 		$this->set(compact('aRowset', 'aAgentOptions'));
 	}
 
@@ -335,17 +334,19 @@ class AdminOrdersController extends AdminController {
 			$this->request->data = $this->Order->findById($id);
 			if (!$id) {
 				$this->request->data('Order.nds', '0');
+				$this->request->data('Order.currency', 'rur');
 			}
 		}
 
-		$aAgentOptions = $this->Agent->getOptions();
+		$aAgentOptions = $this->Agent->getOptions(1);
+		$aAgent2Options = $this->Agent->getOptions(2);
 		$aCurrencyOptions = array(
 			'byn' => 'BYN (бел.деномин.рубль)',
 			'rur' => 'RUR (росс.рубль)',
 			'usd' => 'USD (доллар США)',
 			'eur' => 'EUR (Евро)'
 		);
-		$this->set(compact('aAgentOptions', 'aCurrencyOptions'));
+		$this->set(compact('aAgentOptions', 'aAgent2Options', 'aCurrencyOptions'));
 	}
 
 	public function addDetail($order_id) {
