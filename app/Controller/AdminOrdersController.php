@@ -210,9 +210,8 @@ class AdminOrdersController extends AdminController {
 		foreach($aData as $i => $row) {
 			list($number, $qty) = array_values($row);
 			if ($keyField == 'detail_num') {
-				$conditions = array('detail_num' => $this->DetailNum->strip($number), 'num_type' => DetailNum::ORIG);
-				$ids = $this->DetailNum->find('all', compact('conditions'));
-				$ids = Hash::extract($ids, '{n}.DetailNum.product_id');
+				$number = $this->DetailNum->strip($number);
+				$ids = $this->DetailNum->findDetails($this->DetailNum->stripList('*'.$number.'*'), true);
 				$ids = array_unique($ids);
 			} else {
 				$fields = array('Product.id');
@@ -290,15 +289,56 @@ class AdminOrdersController extends AdminController {
 	}
 
 	public function edit($id = 0) {
-		$this->PCArticle->setModel('Order')->edit(&$id, &$lSaved);
-		if ($lSaved) {
-			$baseRoute = array('action' => 'index');
-			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
+		if (!$id) {
+			$this->request->data('Order.user_id', $this->currUser('id'));
+		}
+		if ($this->request->is(array('put', 'post'))) {
+			if ($id) { //
+				$this->request->data('Order.id', $id);
+				$this->Order->save($this->request->data);
+				$baseRoute = array('action' => 'index');
+				return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
+			} else { // создать счет и загрузить детальные строки
+				try {
+					$this->Order->trxBegin();
+
+					$aData = array();
+					if ($file = Hash::get($_FILES, 'csv_file.tmp_name')) {
+						$aData = CsvReader::parse($file, array('detail_num', 'qty'));
+						$aData = Hash::get($aData, 'data');
+					}
+					if ($details_text = $this->request->data('Order.details_text')) {
+						foreach(explode("\n", str_replace(array("\r\n"), "\n", $details_text)) as $line => $row) {
+							list($detail_num, $qty) = explode(';', trim($row));
+							if (!($detail_num && $qty)) {
+								throw new Exception(__('Incorrect format line %s in text', $line + 1));
+							}
+							$aData[] = compact('detail_num', 'qty');
+						}
+					}
+
+					$this->Order->save($this->request->data);
+					$aProducts = $this->_processUpload($this->Order->id, $aData, 'detail_num');
+					$this->Order->set('items', count($aProducts));
+					$this->Order->save();
+
+					$this->Order->trxCommit();
+
+					$this->setFlash(__('%s lines processed, %s products added', count($aData), count($aProducts)), 'success');
+					$this->redirect(array('action' => 'details', $this->Order->id));
+				} catch (Exception $e) {
+					$this->Order->trxRollback();
+					$this->setFlash($e->getMessage(), 'error');
+				}
+			}
+		} else {
+			$this->request->data = $this->Order->findById($id);
+			if (!$id) {
+				$this->request->data('Order.nds', '0');
+			}
 		}
 
-		$conditions = array('active' => 1);
-		$order = 'title';
-		$aAgentOptions = $this->Agent->find('list', compact('conditions', 'order'));
+		$aAgentOptions = $this->Agent->getOptions();
 		$aCurrencyOptions = array(
 			'byn' => 'BYN (бел.деномин.рубль)',
 			'rur' => 'RUR (росс.рубль)',
@@ -306,5 +346,37 @@ class AdminOrdersController extends AdminController {
 			'eur' => 'EUR (Евро)'
 		);
 		$this->set(compact('aAgentOptions', 'aCurrencyOptions'));
+	}
+
+	public function addDetail($order_id) {
+		$keyField = 'detail_num';
+		$qty = 0;
+		if ($number = $this->request->data('detail_num')) {
+			if ($keyField == 'detail_num') {
+				$number = $this->DetailNum->strip($number);
+				$ids = $this->DetailNum->findDetails($this->DetailNum->stripList('*'.$number.'*'), true);
+				$ids = array_unique($ids);
+			} else {
+				$fields = array('Product.id');
+				$conditions = array('Product.code' => $number);
+				$ids = $this->Product->find('all', compact('fields', 'conditions'));
+				$ids = Hash::extract($ids, '{n}.Product.id');
+			}
+			try {
+				$aProducts = array();
+				$this->OrderProduct->trxBegin();
+				foreach ($ids as $product_id) {
+					$aProducts[] = $product_id;
+					$this->OrderProduct->clear();
+					$this->OrderProduct->save(compact('order_id', 'number', 'product_id', 'qty'));
+				}
+				$this->OrderProduct->trxCommit();
+				$this->setFlash(__('%s products have been added', count($aProducts)), 'success');
+			} catch (Exception $e) {
+				$this->OrderProduct->trxRollback();
+				$this->setFlash($e->getMessage(), 'error');
+			}
+		}
+		$this->redirect(array('action' => 'details', $order_id));
 	}
 }

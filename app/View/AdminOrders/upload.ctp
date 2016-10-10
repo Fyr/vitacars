@@ -7,16 +7,19 @@
 			'controller' => 'AdminOrders',
 			'action' => 'upload'
 		),
-		'method' => 'POST',
+		'method' => 'post',
 		'enctype' => 'multipart/form-data'
 	));
 	echo $this->element('admin_content');
-	echo $this->PHForm->input(__('Select file'), array('class' => 'input-medium', 'type' => 'file', 'name' => 'csv_file', 'id' => 'csv_file'));
+	echo $this->element('AdminOrders/admin_edit_Order');
+	echo $this->PHForm->input(__('Select file'), array(
+		'class' => 'input-medium',
+		'type' => 'file',
+		'name' => 'csv_file',
+		'id' => 'csv_file',
+		'after' => '<div class="small-text">Формат файла: {код};{кол-во} (CSV, без заголовков)</div></div>'
+	));
 ?>
-	<div>
-		Формат файла (CSV, без заголовков):<br/>
-		<код>;<кол-во>
-	</div>
 <?
 	echo $this->element('admin_content_end');
 	echo $this->PHForm->submit(__('Upload').' <i class="icon-white icon-chevron-right"></i>', array('class' => 'btn btn-success pull-right', 'name' => 'apply', 'value' => 'apply'));

@@ -7,6 +7,12 @@
     echo $this->element('admin_title', compact('title'));
     $currency = $order['Order']['currency'];
 ?>
+    <form action="<?=$this->Html->url(array('action' => 'addDetail', $order['Order']['id']))?>" method="post">
+        <div class="input-append" id="filterByNumber">
+            <input type="text" style="width: 200px;" placeholder="Номер детали..." onfocus="this.select()" value="" name="data[detail_num]" class="span2">
+            <button type="submit" class="btn" id="bySame"><i class="icon icon-plus"></i> Добавить</button>
+        </div>
+    </form>
     <div style="margin: 10px 0;">
         Фильтр:
 <?
@@ -23,8 +29,18 @@
     </div>
 <?
     $actions = $this->PHTableGrid->getDefaultActions($objectType);
+
     $actions['table'] = array();
-    $actions['row'] = array();
+    // unset($actions['row']['edit']);
+    $backURL = $this->Html->url(array('action' => 'details', $order['Order']['id']));
+    $url = $this->Html->url(array('action' => 'delete')).'/{$id}?model=OrderProduct&backURL='.$backURL;
+    $deleteURL = $this->Html->link('', $url,
+        array('class' => 'icon-color icon-delete', 'title' => 'Удалить запись'),
+        'Удалить запись?'
+    );
+    $actions['row'] = array(
+        'delete' => $deleteURL
+    );
     $actions['checked']['print']['href'] = 'javascript:;';
     $actions['checked']['print']['label'] = __('Print');
     $actions['checked']['print']['icon'] = 'icon-color icon-print';
@@ -334,7 +350,7 @@ $(function() {
         number = aNumbers[i];
         var $span = $('span.x-data[data-number="' + number + '"]:eq(0)');
         var $row = $span.parent().parent();
-        $row.before(tmpl('grid-header', {number: number, cols: cols, items: $('span.x-data[data-number="' + number + '"]').length}));
+        $row.before(tmpl('grid-header', {n: i + 1, number: number, cols: cols, items: $('span.x-data[data-number="' + number + '"]').length}));
         var setHandler = function(number) {
             $('#gh-' + number + ' span').click(function () {
                 $('#gh-' + number + ' span').toggle();
@@ -414,7 +430,6 @@ function sendToPrint() {
 }
 
 function applyXData(xdata) {
-    console.log(xdata);
     for(var id in xdata) {
         var row = xdata[id];
         $('#qty-' + id).val(row.qty);
@@ -427,8 +442,8 @@ function applyXData(xdata) {
 <script type="text/x-tmpl" id="grid-header">
 <tr id="gh-{%=o.number%}" class="grid-row">
     <td class="grid-header" colspan="{%=o.cols%}">
-        <span style="display: none"><b class="caret large right"></b>{%=o.number%} ({%=o.items%} {%=(o.items == 1 ? 'позиция' : 'позиции')%})</span>
-        <span><b class="caret large"></b>{%=o.number%}</span>
+        <span style="display: none"><b class="caret large right"></b>N {%=o.n%}. {%=o.number%} ({%=o.items%} {%=(o.items == 1 ? 'позиция' : 'позиции')%})</span>
+        <span><b class="caret large"></b>N {%=o.n%}. {%=o.number%}</span>
     </td>
 </tr>
 </script>

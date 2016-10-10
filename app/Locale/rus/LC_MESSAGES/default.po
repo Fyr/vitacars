@@ -431,7 +431,7 @@ msgid "Div Int"
 msgstr "Символ-разделитель для цел.части"
 
 msgid "%s products have been updated"
-msgstr "%s позицией обновлено"
+msgstr "%s позиций обновлено"
 
 msgid "Incorrect field ID %s (Line %s)"
 msgstr "Некорректный ID тех.параметра: `%s` (стр.%s)"
@@ -571,8 +571,8 @@ msgstr "Ошибка выполнения процесса! %s"
 msgid "Orders"
 msgstr "Счет-фактуры"
 
-msgid "Upload Order"
-msgstr "Загрузить счет-фактуру"
+msgid "Create Order"
+msgstr "Создать счет-фактуру"
 
 msgid "Edit Order"
 msgstr "Редактировать счет-фактуру"
@@ -628,5 +628,20 @@ msgstr "Оплачено"
 msgid "Agents"
 msgstr "Контрагенты"
 
+msgid "Create Agent"
+msgstr "Создать контрагента"
+
+msgid "Edit Agent"
+msgstr "Редактировать контрагента"
+
 msgid "Order state is saved"
 msgstr "Состояние счета-фактуры сохранено"
+
+msgid "From file"
+msgstr "Из файла"
+
+msgid "Incorrect format line %s in text"
+msgstr "Некорректный формат текста (строка N %s)"
+
+msgid "%s products have been added"
+msgstr "%s позиций добавлено"

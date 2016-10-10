@@ -30,7 +30,7 @@ class ObjectTypeHelper extends AppHelper {
                 'FormConst' => __('Create constant'),
                 'User' => __('Create User'),
                 'Brand' => __('Create Brand'),
-                'Order' => __('Upload Order'),
+                'Order' => __('Create Order'),
                 'Agent' => __('Create Agent'),
             ),
             'edit' => array(

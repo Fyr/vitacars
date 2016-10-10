@@ -1,7 +1,7 @@
 <?
     $objectType = 'Order';
 	$title = $this->ObjectType->getTitle('index', $objectType);
-    $createURL = $this->Html->url(array('action' => 'upload'));
+    $createURL = $this->Html->url(array('action' => 'edit'));
     $createTitle = $this->ObjectType->getTitle('create', $objectType);
     $actions = $this->PHTableGrid->getDefaultActions($objectType);
     $actions['table']['add']['href'] = $createURL;
