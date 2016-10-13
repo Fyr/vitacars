@@ -54,15 +54,7 @@
         $this->PHTableGrid->getDefaultColumns($objectType),
         $aColumns
     );
-/*
-    // Добавляем доп.поля
-    foreach($aLabels as $fk => $param) {
 
-        $columns[$fk] = array('key' => $fk, 'label' => $param['label'], 'format' => 'integer');
-        $columns[$fk.'_discount'] = array('key' => $fk.'_discount', 'label' => 'Скидка, %', 'format' => 'integer');
-        $columns[$fk.'_sum'] = array('key' => $fk.'_sum', 'label' => 'Сумма', 'format' => 'integer', 'nowrap' => true);
-    }
-*/
     $columns['Product.detail_num']['format'] = 'string';
     unset($columns['Product.id']);
     unset($columns['Product.cat_id']);
@@ -117,11 +109,7 @@
 
         foreach($aColumns as $_field => $col) {
             $fk_id = 'fk_'.$col['id'];
-            if (strpos($_field, '_discount') !== false) {
-                $row['PMFormData'][$_field] = '';
-            } elseif (strpos($_field, '_sum') !== false) {
-                $row['PMFormData'][$_field] = '';
-            }
+
             if (in_array($col['id'], array(Configure::read('Params.crossNumber'), Configure::read('Params.motor'), Configure::read('Params.motorTS')))) { //
                 $_val = $row['PMFormData'][$fk_id];
                 if (isset($col['field_type'])) {
@@ -151,6 +139,8 @@
                 } else {
                     $row['PMFormData'][$fk_id] = implode('<br />', $detail_nums);
                 }
+            } elseif ($col['is_price']) {
+                // $row['PMFormData'][$fk_id] = ($row['PMFormData'][$fk_id]) ? $row['PMFormData'][$fk_id] : '-';
             }
         }
     }
@@ -228,8 +218,8 @@ function recalcSum(id, price_id) {
 }
 
 function recalcRow(id) {
-    price_id = $('#row_' + id + ' .price-select:checked').prop('id');
-    return recalcSum(id, price_id.replace(/priceselect/, 'price'));
+    var $price_id = $('#row_' + id + ' .price-select:checked');
+    return ($price_id.length) ? recalcSum(id, $price_id.prop('id').replace(/priceselect/, 'price')) : 0;
 }
 
 function recalcAllRows() {
@@ -344,10 +334,10 @@ $(function() {
     });
 
     $('#grid_OrderProduct table.grid > thead').append('<tr><?=$headerHtml?></tr>');
-    aNumbers = <?=json_encode($aNumbers)?>;
-    cols = $('.grid thead > tr:eq(0) > th').length;
+    var aNumbers = <?=json_encode($aNumbers)?>;
+    var cols = $('.grid thead > tr:eq(0) > th').length;
     for(var i = 0; i < aNumbers.length; i++) {
-        number = aNumbers[i];
+        var number = aNumbers[i];
         var $span = $('span.x-data[data-number="' + number + '"]:eq(0)');
         var $row = $span.parent().parent();
         $row.before(tmpl('grid-header', {n: i + 1, number: number, cols: cols, items: $('span.x-data[data-number="' + number + '"]').length}));

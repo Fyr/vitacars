@@ -731,9 +731,11 @@ Grid = function(config) {
 		if (self.paging.curr > self.defaults.page) {
 			params.page = self.paging.curr;
 		}
-		// if (self.paging.limit != self.defaults.limit) {
-			params.limit = self.paging.limit;
-		// }
+		params.limit = self.paging.limit;
+		if (self.paging.limit != self.defaults.limit) {
+			params.page = 1;
+		}
+
 		// handle sorting
 		if ((self.settings.sort != self.defaults.sort) || (self.settings.direction != self.defaults.direction)) {
 			params.sort = self.settings.sort;
