@@ -59,6 +59,7 @@
     unset($columns['Product.id']);
     unset($columns['Product.cat_id']);
     unset($columns['Product.brand_id']);
+    unset($columns['OrderProduct.nn']);
     unset($columns['OrderProduct.number']);
 
     $aNumbers = array();
@@ -91,7 +92,11 @@
         }
 
         $aNumbers[] = $row['OrderProduct']['number'];
-        $row['Product']['title_rus'] = $row['Product']['title_rus'].$this->Html->tag('span', '', array('class' => 'x-data', 'data-number' => $row['OrderProduct']['number']));
+        $row['Product']['title_rus'] = $row['Product']['title_rus'].$this->Html->tag('span', '', array(
+                'class' => 'x-data',
+                'data-number' => $row['OrderProduct']['number'],
+                'data-nn' => $row['OrderProduct']['nn']
+        ));
 
         $qty = $row['OrderProduct']['qty'];
         $row['PMFormData'] = $aFormData[$product_id]['PMFormData'];
@@ -132,10 +137,10 @@
                 } else {
                     $detail_nums = explode("<br>", str_replace(array('<br />', '<br/>'), '<br>', $row['PMFormData'][$fk_id]));
                 }
-                if (count($detail_nums) > 2) {
+                if (count($detail_nums) > 1) {
                     $num_1st = array_shift($detail_nums);
                     $items = 'строк(а)';
-                    $row['PMFormData'][$fk_id] = $num_1st.$this->element('AdminProduct/detail_nums', compact('detail_nums', 'items'));
+                    $row['PMFormData'][$fk_id] = $this->element('AdminProduct/detail_nums', compact('detail_nums', 'items'));
                 } else {
                     $row['PMFormData'][$fk_id] = implode('<br />', $detail_nums);
                 }
@@ -340,7 +345,7 @@ $(function() {
         var number = aNumbers[i];
         var $span = $('span.x-data[data-number="' + number + '"]:eq(0)');
         var $row = $span.parent().parent();
-        $row.before(tmpl('grid-header', {n: i + 1, number: number, cols: cols, items: $('span.x-data[data-number="' + number + '"]').length}));
+        $row.before(tmpl('grid-header', {n: $span.data('nn'), number: number, cols: cols, items: $('span.x-data[data-number="' + number + '"]').length}));
         var setHandler = function(number) {
             $('#gh-' + number + ' span').click(function () {
                 $('#gh-' + number + ' span').toggle();

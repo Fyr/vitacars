@@ -129,7 +129,10 @@ class AdminOrdersController extends AdminController {
 		$this->set(compact('aColumns'));
 
 		$this->paginate = array(
-			'fields' => array('Product.id', 'Product.title_rus', 'Product.detail_num', 'Product.code', 'Product.cat_id', 'Product.brand_id', 'OrderProduct.number', 'OrderProduct.qty'),
+			'fields' => array(
+				'Product.id', 'Product.title_rus', 'Product.detail_num', 'Product.code', 'Product.cat_id', 'Product.brand_id',
+				'OrderProduct.nn', 'OrderProduct.number', 'OrderProduct.qty'
+			),
 			'conditions' => compact('order_id'),
 			'order' => array('OrderProduct.id' => 'ASC')
 		);
@@ -207,6 +210,7 @@ class AdminOrdersController extends AdminController {
 		// TODO: проверить номера на уникальность, если не уникальные - суммировать
 
 		foreach($aData as $i => $row) {
+			$nn = $i + 1;
 			list($number, $qty) = array_values($row);
 			if ($keyField == 'detail_num') {
 				$number = $this->DetailNum->strip($number);
@@ -221,7 +225,7 @@ class AdminOrdersController extends AdminController {
 			foreach($ids as $product_id) {
 				$aProducts[] = $product_id;
 				$this->OrderProduct->clear();
-				$this->OrderProduct->save(compact('order_id', 'number', 'product_id', 'qty'));
+				$this->OrderProduct->save(compact('order_id', 'nn', 'number', 'product_id', 'qty'));
 			}
 		}
 		return $aProducts;
@@ -306,8 +310,11 @@ class AdminOrdersController extends AdminController {
 						$aData = CsvReader::parse($file, array('detail_num', 'qty'));
 						$aData = Hash::get($aData, 'data');
 					}
-					if ($details_text = $this->request->data('Order.details_text')) {
+					if ($details_text = trim($this->request->data('Order.details_text'))) {
 						foreach(explode("\n", str_replace(array("\r\n"), "\n", $details_text)) as $line => $row) {
+							if (!strpos($row, ';')) {
+								throw new Exception(__('Incorrect format line %s in text', $line + 1));
+							}
 							list($detail_num, $qty) = explode(';', trim($row));
 							if (!($detail_num && $qty)) {
 								throw new Exception(__('Incorrect format line %s in text', $line + 1));

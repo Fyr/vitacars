@@ -513,4 +513,29 @@ class AdminUpdateController extends AdminController {
 			$this->redirect(array('action' => 'update10'));
 		}
 	}
+
+	public function update11() {
+		$this->loadModel('OrderProduct');
+		$aRowset = $this->OrderProduct->find('all');
+		try {
+			$this->OrderProduct->trxBegin();
+			$aRowset = Hash::combine($aRowset, '{n}.OrderProduct.id', '{n}.OrderProduct', '{n}.OrderProduct.order_id');
+			foreach ($aRowset as $order_id => $orderDetail) {
+				$nn = 0;
+				$number = '';
+				foreach ($orderDetail as $id => $detail) {
+					if ($number <> $detail['number']) {
+						$nn++;
+						$number = $detail['number'];
+					}
+					$this->OrderProduct->clear();
+					$this->OrderProduct->save(compact('id', 'nn'));
+				}
+			}
+			$this->OrderProduct->trxCommit();
+		} catch (Exception $e) {
+			$this->OrderProduct->trxRollback();
+			echo $e->getMessage();
+		}
+	}
 }
