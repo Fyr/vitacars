@@ -282,7 +282,8 @@ class AdminOrdersController extends AdminController {
 				'k_oplate_propis' => 'сумма прописью'
 			);
 
-			$this->set(compact('aRowset', 'aCategories', 'aSubcategories', 'aBrands', 'tpl_data'));
+			$filename = 'Счет-фактура_N_'.$order_id.'_от_'.date('Y-m-d', strtotime($order['Order']['created'])).'_'.str_replace(' ', '_', $tpl_data['Agent2']['title']).'.xls';
+			$this->set(compact('aRowset', 'aCategories', 'aSubcategories', 'aBrands', 'tpl_data', 'filename'));
 
 			$this->set('sf_header', Configure::read('Settings.sf_header'));
 			$this->set('sf_footer', Configure::read('Settings.sf_footer'));
