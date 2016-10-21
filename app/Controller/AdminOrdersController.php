@@ -19,11 +19,15 @@ class AdminOrdersController extends AdminController {
     public $uses = array('Order', 'OrderProduct', 'Product', 'DetailNum', 'Category', 'Subcategory', 'Media.Media', 'Form.PMFormField', 'Form.PMFormData', 'Brand', 'Agent');
 	public $helpers = array('Price', 'Tpl');
 
+	private function isOrderAllowed($user_id) {
+		return $this->isAdmin() || $this->currUser('orders') || $user_id == $this->currUser('id');
+	}
+
 	public function index() {
 		$this->paginate = array(
 			'fields' => array('created', 'agent_id', 'agent2_id', 'items', 'sum', 'nds', 'paid', 'currency')
 		);
-		if (!$this->isAdmin()) {
+		if (!($this->isAdmin() || $this->currUser('orders'))) {
 			$this->paginate['conditions'] = array('user_id' => $this->currUser('id'));
 		} else {
 
@@ -37,7 +41,7 @@ class AdminOrdersController extends AdminController {
     public function details($order_id) {
 		$order = $this->Order->findById($order_id);
 		$user_id = Hash::get($order, 'Order.user_id');
-		if (!$order || ($this->currUser('id') != $user_id && !$this->isAdmin())) {
+		if (!$order || !$this->isOrderAllowed($user_id)) {
 			$this->redirect(array('action' => 'index'));
 			return;
 		}
@@ -71,12 +75,10 @@ class AdminOrdersController extends AdminController {
 		}
 		// Загружаем права доступа на поля для ордера
 		$fieldRights = $this->_getRights('price');
-		if ($this->isAdmin()) {
-			if ($this->currUser('id') != $user_id) { // если админ просматривает чужой
-				$this->loadModel('User');
-				$fieldRights = Hash::get($this->User->findById($user_id), 'User.price_rights');
-				$fieldRights = ($fieldRights) ? explode(',', $fieldRights) : array();
-			}
+		if (($this->isAdmin() || $this->currUser('orders')) && $this->currUser('id') != $user_id) { // если админ просматривает чужой
+			$this->loadModel('User');
+			$fieldRights = Hash::get($this->User->findById($user_id), 'User.price_rights');
+			$fieldRights = ($fieldRights) ? explode(',', $fieldRights) : array();
 		}
 		$aParams = $this->PMFormField->getFieldsList('SubcategoryParam', '');
 		$aFields = array();
@@ -185,6 +187,7 @@ class AdminOrdersController extends AdminController {
 		$this->set('aBrandMedia', $aBrandMedia);
     }
 
+	/*
     public function upload() {
 		if ($file = Hash::get($_FILES, 'csv_file.tmp_name')) {
 			try {
@@ -203,6 +206,7 @@ class AdminOrdersController extends AdminController {
 			}
 		}
 	}
+	*/
 
 	private function _processUpload($order_id, $aData, $keyField = 'detail_num') {
 
@@ -232,6 +236,12 @@ class AdminOrdersController extends AdminController {
 	}
 
 	public function printXls($order_id) {
+		$order = $this->Order->findById($order_id);
+		$user_id = Hash::get($order, 'Order.user_id');
+		if (!$this->isOrderAllowed($user_id)) {
+			$this->redirect(array('action' => 'index'));
+			return;
+		}
 		if ($this->request->is(array('put', 'post'))) {
 			ignore_user_abort(true);
 			set_time_limit(0);
@@ -253,7 +263,6 @@ class AdminOrdersController extends AdminController {
 			$conditions = array('Brand.object_type' => 'Brand', 'Brand.id' => $ids);
 			$aBrands = $this->Brand->find('list', compact('conditions'));
 
-			$order = $this->Order->findById($order_id);
 			$order['Order']['created'] = date('d.m.Y', strtotime($order['Order']['created']));
 			$agent = $this->Agent->findById($order['Order']['agent_id']);
 			$agent2 = $this->Agent->findById($order['Order']['agent2_id']);
@@ -288,11 +297,21 @@ class AdminOrdersController extends AdminController {
 			$this->set('sf_header', Configure::read('Settings.sf_header'));
 			$this->set('sf_footer', Configure::read('Settings.sf_footer'));
 		} else {
-			$this->redirect(array('action' => 'index'));
+
 		}
 	}
 
 	public function edit($id = 0) {
+		$lAllowed = true;
+		if ($id) {
+			$order = $this->Order->findById($id);
+			$user_id = Hash::get($order, 'Order.user_id');
+			if (!$this->isOrderAllowed($user_id)) {
+				$this->redirect(array('action' => 'index'));
+				return;
+			}
+		}
+
 		if (!$id) {
 			$this->request->data('Order.user_id', $this->currUser('id'));
 		}
@@ -358,6 +377,13 @@ class AdminOrdersController extends AdminController {
 	}
 
 	public function addDetail($order_id) {
+		$order = $this->Order->findById($order_id);
+		$user_id = Hash::get($order, 'Order.user_id');
+		if (!$this->isOrderAllowed($user_id)) {
+			$this->redirect(array('action' => 'index'));
+			return;
+		}
+
 		$keyField = 'detail_num';
 		$qty = 0;
 		if ($number = $this->request->data('detail_num')) {
@@ -388,4 +414,33 @@ class AdminOrdersController extends AdminController {
 		}
 		$this->redirect(array('action' => 'details', $order_id));
 	}
+
+	/*
+	public function delete($id) {
+		$model = $this->request->query('model');
+		if ($model === 'OrderProduct') {
+			$orderDetail = $this->OrderProduct->findById($id);
+			if ($orderDetail) {
+				$model = 'Order';
+				$id = Hash::get($orderDetail, 'OrderProduct.order_id');
+				$order = $this->Order->findById($id);
+				$user_id = Hash::get($order, 'Order.user_id');
+				if ($this->isOrderAllowed($user_id)) {
+					parent::delete($id);
+					$this->setFlash(__('Products have been added', count($aProducts)), 'success');
+					return;
+				}
+			}
+		} elseif ($model === 'Order') {
+			$order = $this->Order->findById($id);
+			$user_id = Hash::get($order, 'Order.user_id');
+			$isAllowed = $this->isOrderAllowed($user_id);
+			if ($this->isOrderAllowed($user_id)) {
+				parent::delete($id);
+				return;
+			}
+		}
+		$this->redirect(array('action' => 'index'));
+	}
+	*/
 }

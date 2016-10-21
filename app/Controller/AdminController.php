@@ -61,12 +61,10 @@ class AdminController extends AppController {
 				$this->aNavBar['Upload'] = array('label' => __('Uploadings'), 'href' => '', 'submenu' => array());
 				$this->aNavBar['Upload']['submenu'][] = array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index'));
 			}
-			if (AuthComponent::user('orders')) {
-				$this->aNavBar['Orders'] = array('label' => __('Orders'), 'href' => '', 'submenu' => array(
-					array('label' => __('Orders'), 'href' => array('controller' => 'AdminOrders', 'action' => 'index')),
-					array('label' => __('Agents'), 'href' => array('controller' => 'AdminAgents', 'action' => 'index')),
-				));
-			}
+			$this->aNavBar['Orders'] = array('label' => __('Orders'), 'href' => '', 'submenu' => array(
+				array('label' => __('Orders'), 'href' => array('controller' => 'AdminOrders', 'action' => 'index')),
+				array('label' => __('Agents'), 'href' => array('controller' => 'AdminAgents', 'action' => 'index')),
+			));
 		}
 		
 		
