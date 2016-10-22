@@ -12,6 +12,10 @@ $aVars = array(
 		'{$Order.nds}' => 'НДС, %',
 	),
 	'Контрагенты' => array(
+		'{$Agent.&lt;поле&gt;}' => 'Поставщик',
+		'{$Agent2.&lt;поле&gt;}' => 'Получатель',
+	),
+	'Поля контрагента' => array(
 		'{$Agent.title}' => 'Наименование',
 		'{$Agent.full_title}' => 'Полное наименование',
 		'{$Agent.address}' => 'Адрес',
@@ -23,7 +27,14 @@ $aVars = array(
 		'{$Agent.bank_name}' => 'Наименование банка',
 		'{$Agent.bank_rs}' => 'Расчетный счет',
 		'{$Agent.bank_address}' => 'Адрес банка'
-	)
+	),
+	'Итоги' => array(
+		'{$Itogo.items}' => 'Кол-во позиций',
+		'{$Itogo.sum}' => 'Общая сумма',
+		'{$Itogo.nds}' => 'Сумма НДС (от общей)',
+		'{$Itogo.k_oplate}' => 'Общая сумма с НДС',
+		'{$Itogo.k_oplate_propis}' => 'Общая сумма с НДС прописью',
+	),
 );
 foreach($aVars as $name => $group) {
 	echo $name.':<br/>';
@@ -37,3 +48,4 @@ foreach($aVars as $name => $group) {
 <?=$this->PHForm->editor('sf_header', array('fullwidth' => true));?>
 <label class="control-label"><b>Конец</b></label>
 <?=$this->PHForm->editor('sf_footer', array('fullwidth' => true));?>
+
