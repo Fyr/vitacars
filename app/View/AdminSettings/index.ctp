@@ -15,7 +15,8 @@
 				'options' => $aBrandOptions, 'value' => explode(',', $this->request->data('Settings.gpz_brands')),
 				'label' => array('text' => 'Брэнды для поиска Gpz', 'class' => 'control-label')
 			)),
-		'Шаблон СФ' => $this->element('AdminSettings/orders')
+		'Tpl_Orders' => $this->element('AdminSettings/orders'),
+		'Tpl_ProductDescr' => $this->element('AdminSettings/products')
 	);
 
 	echo $this->element('admin_tabs', compact('aTabs'));

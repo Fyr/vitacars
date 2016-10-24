@@ -27,16 +27,52 @@ class AdminSettingsController extends AdminController {
 		$this->loadModel('Brand');
 		$this->set('aBrandOptions', $this->Brand->find('list', array('order' => 'sorting DESC')));
     }
-/*
-	public function index($tpl = '') {
-		if ($this->request->is('post') || $this->request->is('put')) {
-			$this->request->data('Settings.id', 1);
-			$this->Settings->save($this->request->data);
-			$this->setFlash(__('Settings have been saved'), 'success');
-			return $this->redirect(array('action' => 'index', $tpl));
-		}
-		$this->request->data = $this->Settings->getData();
-		$this->set('tpl', $tpl);
+
+	public function products() {
 	}
-*/
+
+	public function updateProducts() {
+		$this->loadModel('Task');
+		$this->loadModel('Product');
+
+		$task = $this->Task->getActiveTask('ProductDescr', 0);
+		if ($task) {
+			$id = Hash::get($task, 'Task.id');
+			$status = $this->Task->getStatus($id);
+
+			if ($status == Task::DONE) {
+				$aID = $this->Task->getData($id, 'xdata');
+				$this->Task->close($id);
+				$this->setFlash(__('%s products have been successfully updated', count($aID)), 'success');
+			} elseif ($status == Task::ABORTED) {
+				$this->setFlash(__('Processing was aborted by user'), 'error');
+			}  elseif ($status == Task::ERROR) {
+				$xdata = $this->Task->getData($id, 'xdata');
+				$this->setFlash(__('Process execution error! %s', $xdata), 'error');
+			}
+			if (in_array($status, array(Task::DONE, Task::ABORTED, Task::ERROR))) {
+				$this->Task->close($id);
+				$this->redirect(array('action' => 'updateProducts'));
+				return;
+			}
+
+			$task = $this->Task->getFullData($id);
+			$this->set(compact('task'));
+		} else {
+			if ($this->request->is(array('post', 'put'))) {
+				// fdebug($this->request->data);
+				$id = $this->Task->add(0, 'ProductDescr', $this->request->data('Filter'));
+				$this->Task->runBkg($id);
+				$this->redirect(array('action' => 'updateProducts'));
+				return;
+			}
+
+			$this->loadModel('Brand');
+			$this->set('aBrandOptions', $this->Brand->find('list', array('order' => 'sorting ASC')));
+
+			$this->loadModel('Category');
+			$this->set('aCategoryOptions', $this->Category->find('list', array('order' => 'sorting ASC')));
+		}
+	}
+
 }

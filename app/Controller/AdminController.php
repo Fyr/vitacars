@@ -38,9 +38,9 @@ class AdminController extends AppController {
 				array('label' => __('Sales by period'), 'href' => array('controller' => 'AdminReports', 'action' => 'sales')),
 			)),
 			'System' => array('label' => __('System'), 'href' => '', 'submenu' => array(
-				'Export' => array('label' => __('Data export'), 'href' => array('controller' => 'AdminExport', 'action' => 'index')),
 				'Settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index')),
 				'Events' => array('label' => __('Events'), 'href' => array('controller' => 'AdminUserLogs', 'action' => 'index')),
+				'UpdateProducts' => array('label' => __('Update products'), 'href' => array('controller' => 'AdminSettings', 'action' => 'updateProducts')),
 			))
 		);
 		$this->aBottomLinks = $this->aNavBar;

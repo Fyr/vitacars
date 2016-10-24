@@ -651,3 +651,18 @@ msgstr "Некорректный формат текста (строка N %s)"
 
 msgid "%s products have been added"
 msgstr "%s позиций добавлено"
+
+msgid "Update products"
+msgstr "Обновление продуктов"
+
+msgid "Descr_BY"
+msgstr "Описание (BY)"
+
+msgid "Descr_RU"
+msgstr "Описание (RU)"
+
+msgid "Tpl_Orders"
+msgstr "Шаблон СФ"
+
+msgid "Tpl_ProductDescr"
+msgstr "Шаблон продукта"

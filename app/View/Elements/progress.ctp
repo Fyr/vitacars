@@ -67,7 +67,6 @@ function renderStatus(task) {
 function updateStatus(url) {
 	$.get(url, null, function(response){
 		if (checkJson(response)) {
-			console.log(response);
 			renderStatus(response.data);
 			if (response.data.status == '<?=Task::CREATED?>' || response.data.status == '<?=Task::RUN?>') {
 				setTimeout(function() { updateStatus(url) }, 1000);
@@ -94,6 +93,11 @@ function updateStatus(url) {
 $(function(){
 	ABORT = 'Остановка процесса...';
 <?
+	if (isset($task)) {
+?>
+	renderStatus(<?=json_encode($task)?>);
+<?
+	}
 	if (isset($id)) {
 ?>
 	updateStatus('<?=$this->Html->url(array('controller' => 'AdminAjax', 'action' => 'getTaskStatus', $id))?>.json');
