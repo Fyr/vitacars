@@ -6,6 +6,22 @@
     $title = 'Счет-фактура N '.$order['Order']['id'].' от '.date('d.m.Y', strtotime($order['Order']['created']));
     echo $this->element('admin_title', compact('title'));
     $currency = $order['Order']['currency'];
+
+    $columns = array_merge(
+        array(
+            'Product.image' => array('key' => 'Product.image', 'label' => 'Фото', 'align' => 'center', 'showFilter' => false, 'showSorting' => false),
+            'Category.title' => array('key' => 'Category.title', 'label' => 'Брэнд', 'showFilter' => false, 'showSorting' => true)
+        ),
+        $this->PHTableGrid->getDefaultColumns($objectType),
+        $aColumns
+    );
+
+    $columns['Product.detail_num']['format'] = 'string';
+    unset($columns['Product.id']);
+    unset($columns['Product.cat_id']);
+    unset($columns['Product.brand_id']);
+    unset($columns['OrderProduct.nn']);
+    unset($columns['OrderProduct.number']);
 ?>
     <form action="<?=$this->Html->url(array('action' => 'addDetail', $order['Order']['id']))?>" method="post">
         <div class="input-append" id="filterByNumber">
@@ -26,7 +42,33 @@
 ?>
         <button id="submitFilter" class="btn" type="button"><i class="icon icon-search"></i> Найти</button>
         <button id="clearFilter" class="btn" type="button"><i class="icon icon-remove"></i> Очистить</button>
+
+        <div class="pull-right">
+            Поля
+<?
+    $columnOptions = Hash::combine($columns, '{s}.key', '{s}.label');
+    $columnOptions['price'] = 'Выбранная цена';
+    unset($columnOptions['Product.image']);
+
+    // Поля для печати по умолчанию
+    $values = array('Product.title_rus', 'Product.code', 'OrderProduct.qty', 'price', 'discount', 'row_sum');
+    foreach($aColumns as $_field => $col) {
+        if (Hash::get($col, 'is_price'))  {
+            unset($columnOptions[$col['key']]);
+        }
+    }
+    $options = array(
+        'label' => false, 'class' => 'multiselect grid-filter-input', 'type' => 'select', 'multiple' => true,
+        'div' => array('class' => 'inline multiMotors'),
+        'options' => $columnOptions,
+        'value' => $values
+    );
+    echo $this->PHForm->input('printCols', $options);
+?>
+            <button type="button" id="print" class="btn" onclick="sendToPrint();return false;"><i class="icon icon-print"></i> Печать</button>
+        </div>
     </div>
+
 <?
     $actions = $this->PHTableGrid->getDefaultActions($objectType);
 
@@ -45,22 +87,6 @@
     $actions['checked']['print']['label'] = __('Print');
     $actions['checked']['print']['icon'] = 'icon-color icon-print';
     $actions['checked']['print']['onclick'] = 'sendToPrint();return false;';
-
-    $columns = array_merge(
-        array(
-            'Product.image' => array('key' => 'Product.image', 'label' => 'Фото', 'align' => 'center', 'showFilter' => false, 'showSorting' => false),
-            'Category.title' => array('key' => 'Category.title', 'label' => 'Брэнд', 'showFilter' => false, 'showSorting' => true)
-        ),
-        $this->PHTableGrid->getDefaultColumns($objectType),
-        $aColumns
-    );
-
-    $columns['Product.detail_num']['format'] = 'string';
-    unset($columns['Product.id']);
-    unset($columns['Product.cat_id']);
-    unset($columns['Product.brand_id']);
-    unset($columns['OrderProduct.nn']);
-    unset($columns['OrderProduct.number']);
 
     $aNumbers = array();
     $greenRows = array();
@@ -373,10 +399,15 @@ $(function() {
     }
 ?>
 
-
     $('#brand').multiselect({
         nonSelectedText: 'Выберите бренд',
         nSelectedText: 'выбрано'
+    });
+
+    $('#printCols').multiselect({
+        nonSelectedText: 'Выберите поля для печати',
+        nSelectedText: 'выбрано',
+        numberDisplayed: 1,
     });
 
     $('#submitFilter').click(function(){
@@ -404,11 +435,13 @@ function getXData() {
     var json_data = {};
     $('.grid-chbx-row:checked').each(function(){
         var id = this.value;
-        var price_id = $('[name="price-' + id + '"]:checked').prop('id');
-        var qty = normalizeSum($('#qty-' + id).val());
-        var price = normalizeSum($('#' + price_id.replace(/select/, '')).html());
-        var discount = normalizeSum($('#discount-' + id).val());
-        json_data[id] = {price: price, qty: qty, discount: discount, price_id: price_id};
+        if ($('[name="price-' + id + '"]:checked').length) {
+            var price_id = $('[name="price-' + id + '"]:checked').prop('id');
+            var qty = normalizeSum($('#qty-' + id).val());
+            var price = normalizeSum($('#' + price_id.replace(/select/, '')).html());
+            var discount = normalizeSum($('#discount-' + id).val());
+            json_data[id] = {price: price, qty: qty, discount: discount, price_id: price_id};
+        }
     });
     return json_data;
 }
@@ -420,7 +453,8 @@ function saveXData() {
 }
 
 function sendToPrint() {
-    $('#json_data').val(JSON.stringify(getXData()));
+    $('#printForm #json_data').val(JSON.stringify(getXData()));
+    $('#printForm #printCols').val($('#printCols').val());
     $('#printForm').submit();
 }
 
@@ -451,5 +485,6 @@ function applyXData(xdata) {
 <form id="printForm" action="<?=$this->Html->url(array('action' => 'printXls', $order['Order']['id']))?>" method="post">
 <?
     echo $this->Form->hidden('json_data');
+    echo $this->Form->hidden('printCols');
 ?>
 </form>

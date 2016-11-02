@@ -250,6 +250,30 @@ class AdminOrdersController extends AdminController {
 
 			$json_data = json_decode($this->request->data('json_data'), true);
 			$aRowset = $this->OrderProduct->findAllById(array_keys($json_data));
+			$printCols = $this->request->data('printCols');
+			$printCols = ($printCols) ? explode(',', $printCols) : array();
+
+			$aParams = $this->PMFormField->getFieldsList('SubcategoryParam', '');
+			$aFieldOptions = array(
+				'Category.title' => __('Brand'),
+				'Product.title_rus' => __('Title rus'),
+				'Product.code' => __('Code'),
+			);
+			foreach($aParams as $fk_id => $param) {
+				$key = 'PMFormData.fk_'.$fk_id;
+				$aFieldOptions[$key] = $param['PMFormField']['label'];
+			}
+			$aFieldOptions = Hash::merge($aFieldOptions, array(
+				'OrderProduct.qty' => __('Qty'),
+				'price' => __('Price'),
+				'discount' => __('Discount'),
+				'row_sum' => __('Sum')
+			));
+			foreach($aFieldOptions as $key => $label) {
+				if (!in_array($key, $printCols)) {
+					unset($aFieldOptions[$key]);
+				}
+			}
 
 			$ids = array_unique(Hash::extract($aRowset, '{n}.Product.cat_id'));
 			$conditions = array('Category.object_type' => 'Category', 'Category.id' => $ids);
@@ -272,6 +296,8 @@ class AdminOrdersController extends AdminController {
 			$tpl_data['Agent'] = $agent['Agent'];
 			$tpl_data['Agent2'] = $agent2['Agent'];
 
+			$ids = array_unique(Hash::extract($aRowset, '{n}.Product.id'));
+			$aFormData = Hash::combine($this->PMFormData->findAllByObjectId($ids), '{n}.PMFormData.object_id', '{n}.PMFormData');
 			$_total = 0;
 			foreach ($aRowset as &$Product) {
 				$id = $Product['OrderProduct']['id'];
@@ -281,6 +307,8 @@ class AdminOrdersController extends AdminController {
 				$sum = $price * $qty;
 				$Product['sum'] = $sum = round($sum - $sum * $discount / 100, 2);
 				$_total += $sum;
+
+				$Product['PMFormData'] = $aFormData[$Product['Product']['id']];
 			}
 			$nds = round($_total * $order['Order']['nds'] / 100, 2);
 			$tpl_data['Itogo'] = array(
@@ -292,7 +320,7 @@ class AdminOrdersController extends AdminController {
 			);
 
 			$filename = 'Счет-фактура_N_'.$order_id.'_от_'.date('Y-m-d', strtotime($order['Order']['created'])).'_'.str_replace(' ', '_', $tpl_data['Agent2']['title']).'.xls';
-			$this->set(compact('aRowset', 'aCategories', 'aSubcategories', 'aBrands', 'tpl_data', 'filename'));
+			$this->set(compact('aRowset', 'aCategories', 'aSubcategories', 'aBrands', 'tpl_data', 'filename', 'aFieldOptions', 'printCols', 'aParams'));
 
 			$this->set('sf_header', Configure::read('Settings.sf_header'));
 			$this->set('sf_footer', Configure::read('Settings.sf_footer'));

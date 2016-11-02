@@ -10,7 +10,7 @@
         <thead>
             <tr>
 <?
-	foreach(array(/*__('Brand'), __('Category'), __('Subcategory'), __('Title'), */__('Title rus'), __('Code'), __('Qty'), __('Price'), __('Discount'), __('Sum')) as $label) {
+	foreach($aFieldOptions as $label) {
 ?>
                 <th><?=$label?></th>
 <?
@@ -25,20 +25,49 @@
 	foreach ($aRowset as $Product) {
 		$class = ($class == 'even') ? 'odd' : 'even';
 		$subcat_id = $Product['Product']['subcat_id'];
+		$options = array('class' => $class);
 ?>
 		<tr class="row">
-			<!--td class="<?=$class?>"><?=$aBrands[$Product['Product']['brand_id']]?></td>
-			<td class="<?=$class?>"><?=$aCategories[$Product['Product']['cat_id']]?></td>
-			<td class="<?=$class?>"><?=(isset($aSubcategories[$subcat_id])) ? $aSubcategories[$subcat_id] : ''?></td>
-			<td class="<?=$class?>"><?=$Product['Product']['title']?></td-->
-			<td class="<?=$class?>"><?=$Product['Product']['title_rus']?></td>
-			<td class="<?=$class?>">&nbsp;<?=$Product['Product']['code']?></td>
-			<td class="<?=$class?>" align="right">&nbsp;<?=$Product['qty']?></td>
-			<td class="<?=$class?>" align="right">&nbsp;<?=$this->Price->format($Product['price'], $currency)?></td>
-			<td class="<?=$class?>" align="right">&nbsp;<?=($Product['discount']) ? $Product['discount'].'%' : ''?></td>
-			<td class="<?=$class?>" align="right">&nbsp;<?=$this->Price->format($Product['sum'], $currency)?></td>
+<?
+		foreach($aFieldOptions as $key => $label) {
+			$val = '';
+			if ($key == 'Category.title') {
+				$val = $aBrands[$Product['Product']['brand_id']];
+			} elseif ($key == 'qty') {
+				$val = $Product['qty'];
+				$options['align'] = 'right';
+			} elseif ($key == 'price') {
+				$val = $this->Price->format($Product['price'], $currency);
+				$options['align'] = 'right';
+			} elseif ($key == 'discount') {
+				$val = ($Product['discount']) ? $Product['discount'].'%' : '';
+				$options['align'] = 'right';
+			} elseif ($key == 'row_sum') {
+				$val = $this->Price->format($Product['sum'], $currency);
+				$options['align'] = 'right';
+			} elseif (strpos($key, 'PMFormData.') !== false) {
+				$fk_id = str_replace('PMFormData.fk_', '', $key);
+				$col = $aParams[$fk_id]['PMFormField'];
+				$val = Hash::get($Product, $key);
+				if ($col['field_type'] == FieldTypes::INT) {
+					$val = (intval($val)) ? $val : '';
+					$options['align'] = 'right';
+				} elseif ($col['field_type'] == FieldTypes::FLOAT) {
+					$val = (floatval($val)) ? number_format($val, 2, ',', ' ') : '';
+					$options['align'] = 'right';
+				} elseif ($col['field_type'] == FieldTypes::MULTISELECT) {
+					$val = str_replace(',', '<br />', $val);
+				} elseif ($col['field_type'] == FieldTypes::TEXTAREA) {
+					$val = nl2br($val);
+				}
+			} else {
+				$val = '&nbsp;'.Hash::get($Product, $key);
+			}
+			echo $this->Html->tag('td', $val, $options)."\r\n";
+		}
+?>
 		</tr>
-<?php 
+<?php
 	}
 ?>
         </tbody>
