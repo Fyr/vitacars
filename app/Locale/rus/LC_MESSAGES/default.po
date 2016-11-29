@@ -245,10 +245,13 @@ msgid "Price"
 msgstr "Цена"
 
 msgid "Teaser"
-msgstr "Анонс"
+msgstr "Анонс .BY"
 
 msgid "Teaser Ru"
-msgstr "Анонс RU"
+msgstr "Анонс .RU"
+
+msgid "Teaser Ua"
+msgstr "Анонс .UA"
 
 msgid "Published"
 msgstr "Опубликовано"
@@ -655,11 +658,8 @@ msgstr "%s позиций добавлено"
 msgid "Update products"
 msgstr "Обновление продуктов"
 
-msgid "Descr_BY"
-msgstr "Описание (BY)"
-
-msgid "Descr_RU"
-msgstr "Описание (RU)"
+msgid "Descr"
+msgstr "Описание"
 
 msgid "Tpl_Orders"
 msgstr "Шаблон СФ"

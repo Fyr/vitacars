@@ -86,7 +86,6 @@ F3M2011
 		'label' => array('text' => __('Slug'), 'class' => 'control-label')
 	));
 	echo $this->PHForm->input('count');
-	echo $this->PHForm->input('teaser');
 	echo $this->PHForm->input('status', array(
 		'label' => false, 
 		'multiple' => 'checkbox', 

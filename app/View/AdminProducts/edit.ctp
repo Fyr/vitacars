@@ -18,8 +18,7 @@
     
     $aTabs = array(
         'General' => $this->element('/AdminProduct/admin_edit_General'),
-		'Descr_BY' => $this->element('Article.edit_body'),
-        'Descr_RU' => $this->element('Article.edit_body', array('field' => 'body_ru')),
+        'Descr' => $this->element('edit_body'),
 		'SEO' => $this->element('/AdminProduct/admin_edit_Seo'),
 		'Tech-params' => $this->element('/AdminProduct/admin_edit_TechParams', compact('form', 'formValues'))
     );
