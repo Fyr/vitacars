@@ -28,7 +28,7 @@ class TechDocApi extends AppModel {
 		$curl = new Curl($url);
 		$curl->setOption(CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:16.0) 2016");
 		$curl->setParam('_server', json_encode($_SERVER));
-		
+
 		$this->writeLog('REQUEST', 'URL: '.$url.' DATA: '.json_encode($data));
 		$response = $curl->setMethod(Curl::POST)->sendRequest();
 		$this->writeLog('RESPONSE', $response);
@@ -44,7 +44,7 @@ class TechDocApi extends AppModel {
 		$response = json_decode($response, true);
 		
 		if (isset($response['error']) && $response['error']) {
-			throw new Exception($response['error']);
+			throw new Exception('TechDoc API: '.$response['error']);
 		}
 		if (!$response || !is_array($response)) {
 			throw new Exception('TechDoc API: Bad response from server');
