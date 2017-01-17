@@ -538,4 +538,60 @@ class AdminUpdateController extends AdminController {
 			echo $e->getMessage();
 		}
 	}
+
+	public function update12() {
+		App::uses('CsvReader', 'Vendor');
+		$this->loadModel('SqlStats');
+		$this->loadModel('WebStats');
+		$project = 'vcars';
+		try {
+			$this->SqlStats->trxBegin();
+			$keys = array('db_name', 'qty', 'q_time', 'url');
+			$data = CsvReader::parse('sql_stats.log', $keys, ',');
+			foreach ($data['data'] as $row) {
+				$row['project'] = $project;
+				$row['q_time'] = $row['q_time'] / 1000;
+				$this->SqlStats->clear();
+				$this->SqlStats->save($row);
+			}
+			$this->SqlStats->trxCommit();
+			echo 'SQL stats: Processed '.count($data['data']).' rows<br/>';
+		} catch (Exception $e) {
+			$this->SqlStats->trxRollback();
+			echo 'SQL stats error: '.$e->getMessage().'<br/>';
+		}
+		try {
+			$this->WebStats->trxBegin();
+			$keys = array('q_time', 'url');
+			$data = CsvReader::parse('web_stats.log', $keys, ',');
+			foreach ($data['data'] as $row) {
+				$row['project'] = $project;
+				$this->WebStats->clear();
+				$this->WebStats->save($row);
+			}
+			$this->WebStats->trxCommit();
+			echo 'WWW stats: Processed '.count($data['data']).' rows<br/>';
+		} catch (Exception $e) {
+			$this->WebStats->trxRollback();
+			echo 'WWW stats error: '.$e->getMessage().'<br/>';
+		}
+	}
+
+	public function update13() {
+		$this->layout = 'admin';
+		$code = 4207534;
+		$this->loadModel('Product');
+		$this->Product->unbindModel(array(
+			'belongsTo' => array('Category', 'Subcategory', 'Brand'),
+			'hasOne' => array('Media', 'Seo', 'Search', 'PMFormData')
+		));
+		$fields = array('Product.id');
+		$product = $this->Product->findByCode($code, $fields);
+
+		$this->loadModel('Form.PMFormData');
+		$fields = array('PMFormData.id');
+		$formData = $this->PMFormData->findByObjectTypeAndObjectId('ProductParam', $product['Product']['id'], $fields);
+		// $this->PMFormData->save(array('id' => $product['PMFormData']['id'], $key => $val));
+		$this->autoRender = true;
+	}
 }

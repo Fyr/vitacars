@@ -47,45 +47,57 @@ class Import1CTask extends AppShell {
 
         $aID = array();
         $i = 0;
-        foreach($aData as $code => $val) {
-            $i++;
-            $status = $this->Task->getStatus($this->id);
-            if ($status == Task::ABORT) {
-                $this->Logger->write('ABORTED', array('TaskID' => $this->id, 'File' => $this->params['csv_file']));
-                throw new Exception(__('Processing was aborted by user'));
+        $this->Product->unbindModel(array(
+            'belongsTo' => array('Category', 'Subcategory', 'Brand'),
+            'hasOne' => array('Media', 'Seo', 'Search', 'PMFormData')
+        ), false);
+        try {
+            $this->PMFormData->trxBegin();
+            foreach ($aData as $code => $val) {
+                $i++;
+                $status = $this->Task->getStatus($this->id);
+                if ($status == Task::ABORT) {
+                    throw new Exception(__('Processing was aborted by user'));
+                }
+
+                $fields = array('Product.id');
+                $product = $this->Product->findByCode($code, $fields);
+                $key = $data['keys'][1];
+                $logData = array(
+                    'code' => $code,
+                    'fk_n' => $data['keys'][1],
+                    'val' => $val,
+                    'data' => implode(';', $data['data'][$i - 1]),
+                    'status' => 'ERROR'
+                );
+                if ($product) {
+                    $fields = array('PMFormData.id');
+                    $formData = $this->PMFormData->findByObjectTypeAndObjectId('ProductParam', $product['Product']['id'], $fields);
+                    $this->PMFormData->save(array('id' => $formData['PMFormData']['id'], $key => $val));
+
+                    $logData['product_id'] = $product['Product']['id'];
+                    $logData['form_data_id'] = $formData['PMFormData']['id'];
+                    $logData['status'] = 'OK';
+
+                    $aID[] = $product['Product']['id'];
+                }
+
+                if (Configure::read('import.db_log')) {
+                    $this->ImportLog->clear();
+                    $this->ImportLog->save($logData);
+                }
+
+                $this->Task->setProgress($this->id, $i);
             }
+            $this->PMFormData->trxCommit();
 
-            $product = $this->Product->findByCode($code);
-            $key = $data['keys'][1];
-            $logData = array(
-                'code' => $code,
-                'fk_n' => $data['keys'][1],
-                'val' => $val,
-                'data' => implode(';', $data['data'][$i - 1]),
-                'status' => 'ERROR'
-            );
-            if ($product) {
-                //$this->PMFormData->trxBegin();
-                $this->PMFormData->save(array('id' => $product['PMFormData']['id'], $key => $val));
-                // $this->PMFormData->trxCommit();
-
-                $logData['product_id'] = $product['Product']['id'];
-                $logData['form_data_id'] = $product['PMFormData']['id'];
-                $logData['status'] = 'OK';
-
-                $aID[] = $product['Product']['id'];
-            }
-
-            if (Configure::read('import.db_log')) {
-                $this->ImportLog->clear();
-                $this->ImportLog->save($logData);
-            }
-
-            $this->Task->setProgress($this->id, $i);
+            $this->Task->setData($this->id, 'xdata', $aID);
+            $this->Task->setStatus($this->id, Task::DONE);
+            $this->Logger->write('DONE', array('TaskID' => $this->id, 'File' => $this->params['csv_file']));
+        } catch (Exception $e) {
+            $this->PMFormData->trxRollback();
+            $this->Logger->write('ABORTED', array('TaskID' => $this->id, 'File' => $this->params['csv_file']));
+            throw $e;
         }
-
-        $this->Task->setData($this->id, 'xdata', $aID);
-        $this->Task->setStatus($this->id, Task::DONE);
-        $this->Logger->write('DONE', array('TaskID' => $this->id, 'File' => $this->params['csv_file']));
     }
 }
