@@ -9,7 +9,7 @@ class AdminProductsController extends AdminController {
     public $uses = array('Product', 'Form.PMForm', 'Form.PMFormField', 'Form.PMFormData', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media', 'Search', 'DetailNum');
     public $helpers = array('ObjectType', 'Form.PHFormFields', 'Form.PHFormData', 'Price');
 
-    private $paramDetail, $aFormula, $aFieldKeys, $aBrandOptions;
+    private $paramDetail, $aFormula, $aFieldKeys, $aBrandOptions, $aFields;
 
 	public function beforeFilter() {
 		parent::beforeFilter();
@@ -50,6 +50,7 @@ class AdminProductsController extends AdminController {
     	$this->set('aParams', $aParams);
     	$aLabels = array();
     	$aFields = array();
+		$aCols = array();
     	$paramMotor = 0;
     	foreach($aParams as $id => $_field) {
 	    	if (!$field_rights || in_array($_field['PMFormField']['id'], $field_rights)) {
@@ -60,9 +61,19 @@ class AdminProductsController extends AdminController {
 				if ($_field['PMFormField']['id'] == Product::MOTOR) {
 					$this->set('paramMotor', 'fk_'.$id);
 				}
+				$aCols[$alias] = array(
+					'key' => $alias,
+					'label' => $_field['PMFormField']['label'],
+					'format' => (in_array($_field['PMFormField']['field_type'], array(FieldTypes::INT, FieldTypes::FLOAT, FieldTypes::FORMULA))) ? 'integer' : 'string'
+				);
     		}
     	}
     	$this->set('aLabels', $aLabels);
+		if (!$this->_isGridFilter()) {
+			$this->aFields = $aFields;
+			$aFields = array();
+			$this->set('aCols', $aCols);
+		}
         $this->paginate = array(
            	'fields' => array_merge(array('title', 'title_rus', 'detail_num', 'code', 'brand_id', 'cat_id'), $aFields)
         );
@@ -222,6 +233,15 @@ class AdminProductsController extends AdminController {
 		$this->paginate['order'] = implode(', ', $order);
 	}
 
+	private function _isGridFilter() {
+		foreach($this->request->named as $key => $val) {
+			if (strpos($key, 'Product.') !== false || strpos($key, 'PMFormData.') !== false) {
+				return true;
+			}
+		}
+		return false;
+	}
+
     public function index() {
     	set_time_limit(60 * 5); //
 		$this->Product->unbindModel(array(
@@ -229,12 +249,29 @@ class AdminProductsController extends AdminController {
 			'hasOne' => array('Seo', 'Media')
 		), false);
 		// $this->Product->belongsTo = false;
-    	$this->_processParams();
+		$lFlag = $this->_isGridFilter();
+		$this->_processParams();
 
+		if (!$lFlag) {
+			// вырезать связь с PMFormData для ускорения
+			$this->Product->unbindModel(array(
+				'hasOne' => array('PMFormData', 'Search')
+			), false);
+		}
         $aRowset = $this->PCTableGrid->paginate('Product');
+		if (!$lFlag) {
+			// добавить данные отдельным запросом
+			$fields = array_merge($this->aFields, array('object_id'));
+			$conditions = array('object_type' => 'ProductParam', 'object_id' => Hash::extract($aRowset, '{n}.Product.id'));
+			$formData = $this->PMFormData->find('all', compact('fields', 'conditions'));
+			$formData = Hash::combine($formData, '{n}.PMFormData.object_id', '{n}.PMFormData', '{n}.PMFormData.id');
+			foreach($aRowset as &$row) {
+				$row['PMFormData'] = $formData[$row['Product']['id']];
+			}
+		}
         $this->set('aRowset', $aRowset);
 
-		$aCategories = $this->Category->findAllById(Hash::extract($aRowset, '{n}.Product.cat_id'));
+		$aCategories = $this->Category->findAllById(array_unique(Hash::extract($aRowset, '{n}.Product.cat_id')));
 		$aCategories = Hash::combine($aCategories, '{n}.Category.id', '{n}.Category');
 		$this->set('aCategories', $aCategories);
 
@@ -243,8 +280,7 @@ class AdminProductsController extends AdminController {
 		$aProductMedia = Hash::combine($aProductMedia, '{n}.Media.object_id', '{n}');
 		$this->set('aProductMedia', $aProductMedia);
 
-        $brand_ids = Hash::extract($aRowset, '{n}.Product.brand_id');
-        $brand_ids = array_unique($brand_ids);
+        $brand_ids = array_unique(Hash::extract($aRowset, '{n}.Product.brand_id'));
 
 		$aBrandMedia = $this->Media->getList(array('media_type' => 'image', 'object_type' => 'Brand', 'object_id' => $brand_ids, 'main_by' => 1));
         $aBrandMedia = Hash::combine($aBrandMedia, '{n}.Media.object_id', '{n}');

@@ -1,8 +1,6 @@
 <?php
 class CsvReader {
 
-	const CSV_DIV = ';';
-
 	/**
 	 * Получить данные из CSV файла в виде ассоц.массива
 	 *
@@ -10,7 +8,7 @@ class CsvReader {
 	 * @encoding str - исх.кодировка если нужно перекодирование в utf8
 	 * @return array
 	 */
-	static public function parse($file, $keys = array()) {
+	static public function parse($file, $keys = array(), $csv_div = ';') {
 		if (!file_exists($file)) {
 			throw new Exception(__('Invalid file path'));
 		}
@@ -23,7 +21,7 @@ class CsvReader {
 		}
 
 		if (!$keys) {
-			$keys = explode(self::CSV_DIV, trim($file[0]));
+			$keys = explode($csv_div, trim($file[0]));
 			unset($file[0]);
 		}
 
@@ -31,7 +29,7 @@ class CsvReader {
 		$line = 1;
 		foreach($file as $row) {
 			$line++;
-			$_row = explode(self::CSV_DIV, trim($row));
+			$_row = explode($csv_div, trim($row));
 			if (count($keys) !== count($_row)) {
 				throw new Exception(__('Incorrect file format (Line %s)', $line));
 			}

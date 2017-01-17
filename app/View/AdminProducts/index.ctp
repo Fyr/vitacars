@@ -49,6 +49,10 @@
     $columns['Category.title']['label'] = 'Брeнд';
 	$columns['Product.detail_num']['format'] = 'string';
 
+	if (isset($aCols)) {
+		$columns = array_merge($columns, $aCols);
+	}
+
 	$field = 'PMFormData.fk_'.Configure::read('Params.crossNumber');
 	if (isset($columns[$field])) {
 		$columns[$field]['format'] = 'string';
