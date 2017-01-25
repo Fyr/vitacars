@@ -1,6 +1,7 @@
 <?
 App::uses('AppModel', 'Model');
 App::uses('FieldTypes', 'Form.Vendor');
+App::uses('Logger', 'Model');
 class PMFormField extends AppModel {
 	public $useTable = 'form_fields';
 	
@@ -17,7 +18,12 @@ class PMFormField extends AppModel {
 		)
 	);
 	
-	protected $PMFormData;
+	protected $PMFormData, $Logger;
+
+	protected function _afterInit() {
+		$this->Logger = new Logger();
+		$this->Logger->init('form_field');
+	}
 	
 	public function afterFind($results, $primary = false) {
 		foreach($results as &$_row) {
@@ -56,7 +62,7 @@ class PMFormField extends AppModel {
 		$sql_field = sprintf(FieldTypes::getSqlTypes($this->data['PMFormField']['field_type']), $this->id);
 		$created = $created || (isset($options['forceCreate']) && $options['forceCreate']);
 		$sql = 'ALTER TABLE '.$this->PMFormData->getTableName().(($created) ? ' ADD ' : ' MODIFY ').$sql_field;
-		fdebug($sql."\r\n", 'form_field.log');
+		$this->Logger->write(($created) ? 'INSERT' : 'UPDATE', 'SQL:'.$sql);
 		$this->query($sql);
 	}
 	
@@ -67,6 +73,7 @@ class PMFormField extends AppModel {
 
 		$this->PMFormData = $this->loadModel('Form.PMFormData');
 		$sql = 'ALTER TABLE '.$this->PMFormData->getTableName().' DROP fk_'.$this->id;
+		$this->Logger->write('DELETE', 'SQL:'.$sql);
 		$this->query($sql);
 		return true;
 	}

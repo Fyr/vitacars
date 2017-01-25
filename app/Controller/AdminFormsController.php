@@ -51,7 +51,11 @@ class AdminFormsController extends AdminController {
 			$field = $this->PMFormField->findById($id);
 			$this->request->data = $field;
 		}
-		
+
+		if (!$id) {
+			$this->request->data('PMFormField.sort_order', '0');
+		}
+
 		$this->set('aFieldTypes', FieldTypes::getTypes());
 		$this->set('PMFormField__SELECT', FieldTypes::SELECT);
 		$this->set('PMFormField__MULTISELECT', FieldTypes::MULTISELECT);

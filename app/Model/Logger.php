@@ -3,12 +3,17 @@ App::uses('AppModel', 'Model');
 class Logger extends AppModel {
     public $useTable = false;
 
+    // const BASE_DIR = ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS;
+
+    private $log;
+
     protected function _afterInit() {
-        $this->log = ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'app.log';
+        $this->init('app.log');
     }
 
     public function init($log) {
-        $this->log = $log;
+        $this->log = (strpos($log, DS) === false) ? ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.$log : $log;
+        $this->log = (strpos($log, '.') === false) ? $this->log.'.log' : $this->log;
     }
 
     public function write($actionType, $data){
