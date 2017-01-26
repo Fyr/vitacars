@@ -31,6 +31,6 @@
 ?>
 </div>
 <label class="control-label"><b>Описание продукта</b></label>
-<?=$this->PHForm->editor('tpl_product_descr', array('fullwidth' => true));?>
+<?=$this->element('edit_body', array('field' => 'tpl_product_descr'))?>
 
 

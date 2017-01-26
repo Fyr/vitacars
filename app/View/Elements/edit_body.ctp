@@ -6,15 +6,16 @@
     </ul>
     <br/>
 <?
+    $field = (isset($field)) ? $field : 'body';
     foreach(array('by', 'ru', 'ua') as $lang) {
         $tab = ($lang == 'by') ? '' : '_' . $lang;
 ?>
-    <div id="descr-tab-content-<?= $lang ?>" class="descr-tab-content">
+    <div id="descr-tab-content-<?=$lang?>" class="descr-tab-content">
 <?
         if (isset($teaser) && $teaser) {
             echo $this->PHForm->input('teaser'.$tab);
         }
-        echo $this->element('Article.edit_body', array('field' => 'body'.$tab));
+        echo $this->element('Article.edit_body', array('field' => $field.$tab));
 ?>
     </div>
 <?

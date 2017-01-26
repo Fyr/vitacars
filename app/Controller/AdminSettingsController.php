@@ -19,6 +19,7 @@ class AdminSettingsController extends AdminController {
 			if (is_array($gpz_brands)) {
 				$this->request->data('Settings.gpz_brands', implode(',', $gpz_brands));
 			}
+
         	$this->Settings->save($this->request->data);
         	$this->setFlash(__('Settings have been successfully saved'), 'success');
         	$this->redirect(array('action' => 'index'));

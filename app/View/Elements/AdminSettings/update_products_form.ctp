@@ -8,7 +8,7 @@
 	echo $this->PHForm->create('Filter');
 	echo $this->element('admin_content');
 	echo $this->PHForm->input('zone', array(
-		'options' => array('by' => 'Agromotors.BY', 'ru' => 'Agromotors.RU'),
+		'options' => array('by' => 'Agromotors.BY', 'ru' => 'Agromotors.RU', 'ua' => 'DeutzUa.com.UA'),
 		'label' => array('text' => 'Сайт', 'class' => 'control-label')
 	));
 	echo $this->PHForm->input('update', array(
