@@ -24,9 +24,15 @@ class UploadCountersTask extends AppShell {
             }
         }
 
+        $this->Product->unbindModel(array(
+            'belongsTo' => array('Category', 'Subcategory', 'Brand'),
+            'hasOne' => array('Seo', 'Media', 'Search')
+        ), false);
+        $aCounters = $this->_getCounters($keyField, $aData['data']);
+
         try {
             $this->Product->trxBegin();
-            $aID = $this->_updateParams($aData['keys'], $this->_getCounters($keyField, $aData['data']));
+            $aID = $this->_updateParams($aData['keys'], $aCounters);
             $this->Product->trxCommit();
         } catch (Exception $e) {
             $this->Product->trxRollback();
@@ -94,7 +100,6 @@ class UploadCountersTask extends AppShell {
 
         $this->Task->setProgress($this->id, 1);
         $this->Task->saveStatus($this->id);
-
         return $aParams;
     }
 
@@ -186,6 +191,7 @@ class UploadCountersTask extends AppShell {
         $this->Task->setStatus($subtask_id, Task::DONE);
         $this->Task->setProgress($this->id, 2);
         $this->Task->saveStatus($this->id);
+
         if (!$this->params['set_zero']) {
             return $aID;
         }
