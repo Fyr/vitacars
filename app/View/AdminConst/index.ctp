@@ -8,7 +8,15 @@
     
     $backURL = $this->Html->url(array('action' => 'index'));
     $deleteURL = $this->Html->url(array('action' => 'delete')).'/{$id}?model=Form.PMFormField&backURL='.urlencode($backURL);
-    $actions['row']['delete'] = $this->Html->link('', $deleteURL, array('class' => 'icon-color icon-delete', 'title' => __('Delete record')), __('Are you sure to delete this record?'))
+    $actions['row']['delete'] = $this->Html->link('', $deleteURL, array('class' => 'icon-color icon-delete', 'title' => __('Delete record')), __('Are you sure to delete this record?'));
+
+    foreach($aRows as &$row) {
+        $fieldType = $row['PMFormConst']['field_type'];
+        $row['PMFormConst']['field_type'] = $aFieldTypes[$fieldType];
+    }
+
+    $columns = $this->PHTableGrid->getDefaultColumns('PMFormConst');
+    $columns['PMFormConst.field_type']['format'] = 'string';
 ?>
 <?=$this->element('admin_title', compact('title'))?>
 <div class="text-center">
@@ -21,5 +29,5 @@
 </div>
 <br/>
 <?
-    echo $this->PHTableGrid->render('PMFormConst', array('actions' => $actions));
+    echo $this->PHTableGrid->render('PMFormConst', array('actions' => $actions, 'data' => $aRows, 'columns' => $columns));
 ?>

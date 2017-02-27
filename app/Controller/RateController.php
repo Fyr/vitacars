@@ -8,12 +8,10 @@ class RateController extends AppController {
 	public $uses = array('Form.PMFormConst');
 
 	public function refresh() {
-		$this->autoRender = false;
-
-		$aCurrency = array('USD', 'EUR', 'RUB');
-
-		$setKurs = array();
+		$aCurrency = array('USD', 'EUR', 'RUB', 'UAH');
+		$setKurs = array(); $setCrossKurs = array();
 		$errMsg = '';
+
 		try {
 
 			$this->PMFormConst->trxBegin();
@@ -22,21 +20,37 @@ class RateController extends AppController {
 			if (!(($rates instanceof SimpleXMLElement) && isset($rates->Currency))) {
 				throw new Exception('Nbrb.by API: Incorrect rates');
 			}
+			$aRates = array();
+			$aCrossRates = array();
 			foreach($rates->Currency as $rate) {
 				$curr = (string) $rate->CharCode;
 				if (in_array($curr, $aCurrency)) {
-					$kurs = floatval($rate->Rate);
-					if ($curr == 'RUB') {
-						$kurs = $kurs / 100;
-					}
+					$kurs = floatval($rate->Rate) / intval($rate->Scale);
+					$aRates[$curr] = $kurs;
 					$row = $this->PMFormConst->findByKey($curr.'0');
-					if (!$row) {
-						throw new Exception("No constant key `{$curr}0`");
+					if ($row) {
+						if ($kurs != $row['PMFormConst']['value']) {
+							$setKurs[$curr] = $kurs;
+							$this->PMFormConst->save(array('id' => $row['PMFormConst']['id'], 'value' => $kurs));
+
+							$aOtherCurr = array_diff($aCurrency, array($curr));
+							foreach($aOtherCurr as $_curr) {
+								$aCrossRates[$curr.'_'.$_curr.'0'] = 0;
+								$aCrossRates[$_curr.'_'.$curr.'0'] = 0;
+							}
+						}
 					}
-					if ($kurs != $row['PMFormConst']['value']) {
-						$setKurs[$curr] = $kurs;
-						$this->PMFormConst->save(array('id' => $row['PMFormConst']['id'], 'value' => $kurs));
-					}
+				}
+			}
+
+			foreach($aCrossRates as $key => $kurs) {
+				list($curr, $_curr) = explode('_', str_replace('0', '', $key));
+				$kurs = $aRates[$curr] / $aRates[$_curr];
+
+				$row = $this->PMFormConst->findByKey($key);
+				if ($row) {
+					$setCrossKurs[$curr.'->'.$_curr] = $kurs;
+					$this->PMFormConst->save(array('id' => $row['PMFormConst']['id'], 'value' => $kurs));
 				}
 			}
 
@@ -49,7 +63,7 @@ class RateController extends AppController {
 
 		if ($errMsg || $setKurs) {
 			$Email = new CakeEmail();
-			$Email->template('rates_refresh')->viewVars(compact('setKurs', 'errMsg'))
+			$Email->template('rates_refresh')->viewVars(compact('errMsg', 'setKurs', 'setCrossKurs'))
 				->emailFormat('html')
 				->from('info@' . Configure::read('domain.url'))
 				->to(Configure::read('Settings.admin_email'))
@@ -57,6 +71,9 @@ class RateController extends AppController {
 				->subject(Configure::read('domain.title') . ': ' . __('Rates refreshing'))
 				->send();
 		}
+
+		$this->autoRender = false;
+		$this->set(compact('errMsg', 'setKurs', 'setCrossKurs'));
+		$this->render('/Emails/html/rates_refresh');
 	}
-	
 }

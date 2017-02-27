@@ -17,6 +17,7 @@ class AdminConstController extends AdminController {
     public function beforeRender() {
     	parent::beforeRender();
     	$this->set('objectType', 'FormConst');
+		$this->set('aFieldTypes', FieldTypes::getConstTypes());
     }
     
     public function index() {
@@ -24,7 +25,8 @@ class AdminConstController extends AdminController {
     		'fields' => array('id', 'field_type', 'label', 'key', 'value', 'sort_order'),
     		'order' => array('PMFormConst.sort_order' => 'asc')
     	);
-    	$this->PCTableGrid->paginate('PMFormConst');
+    	$aRows = $this->PCTableGrid->paginate('PMFormConst');
+		$this->set(compact('aRows'));
     }
     
     public function edit($id = 0) {
@@ -53,7 +55,5 @@ class AdminConstController extends AdminController {
 				'sort_order' => 1
 			));
 		}
-		
-		$this->set('aFieldTypes', FieldTypes::getConstTypes());
     }
 }
