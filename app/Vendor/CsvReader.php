@@ -39,8 +39,8 @@ class CsvReader {
 
 		if ($Task) {
 			$Task->setProgress($subtask_id, 0, substr_count($csv, $eol));
-			fdebug(substr_count($csv, $eol));
 			$Task->setStatus($subtask_id, Task::RUN);
+			$progress = $Task->getProgressInfo($task_id);
 		}
 
 		for($endPos = $startPos; $endPos <= $strlen; $endPos++) {
@@ -74,7 +74,10 @@ class CsvReader {
 				$aCsv[] = $row;
 				$row = array();
 				$col = 0;
-				$startPos = $endPos + $eol_len;
+				// $startPos = $endPos + $eol_len;
+				$csv = mb_substr($csv, $endPos + $eol_len);
+				$startPos = $endPos = 0;
+				$strlen = mb_strlen($csv);
 			} elseif ($ch === $enclose) {
 				$lEnclose = !$lEnclose;
 				if ($lEnclose) {
@@ -86,16 +89,9 @@ class CsvReader {
 					$Task->setProgress($subtask_id, $line - 1);
 
 					$_progress = $Task->getProgressInfo($subtask_id);
-					$progress = $Task->getProgressInfo($task_id);
 					$Task->setProgress($task_id, $progress['progress'] + $_progress['percent'] * 0.01);
 				}
 				$line++;
-			}
-
-			$j++;
-			if ($j > 500) {
-				fdebug((microtime() - $t)."\r\n");
-				$j = 0; $t = microtime();
 			}
 		}
 

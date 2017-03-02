@@ -3,10 +3,10 @@
 ?>
 <div class="text-center">
 	<br />
-	<span id="task"><?=$task_name?></span><br />
+	<span id="task"><?=Hash::get($task, 'task_name')?></span><br />
 	<br />
 <?
-	if (isset($subtask) && $subtask) {
+	if (Hash::get($task, 'subtask')) {
 ?>
 	<div id="progressSubtask">
 		<span class="info">&nbsp;</span>
@@ -55,10 +55,11 @@ function renderStatus(task) {
 	setTitle(task.status == '<?=Task::ABORT?>' ? ABORT : task.task_name);
 	if (task.subtask) {
 		setTitle(task.subtask.task_name);
-		setProgress(task.subtask, '#progressSubtask');
-
-		if (task.subtask.progress.time_finish > task.progress.time_finish) {
-			task.progress.time_finish = task.subtask.progress.time_finish;
+		if (task.subtask.progress) {
+			setProgress(task.subtask, '#progressSubtask');
+			if (task.subtask.progress.time_finish > task.progress.time_finish) {
+				task.progress.time_finish = task.subtask.progress.time_finish;
+			}
 		}
 	}
 	setProgress(task, '#progressTotal');
@@ -92,24 +93,14 @@ function updateStatus(url) {
 }
 $(function(){
 	ABORT = 'Остановка процесса...';
-<?
-	if (isset($task)) {
-?>
 	renderStatus(<?=json_encode($task)?>);
-<?
-	}
-	if (isset($id)) {
-?>
-	updateStatus('<?=$this->Html->url(array('controller' => 'AdminAjax', 'action' => 'getTaskStatus', $id))?>.json');
+	updateStatus('<?=$this->Html->url(array('controller' => 'AdminAjax', 'action' => 'getTaskStatus', Hash::get($task, 'id')))?>.json');
 	$('#taskAbort').click(function(){
 		setTitle(ABORT);
-		$.get('<?=$this->Html->url(array('controller' => 'AdminAjax', 'action' => 'taskAbort', $id))?>.json', null, function(response){
+		$.get('<?=$this->Html->url(array('controller' => 'AdminAjax', 'action' => 'taskAbort', Hash::get($task, 'id')))?>.json', null, function(response){
 			if (checkJson(response)) {
 			}
 		});
 	});
-<?
-	}
-?>
 });
 </script>

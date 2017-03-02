@@ -7,22 +7,24 @@ class UploadCountersTask extends AppShell {
     public $uses = array('Product', 'Form.PMFormConst', 'Form.PMFormData', 'Form.PMFormField', 'DetailNum', 'ProductRemain');
 
     public function execute() {
-        $this->Task->setProgress($this->id, 0, $this->params['set_zero'] ? 3 : 2); // 3 subtasks
+        $this->Task->setProgress($this->id, 0, $this->params['set_zero'] ? 4 : 3); // 4 subtasks
         $this->Task->setStatus($this->id, Task::RUN);
 
-        $aData = CsvReader::parse($this->params['csv_file']);
+        $aData['keys'] = CsvReader::getHeaders($this->params['csv_file']);
 
         $fieldRights = $this->params['fieldRights'];
         $keyField = 'code';
+        $aMainFields = array('detail_num', 'code', 'brand_id', 'cat_id', 'subcat_id', 'title', 'title_rus');
         foreach($aData['keys'] as $fk_id) {
             $f_id = str_replace('fk_', '', $fk_id);
-            if (!in_array($fk_id, array('detail_num', 'code')) && !($fieldRights && in_array($f_id, $fieldRights))) {
+            if (!in_array($fk_id, $aMainFields) && !($fieldRights && in_array($f_id, $fieldRights))) {
                 throw new Exception(__('You have no access rights to load `%s`', $fk_id));
             }
             if ($fk_id == 'detail_num') {
                 $keyField = 'detail_num'; // в первую очередь проверяем по detail_num, если есть и detail_num, и code
             }
         }
+        $aData = $this->_readCsv($this->params['csv_file']);
 
         $this->Product->unbindModel(array(
             'belongsTo' => array('Category', 'Subcategory', 'Brand'),
@@ -44,6 +46,21 @@ class UploadCountersTask extends AppShell {
         unlink($this->params['csv_file']);
     }
 
+    private function _readCsv($file) {
+        $subtask_id = $this->Task->add(0, 'UploadCounters_readCsv', null, $this->id);
+        $this->Task->setData($this->id, 'subtask_id', $subtask_id);
+
+        $aData = CsvReader::parse($this->params['csv_file'], array(
+            'Task' => $this->Task,
+            'task_id' => $this->id,
+            'subtask_id' => $subtask_id
+        ));
+
+        $this->Task->setProgress($this->id, 1);
+        $this->Task->saveStatus($this->id);
+        return $aData;
+    }
+
     /**
      * Проинициализировать счетчики в зав-ти от ID продукта
      *
@@ -54,6 +71,7 @@ class UploadCountersTask extends AppShell {
         $this->Task->setData($this->id, 'subtask_id', $subtask_id);
         $this->Task->setProgress($subtask_id, 0, count($aData));
         $this->Task->setStatus($subtask_id, Task::RUN);
+        $progress = $this->Task->getProgressInfo($this->id);
 
         $aParams = array();
         foreach($aData as $i => $row) {
@@ -92,13 +110,12 @@ class UploadCountersTask extends AppShell {
             $this->Task->setProgress($subtask_id, $i + 1);
 
             $_progress = $this->Task->getProgressInfo($subtask_id);
-            $progress = $this->Task->getProgressInfo($this->id);
             $this->Task->setProgress($this->id, $progress['progress'] + $_progress['percent'] * 0.01);
         }
 
         $this->Task->setStatus($subtask_id, Task::DONE);
 
-        $this->Task->setProgress($this->id, 1);
+        $this->Task->setProgress($this->id, 2);
         $this->Task->saveStatus($this->id);
         return $aParams;
     }
@@ -134,6 +151,8 @@ class UploadCountersTask extends AppShell {
         $this->Task->setData($this->id, 'subtask_id', $subtask_id);
         $this->Task->setProgress($subtask_id, 0, count($aParams));
         $this->Task->setStatus($subtask_id, Task::RUN);
+        $progress = $this->Task->getProgressInfo($this->id);
+
         $i = 0;
         foreach($aParams as $object_id => $counters) {
             $status = $this->Task->getStatus($this->id);
@@ -184,12 +203,11 @@ class UploadCountersTask extends AppShell {
             $this->Task->setProgress($subtask_id, $i);
 
             $_progress = $this->Task->getProgressInfo($subtask_id);
-            $progress = $this->Task->getProgressInfo($this->id);
             $this->Task->setProgress($this->id, $progress['progress'] + $_progress['percent'] * 0.01);
         }
 
         $this->Task->setStatus($subtask_id, Task::DONE);
-        $this->Task->setProgress($this->id, 2);
+        $this->Task->setProgress($this->id, 3);
         $this->Task->saveStatus($this->id);
 
         if (!$this->params['set_zero']) {
@@ -210,6 +228,7 @@ class UploadCountersTask extends AppShell {
         $this->Task->setData($this->id, 'subtask_id', $subtask_id);
         $this->Task->setProgress($subtask_id, 0, $total);
         $this->Task->setStatus($subtask_id, Task::RUN);
+        $progress = $this->Task->getProgressInfo($this->id);
 
         $page = 1;
         $limit = 1000;
@@ -245,13 +264,12 @@ class UploadCountersTask extends AppShell {
                 $this->Task->setProgress($subtask_id, $i + 1);
 
                 $_progress = $this->Task->getProgressInfo($subtask_id);
-                $progress = $this->Task->getProgressInfo($this->id);
                 $this->Task->setProgress($this->id, $progress['progress'] + $_progress['percent'] * 0.01);
             }
         }
         $this->Task->setStatus($subtask_id, Task::DONE);
 
-        $this->Task->setProgress($this->id, 3);
+        $this->Task->setProgress($this->id, 4);
         $this->Task->saveStatus($this->id);
 
         return $aID;

@@ -547,7 +547,7 @@ class AdminUpdateController extends AdminController {
 		try {
 			$this->SqlStats->trxBegin();
 			$keys = array('db_name', 'qty', 'q_time', 'url');
-			$data = CsvReader::parse('sql_stats.log', $keys, ',');
+			$data = CsvReader::parse('sql_stats.log', array('keys' => $keys, 'csv_div' => ','));
 			foreach ($data['data'] as $row) {
 				$row['project'] = $project;
 				$row['q_time'] = $row['q_time'] / 1000;
@@ -563,7 +563,7 @@ class AdminUpdateController extends AdminController {
 		try {
 			$this->WebStats->trxBegin();
 			$keys = array('q_time', 'url');
-			$data = CsvReader::parse('web_stats.log', $keys, ',');
+			$data = CsvReader::parse('web_stats.log', array('keys' => $keys, 'csv_div' => ','));
 			foreach ($data['data'] as $row) {
 				$row['project'] = $project;
 				$this->WebStats->clear();
@@ -593,5 +593,15 @@ class AdminUpdateController extends AdminController {
 		$formData = $this->PMFormData->findByObjectTypeAndObjectId('ProductParam', $product['Product']['id'], $fields);
 		// $this->PMFormData->save(array('id' => $product['PMFormData']['id'], $key => $val));
 		$this->autoRender = true;
+	}
+
+	public function testCsv() {
+		ignore_user_abort(true);
+		set_time_limit(0);
+		echo '<pre>';
+		App::uses('CsvReader', 'Vendor');
+		print_r(CsvReader::parse('data.csv'));
+		// print_r(CsvReader::parse('data2.csv', array('keys' => array('detail_num', 'qty'))));
+		echo '</pre>';
 	}
 }

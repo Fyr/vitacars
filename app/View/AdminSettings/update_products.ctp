@@ -6,7 +6,7 @@
 		$title = 'Обновление продуктов';
 		echo $this->element('admin_title', compact('title'));
 		echo $this->element('admin_content');
-		echo $this->element('progress', $task);
+		echo $this->element('progress', compact('task'));
 		echo $this->element('admin_content_end');
 ?>
 </div>

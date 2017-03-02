@@ -355,7 +355,7 @@ class AdminOrdersController extends AdminController {
 
 					$aData = array();
 					if ($file = Hash::get($_FILES, 'csv_file.tmp_name')) {
-						$aData = CsvReader::parse($file, array('detail_num', 'qty'));
+						$aData = CsvReader::parse($file, array('keys' => array('detail_num', 'qty')));
 						$aData = Hash::get($aData, 'data');
 					}
 					if ($details_text = trim($this->request->data('Order.details_text'))) {

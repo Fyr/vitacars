@@ -136,7 +136,7 @@ class AdminProductsController extends AdminController {
 			} elseif ($this->request->named['Product.id'] == 'list') {
 				$file = Configure::read('tmp_dir').'user_products_'.$this->Auth->user('id').'.tmp';
 				$idList = explode("\n", str_replace("\r\n", "\n", file_get_contents($file)));
-				// unlink($file);
+				unlink($file);
 			}
 
 			if ($idList) {

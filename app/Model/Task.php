@@ -21,6 +21,7 @@ class Task extends AppModel {
 	public function getTitle($task_name) {
 		$aTitle = array(
 			'UploadCounters' => __('Upload counters'),
+			'UploadCounters_readCsv' => __('Process CSV file'),
 			'UploadCounters_initCounters' => __('UploadCounters_initCounters'),
 			'UploadCounters_updateCounters' => __('UploadCounters_updateCounters'),
 			'UploadCounters_updateRest' => __('UploadCounters_updateRest'),
@@ -115,6 +116,10 @@ class Task extends AppModel {
 		if ($total) {
 			$this->setData($id, 'total', $total);
 		}
+	}
+
+	public function getProgress($id) {
+		return $this->getData($id, 'progress');
 	}
 
 	public function getProgressInfo($id) {
