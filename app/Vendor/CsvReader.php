@@ -19,25 +19,22 @@ class CsvReader {
 		$eol = "\n";
 		$eol_len = mb_strlen($eol);
 
-		if (!file_exists($file)) {
-			throw new Exception(__('CSV Reader: File does not exists `%s`', $file));
-		}
-
 		$csv = mb_convert_encoding(trim(file_get_contents($file)), 'utf-8', 'cp1251');
 		$csv = str_replace("\r\n", $eol, $csv); // прибиваем все переводы строк к одному виду
 		$csv = str_replace('""', '\`', $csv); // заменяем кавычки внутри Excel-ячейка в escape-символ кавычек, чтоб не путались с $enclose
 
 		// Получаем заголовки
-		$startPos = mb_strpos($csv, $eol);
-		$headers = mb_substr($csv, 0, $startPos);
-		if (!$keys) {
-			$keys = explode($csv_div, trim($headers));
+		if ($keys) {
+			$startPos = 0;
+		} else {
+			$keys = self::getHeaders($file);
+			$startPos = mb_strpos($csv, $eol) + $eol_len;
 		}
 
 		$aCsv = array();
 		$strlen = mb_strlen($csv);
-		$startPos+= $eol_len;
 		$col = 0; $line = 2;
+		$j = 0; $t = microtime();
 		$row = array(); $lEnclose = false;
 
 		if ($Task) {
@@ -94,6 +91,12 @@ class CsvReader {
 				}
 				$line++;
 			}
+
+			$j++;
+			if ($j > 500) {
+				fdebug((microtime() - $t)."\r\n");
+				$j = 0; $t = microtime();
+			}
 		}
 
 		if ($Task) {
@@ -113,7 +116,6 @@ class CsvReader {
 
 		// Получаем заголовки
 		$startPos = mb_strpos($csv, $eol);
-		$headers = mb_substr($csv, 0, $startPos);
 		return explode($csv_div, trim(mb_substr($csv, 0, $startPos)));
 	}
 
