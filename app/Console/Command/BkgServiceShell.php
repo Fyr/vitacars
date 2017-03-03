@@ -55,6 +55,7 @@ class BkgServiceShell extends AppShell {
             $this->Task->setStatus($id, $status);
             $this->out(mb_convert_encoding($e->getMessage(), 'cp1251', 'utf8'));
         }
+        $task->cleanup();
     }
 
 }

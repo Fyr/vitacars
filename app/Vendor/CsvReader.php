@@ -103,7 +103,7 @@ class CsvReader {
 
 	static function getHeaders($file, $csv_div = ';') {
 		if (!file_exists($file)) {
-			throw new Exception(__('CSV Reader: File does not exists `%s`', $file));
+			throw new Exception(__('File does not exists `%s`', $file));
 		}
 
 		$eol = "\n";

@@ -10,31 +10,25 @@ class UploadCountersTask extends AppShell {
         $this->Task->setProgress($this->id, 0, $this->params['set_zero'] ? 4 : 3); // 4 subtasks
         $this->Task->setStatus($this->id, Task::RUN);
 
+        // Предварительная проверка на права доступа к полям
         $aData['keys'] = CsvReader::getHeaders($this->params['csv_file']);
+        $keyField = (in_array('detail_num', $aData['keys'])) ? 'detail_num' : 'code';
 
+        $aFormFields = $this->PMFormField->getFieldsList('SubcategoryParam', '');
         $fieldRights = $this->params['fieldRights'];
-        $keyField = 'code';
-        $aMainFields = array('detail_num', 'code', 'brand_id', 'cat_id', 'subcat_id', 'title', 'title_rus');
-        foreach($aData['keys'] as $fk_id) {
-            $f_id = str_replace('fk_', '', $fk_id);
-            if (!in_array($fk_id, $aMainFields) && !($fieldRights && in_array($f_id, $fieldRights))) {
-                throw new Exception(__('You have no access rights to load `%s`', $fk_id));
-            }
-            if ($fk_id == 'detail_num') {
-                $keyField = 'detail_num'; // в первую очередь проверяем по detail_num, если есть и detail_num, и code
-            }
-        }
-        $aData = $this->_readCsv($this->params['csv_file']);
+        $this->checkFieldRights($aData['keys'], array_keys($aFormFields), $fieldRights);
+
+        $aData = $this->_readCsv($this->params['csv_file']); // subtask 1
 
         $this->Product->unbindModel(array(
             'belongsTo' => array('Category', 'Subcategory', 'Brand'),
             'hasOne' => array('Seo', 'Media', 'Search')
         ), false);
-        $aCounters = $this->_getCounters($keyField, $aData['data']);
+        $aCounters = $this->_getCounters($keyField, $aData['data']); // subtask 2
 
         try {
             $this->Product->trxBegin();
-            $aID = $this->_updateParams($aData['keys'], $aCounters);
+            $aID = $this->_updateParams($aData['keys'], $aCounters); // subtask 3-4
             $this->Product->trxCommit();
         } catch (Exception $e) {
             $this->Product->trxRollback();
@@ -43,12 +37,16 @@ class UploadCountersTask extends AppShell {
 
         $this->Task->setData($this->id, 'xdata', $aID);
         $this->Task->setStatus($this->id, Task::DONE);
+    }
+
+    public function cleanup() {
         unlink($this->params['csv_file']);
     }
 
     private function _readCsv($file) {
         $subtask_id = $this->Task->add(0, 'UploadCounters_readCsv', null, $this->id);
         $this->Task->setData($this->id, 'subtask_id', $subtask_id);
+        $progress = $this->Task->getProgressInfo($this->id);
 
         $aData = CsvReader::parse($this->params['csv_file'], array(
             'Task' => $this->Task,
@@ -56,7 +54,7 @@ class UploadCountersTask extends AppShell {
             'subtask_id' => $subtask_id
         ));
 
-        $this->Task->setProgress($this->id, 1);
+        $this->Task->setProgress($this->id, $progress['progress'] + 1);
         $this->Task->saveStatus($this->id);
         return $aData;
     }
@@ -64,7 +62,7 @@ class UploadCountersTask extends AppShell {
     /**
      * Проинициализировать счетчики в зав-ти от ID продукта
      *
-     * @param unknown_type $aData
+     * @param array $aData
      */
     private function _getCounters($keyField = 'detail_num', $aData) {
         $subtask_id = $this->Task->add(0, 'UploadCounters_initCounters', null, $this->id);
@@ -115,7 +113,7 @@ class UploadCountersTask extends AppShell {
 
         $this->Task->setStatus($subtask_id, Task::DONE);
 
-        $this->Task->setProgress($this->id, 2);
+        $this->Task->setProgress($this->id, $progress['progress'] + 1);
         $this->Task->saveStatus($this->id);
         return $aParams;
     }
@@ -129,11 +127,7 @@ class UploadCountersTask extends AppShell {
         // Считать инфу о колонках
         array_shift($keys); // исключить 1й ключ из обрабатываемой строки (номер детали)
         $aKeys = array();
-        $aFormFields = $this->PMFormField->getFieldsList('SubcategoryParam', '');
         foreach($keys as $id) {
-            if (strpos($id, 'fk_') !== false && !in_array(intval(str_replace('fk_', '', $id)), array_keys($aFormFields))) {
-                throw new Exception(__('Incorrect field ID %s', $id));
-            }
             $aKeys[$id] = 0;
         }
         // Считать константы для вычисления формул
@@ -166,12 +160,6 @@ class UploadCountersTask extends AppShell {
                 throw new Exception(__('Product %s not found', 'Product.ID='.$object_id));
             }
 
-            /*
-            $formData = $this->PMFormData->getObject('ProductParam', $object_id);
-            if (!$formData) {
-                throw new Exception(__('Product %s not found', 'FormData.object_id='.$object_id));
-            }
-            */
             $remain = 0;
             if (in_array($a1, $keys) || in_array($a2, $keys)) {
                 $a1_val = intval(Hash::get($product, 'PMFormData.'.$a1));
@@ -196,7 +184,6 @@ class UploadCountersTask extends AppShell {
                 $field = 'fk_'.Configure::read(($remain > 0) ? 'Params.incomeY' : 'Params.outcomeY');
                 $this->PMFormData->saveField($field, intval($this->PMFormData->field($field)) + $remain); // уже выставлен нужный $this->PMFormData->id
             }
-            // $this->PMFormData->recalcFormula($this->PMFormData->id, $aFormFields);
             $aID[] = $object_id;
 
             $i++;
@@ -207,7 +194,7 @@ class UploadCountersTask extends AppShell {
         }
 
         $this->Task->setStatus($subtask_id, Task::DONE);
-        $this->Task->setProgress($this->id, 3);
+        $this->Task->setProgress($this->id, $progress['progress'] + 1);
         $this->Task->saveStatus($this->id);
 
         if (!$this->params['set_zero']) {
@@ -215,11 +202,6 @@ class UploadCountersTask extends AppShell {
         }
 
         $outcomeY = 'fk_'.Configure::read('Params.outcomeY');
-        /*
-        if (in_array($a1, $keys) || in_array($a2, $keys)) {
-            $fields = array_merge(array('id', 'object_id', $outcomeY), $keys);
-        }
-        */
 
         $conditions = array('object_type' => 'ProductParam', 'NOT' => array('object_id' => array_keys($aParams), 'OR' => $aKeys));
         $total = $this->PMFormData->find('count', compact('conditions'));
@@ -234,7 +216,7 @@ class UploadCountersTask extends AppShell {
         $limit = 1000;
         $order = array('object_id');
         $i = 0;
-        while ($rows = $this->PMFormData->find('all', compact('conditions', 'page', 'limit', 'order'))) {
+        while ($rows = $this->PMFormData->find('all', compact('conditions', 'page', 'limit', 'order'))) { // получаем записи порциями по 1000
             $page++;
             $remain = 0;
             foreach($rows as $row) {
@@ -257,8 +239,6 @@ class UploadCountersTask extends AppShell {
                     }
                 }
                 $this->PMFormData->save($data);
-                //$this->PMFormData->_recalcFormula($row, $aFormFields, $aConst);
-                // $aID[] = $row['PMFormData']['object_id'];
 
                 $i++;
                 $this->Task->setProgress($subtask_id, $i + 1);
@@ -269,7 +249,7 @@ class UploadCountersTask extends AppShell {
         }
         $this->Task->setStatus($subtask_id, Task::DONE);
 
-        $this->Task->setProgress($this->id, 4);
+        $this->Task->setProgress($this->id, $progress['progress'] + 1);
         $this->Task->saveStatus($this->id);
 
         return $aID;
