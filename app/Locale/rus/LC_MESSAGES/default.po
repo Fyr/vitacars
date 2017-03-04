@@ -436,8 +436,8 @@ msgstr "Символ-разделитель для цел.части"
 msgid "%s products have been updated"
 msgstr "%s позиций обновлено"
 
-msgid "Incorrect field ID %s (Line %s)"
-msgstr "Некорректный ID тех.параметра: `%s` (стр.%s)"
+msgid "Incorrect field ID %s"
+msgstr "Некорректный ID тех.параметра: `%s`"
 
 msgid "Cannot save parameters (Line %s)"
 msgstr "Не возможно сохранить тех.параметры (стр.%s)"
@@ -669,3 +669,21 @@ msgstr "Шаблон продукта"
 
 msgid "Process CSV file"
 msgstr "Обработка CSV файла"
+
+msgid "You have no access rights to load field %s"
+msgstr "У вас нет прав на загрузку поля `%s`"
+
+msgid "CSV format error: Too much values (Line %s)"
+msgstr "Ошибка формата CSV: Слишком много значений (строка N %s)"
+
+msgid "CSV format error: Less values then headers (Line %s)"
+msgstr "Ошибка формата CSV: Значений меньше чем полей в заголовке (строка N %s)"
+
+msgid "File does not exists `%s`"
+msgstr "Файл не существует `%s`"
+
+msgid "Check products data"
+msgstr "Проверка данных о продуктах"
+
+msgid "Create products and needed data"
+msgstr "Создание продуктов и необходимых данных"

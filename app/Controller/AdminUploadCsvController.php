@@ -107,48 +107,6 @@ class AdminUploadCsvController extends AdminController {
 		$this->set('task', $task);
 	}
 
-	/*
-	public function index() {
-		// set_time_limit(60 * 10);
-		ignore_user_abort(true);
-		set_time_limit(0);
-		try {
-			if (isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name']) {
-				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
-
-				$fieldRights = $this->_getFieldRights();
-				$keyField = 'code';
-				foreach($aData['keys'] as $fk_id) {
-					$f_id = str_replace('fk_', '', $fk_id);
-					if (!in_array($fk_id, array('detail_num', 'code')) && !($fieldRights && in_array($f_id, $fieldRights))) {
-						throw new Exception(__('You have no access rights to load `%s`', $fk_id));
-					}
-					if ($fk_id == 'detail_num') {
-						$keyField = 'detail_num'; // в первую очередь проверяем по detail_num, если есть и detail_num, и code
-					}
-				}
-				
-				$this->Product->getDataSource()->begin();
-				$aID = $this->_updateParams($aData['keys'], $this->_getCounters($keyField, $aData['data']));
-				$this->Product->getDataSource()->commit();
-
-				$this->setFlash(__('%s products have been successfully updated', count($aID)), 'success');
-				if (count($aID) > 100) {
-					$file = Configure::read('tmp_dir').'user_products_'.$this->Auth->user('id').'.tmp';
-					file_put_contents($file, implode("\r\n", $aID));
-					$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => 'list'));
-				} else {
-					$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
-				}
-			}
-		} catch (Exception $e) {
-			$this->Product->getDataSource()->rollback();
-			$this->setFlash(__($e->getMessage(), $this->errLine), 'error');
-			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'index'));
-		}
-	}
-	*/
-	
 	/**
 	 * Получить данные из CSV файла в виде ассоц.массива 
 	 *
@@ -181,337 +139,65 @@ class AdminUploadCsvController extends AdminController {
 		return array('keys' => $keys, 'data' => $aData);
 	}
 	
-	/**
-	 * Проинициализировать счетчики в зав-ти от ID продукта
-	 *
-	 * @param unknown_type $aData
-	 */
-	private function _getCounters($keyField = 'detail_num', $aData) {
-		$aParams = array();
-		foreach($aData as $row) {
-			list($number) = array_values($row);
-			$ids = array();
-			if ($keyField == 'detail_num') {
-				$conditions = array('detail_num' => trim($number));
-				$ids = $this->DetailNum->find('all', compact('conditions'));
-				$ids = Hash::extract($ids, '{n}.DetailNum.product_id');
-				$ids = array_unique($ids);
-			} else {
-				$fields = array('Product.id');
-				$conditions = array('Product.code' => $number);
-				$ids = $this->Product->find('all', compact('fields', 'conditions'));
-				$ids = Hash::extract($ids, '{n}.Product.id');
-			}
-			array_shift($row); // исключить 1й ключ из обрабатываемой строки (номер детали)
-			foreach($ids as $object_id) {
-				if (!isset($aParams[$object_id])) {
-					$aParams[$object_id] = array();
-				}
-				foreach($row as $counter => $count) {
-					if (isset($aParams[$object_id][$counter])) {
-						$aParams[$object_id][$counter]+= floatval($count);
-					} else {
-						$aParams[$object_id][$counter] = floatval($count);
-					}
-				}
-			}
-		}
-		return $aParams;
-	}
-	
-	/**
-	 * Обновить счетчики по ID продукта
-	 *
-	 * @param array $aParams
-	 */
-	private function _updateParams($keys, $aParams) {
-		// Считать инфу о колонках
-		array_shift($keys); // исключить 1й ключ из обрабатываемой строки (номер детали)
-		$aKeys = array();
-		$aFormFields = $this->PMFormField->getFieldsList('SubcategoryParam', '');
-		foreach($keys as $id) {
-			if (strpos($id, 'fk_') !== false && !in_array(intval(str_replace('fk_', '', $id)), array_keys($aFormFields))) {
-				throw new Exception(__('Incorrect field ID %s', $id));
-			}
-			$aKeys[$id] = 0;
-		}
-
-		$aID = array();
-/*
-		$a1 = 'fk_'.Configure::read('Params.A1');
-		$a2 = 'fk_'.Configure::read('Params.A2');
-		$outcomeY = 'fk_'.Configure::read('Params.outcomeY');
-		if (in_array($a1, $keys) || in_array($a2, $keys)) {
-			$fields = array_merge(array('id', 'object_id', $outcomeY), $keys);
-		}
-		$aKeys = array('fk_28' => 0, 'fk_30' => 0);
-		// $aParamKeys = array_unique(array_keys($aParams));
-
-		$conditions = array('object_type' => 'ProductParam', 'NOT' => array('object_id' => array_keys($aParams), 'OR' => $aKeys));
-		$page = 1;
-		$limit = 1000;
-		$order = array('object_id');
-		$this->PMFormData->find('all', compact('fields', 'conditions', 'page', 'limit', 'order'));
-		fdebug($conditions);
-		return $aID;
-*/
-		$a1 = 'fk_'.Configure::read('Params.A1');
-		$a2 = 'fk_'.Configure::read('Params.A2');
-		foreach($aParams as $object_id => $counters) {
-			$product = $this->Product->findById($object_id);
-			if (!$product) {
-				throw new Exception(__('Product %s not found', 'Product.ID='.$object_id));
-			}
-			/*
-			$formData = $this->PMFormData->getObject('ProductParam', $object_id);
-			if (!$formData) {
-				throw new Exception(__('Product %s not found', 'FormData.object_id='.$object_id));
-			}
-			*/
-			$remain = 0;
-			if (in_array($a1, $keys) || in_array($a2, $keys)) {
-				$a1_val = intval(Hash::get($product, 'PMFormData.'.$a1));
-				$a2_val = intval(Hash::get($product, 'PMFormData.'.$a2));
-				
-				$a1_new = intval((isset($counters[$a1]) && $counters[$a1]) ? $counters[$a1] : $a1_val);
-				$a2_new = intval((isset($counters[$a2]) && $counters[$a2]) ? $counters[$a2] : $a2_val);
-				
-				$remain = ($a1_new - $a1_val) + ($a2_new - $a2_val);
-			}
-			
-			$counters['id'] = $this->PMFormData->id = $product['PMFormData']['id'];
-			if (!$this->PMFormData->save($counters)) {
-				throw new Exception(__('Product params could not be saved: %s', print_r($counters, true)));
-			}
-			if ($remain) {
-				$product_id = $object_id;
-				$this->ProductRemain->clear();
-				$this->ProductRemain->save(compact('product_id', 'remain'));
-				
-				// скорректировать статистику за год
-				$field = 'fk_'.Configure::read(($remain > 0) ? 'Params.incomeY' : 'Params.outcomeY');
-				$this->PMFormData->saveField($field, intval($this->PMFormData->field($field)) + $remain); // уже выставлен нужный $this->PMFormData->id
-			}
-			$this->PMFormData->recalcFormula($this->PMFormData->id, $aFormFields);
-			$aID[] = $object_id;
-		}
-		
-		$outcomeY = 'fk_'.Configure::read('Params.outcomeY');
-		/*
-		if (in_array($a1, $keys) || in_array($a2, $keys)) {
-			$fields = array_merge(array('id', 'object_id', $outcomeY), $keys);
-		}
-		*/
-		$this->loadModel('Form.PMFormConst');
-		$fields = array('key', 'value');
-		$conditions = array('PMFormConst.object_type' => 'SubcategoryParam');
-		$aConst = $this->PMFormConst->find('list', compact('fields', 'conditions'));
-	
-    	$conditions = array('object_type' => 'ProductParam', 'NOT' => array('object_id' => array_keys($aParams)), 'OR' => $aKeys);
-    	$page = 1;
-    	$limit = 1000;
-    	$order = array('object_id');
-    	while ($rows = $this->PMFormData->find('all', compact('conditions', 'page', 'limit', 'order'))) {
-    		$page++;
-    		$remain = 0;
-    		foreach($rows as $row) {
-    			$data = array_merge(array('id' => $row['PMFormData']['id']), $aKeys);
-    			
-    			if (in_array($a1, $keys) || in_array($a2, $keys)) {
-	    			$remain = -intval(Hash::get($row, 'PMFormData.'.$a1)) - intval(Hash::get($row, 'PMFormData.'.$a2));
-	    			if ($remain) {
-	    				$product_id = $row['PMFormData']['object_id'];
-	    				$this->ProductRemain->clear();
-						$this->ProductRemain->save(compact('product_id', 'remain'));
-	    				
-	    				$data[$outcomeY] = $row['PMFormData'][$outcomeY] + $remain;
-	    			}
-    			}
-    			$this->PMFormData->save($data);
-    			$this->PMFormData->_recalcFormula($row, $aFormFields, $aConst);
-    			// $aID[] = $row['PMFormData']['object_id'];
-    		}
-    	}
-		
-		return $aID;
-	}
-
-	protected function addErrLog($err) {
-		$this->errLog.= $err.'<br>';
-	}
-
-	protected function _checkCreatedProducts($aData) {
-		$this->errLine = 1;
-
-		$this->errLog = '';
-		$aFormFields = $this->PMFormField->getFieldsList('SubcategoryParam', '');
-		foreach($aData['keys'] as $id) {
-			if (strpos($id, 'fk_') !== false && !in_array(intval(str_replace('fk_', '', $id)), array_keys($aFormFields))) {
-				$this->addErrLog(__('Incorrect field ID %s (Line %s)', $id, $this->errLine));
-			}
-		}
-
-		$aBrands = array_keys($this->Brand->getOptions());
-		$aCategories = array_keys($this->Category->getOptions());
-		$aSubcategories = array_keys($this->Subcategory->getOptions());
-
-		foreach($aData['data'] as $row) {
-			$this->errLine++;
-
-			// Проверить обязательные поля
-			if ( !(isset($row['title']) && trim($row['title'])) ) {
-				$this->addErrLog(__('Field `title` cannot be blank (Line %s)', $this->errLine));
-			}
-			if ( !(isset($row['title_rus']) && trim($row['title_rus'])) ) {
-				$this->addErrLog(__('Field `title_rus` cannot be blank (Line %s)', $this->errLine));
-			}
-			if ( !(isset($row['code']) && trim($row['code'])) ) {
-				$this->addErrLog(__('Field `code` cannot be blank (Line %s)', $this->errLine));
-			}
-
-			// Проверить необязательные поля
-			if (isset($row['brand_id']) && !in_array($row['brand_id'], $aBrands)) {
-				$this->addErrLog(__('Incorrect brand ID (Line %s)', $this->errLine));
-			}
-			if (isset($row['cat_id']) && !in_array($row['cat_id'], $aCategories)) {
-				$this->addErrLog(__('Incorrect category ID (Line %s)', $this->errLine));
-			}
-			if (isset($row['subcat_id']) && !in_array($row['subcat_id'], $aSubcategories)) {
-				$this->addErrLog(__('Incorrect subcategory ID (Line %s)', $this->errLine));
-			}
-
-		}
-		return $this->errLog;
-	}
-
-	protected function _createProducts($aData) {
-		App::uses('Translit', 'Article.Vendor');
-		
-		// $aFormFields = $this->FormField->find('list', array('fields' => array('id', 'key')));
-		$aFormFields = $this->PMFormField->getFieldsList('SubcategoryParam', '');
-		foreach($aData['keys'] as $id) {
-			if (strpos($id, 'fk_') !== false && !in_array(intval(str_replace('fk_', '', $id)), array_keys($aFormFields))) {
-				throw new Exception(__('Incorrect field ID %s', $id));
-			}
-		}
-		
-		$aBrands = array_keys($this->Brand->getOptions());
-		$aCategories = array_keys($this->Category->getOptions());
-		$aSubcategories = array_keys($this->Subcategory->getOptions());
-		
-		$aID = array();
-		$this->errLine = 1;
-		foreach($aData['data'] as $row) {
-			$this->errLine++;
-			
-			// Проверить обязательные поля
-			if ( !(isset($row['title']) && trim($row['title'])) ) {
-				throw new Exception('Field `title` cannot be blank (Line %s)');
-			}
-			if ( !(isset($row['title_rus']) && trim($row['title_rus'])) ) {
-				throw new Exception('Field `title_rus` cannot be blank (Line %s)');
-			}
-			if ( !(isset($row['code']) && trim($row['code'])) ) {
-				throw new Exception('Field `code` cannot be blank (Line %s)');
-			}
-			
-			// Проверить необязательные поля
-			if (isset($row['brand_id']) && !in_array($row['brand_id'], $aBrands)) {
-				throw new Exception('Incorrect brand ID (Line %s)');
-			}
-			if (isset($row['cat_id']) && !in_array($row['cat_id'], $aCategories)) {
-				throw new Exception('Incorrect category ID (Line %s)');
-			}
-			if (isset($row['subcat_id']) && !in_array($row['subcat_id'], $aSubcategories)) {
-				throw new Exception('Incorrect subcategory ID (Line %s)');
-			}
-			
-			$row['object_type'] = 'Product';
-			if (!isset($row['slug'])) {
-				if (isset($row['title_rus']) && $row['detail_num']) {
-					$row['slug'] = Translit::convert(trim($row['title_rus']).'-'.trim($row['code']), true);
-					$row['slug'] = preg_replace('![^'.preg_quote('-').'a-z0-9_\s]+!', '', $row['slug']);
-				}
-			}
-			if (!isset($row['published'])) {
-				$row['published'] = 1;
-			}
-			if (!isset($row['active'])) {
-				$row['active'] = 1;
-			}
-			if (!isset($row['show_detailnum'])) {
-				$row['show_detailnum'] = 1;
-			}
-
-			$this->Product->clear();
-			$data = array('Product' => $row);
-			if (!$this->Product->save($data)) {
-				throw new Exception('Cannot create product (Line %s)');
-			}
-
-			$formData = array('object_type' => 'ProductParam', 'object_id' => $this->Product->id);
-			foreach ($row as $id => $val) {
-				if (strpos($id, 'fk_') !== false) {
-					$formData[$id] = $row[$id];
-				}
-			}
-
-			$this->PMFormData->clear();
-			if (!$this->PMFormData->save($formData)) {
-				throw new Exception('Cannot save parameters (Line %s)');
-			}
-
-			$this->PMFormData->recalcFormula($this->PMFormData->id, $aFormFields);
-			$data = array();
-			// Создать SEO блок для продукта
-			if (isset($row['title_rus']) && $row['code']) {
-				$data['title'] = $row['title_rus'] . ' ' . $row['code'];
-			}
-			if (isset($row['title']) && $row['detail_num']) {
-				$data['keywords'] = $row['title'] . ' ' . $row['detail_num'];
-				$data['descr'] = $data['keywords'];
-			}
-			if ($data) {
-				$data['object_type'] = 'Product';
-				$data['object_id'] = $this->Product->id;
-
-				$this->Seo->clear();
-				$this->Seo->save($data);
-			}
-
-			$aID[] = $this->Product->id;
-		}
-		return $aID;
-	}
-    
 	public function uploadNewProducts() {
-		try {
-			if (isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) && isset($_FILES['csv_file']['tmp_name']) && $_FILES['csv_file']['tmp_name'] ) {
-				set_time_limit(60 * 30);
-				$aData = $this->_parseCsv($_FILES['csv_file']['tmp_name']);
-				$errLog = $this->_checkCreatedProducts($aData);
-				if ($errLog) {
-					$this->set('errLog', $errLog);
+		$user_id = AuthComponent::user('id');
+		$task = $this->Task->getActiveTask('UploadNewProducts', $user_id);
+		if ($task) {
+			$id = Hash::get($task, 'Task.id');
+			$status = $this->Task->getStatus($id);
+			if ($status == Task::DONE) {
+				$aID = $this->Task->getData($id, 'xdata');
+				$this->Task->close($id);
+				$this->setFlash(__('%s products have been successfully updated', count($aID)), 'success');
+				$route = array(
+					'controller' => 'AdminProducts',
+					'action' => 'index',
+					'sort' => 'Product.id',
+					'direction' => 'asc',
+					'limit' => (count($aID) > 1000) ? 1000 : count($aID)
+				);
+				if (count($aID) > 50) {
+					$file = Configure::read('tmp_dir').'user_products_'.$user_id.'.tmp';
+					file_put_contents($file, implode("\r\n", $aID));
+					$route['Product.id'] = 'list';
 				} else {
-					$this->Product->getDataSource()->begin();
-					$aID = $this->_createProducts($aData);
-					$this->Product->getDataSource()->commit();
-
-					$this->setFlash(__('%s products have been successfully uploaded', count($aID)), 'success');
-					if (count($aID) > 100) {
-						$file = Configure::read('tmp_dir').'user_products_'.$this->Auth->user('id').'.tmp';
-						file_put_contents($file, implode("\r\n", $aID));
-						$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => 'list'));
-					} else {
-						$this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
-					}
+					$route['Product.id'] = implode(',', $aID);
 				}
+				$this->redirect($route);
+				return;
+			} elseif ($status == Task::ABORTED) {
+				$this->setFlash(__('Processing was aborted by user'), 'error');
+			}  elseif ($status == Task::ERROR) {
+				$xdata = $this->Task->getData($id, 'xdata');
+				$this->setFlash(__('Process execution error! %s', $xdata), 'error');
 			}
-		} catch (Exception $e) {
-			$this->Product->getDataSource()->rollback();
-			$this->setFlash(__($e->getMessage(), $this->errLine), 'error');
-			$this->redirect(array('controller' => 'AdminUploadCsv', 'action' => 'uploadNewProducts'));
+			if (in_array($status, array(Task::ABORTED, Task::ERROR))) {
+				$this->Task->close($id);
+				$this->redirect(array('action' => 'UploadNewProducts'));
+				return;
+			}
+
+			$task = $this->Task->getFullData($id);
+			if (!isset($task['subtask'])) {
+				$task['subtask'] = true;
+			}
+		} else {
+			if ($file = Hash::get($_FILES, 'csv_file.tmp_name')) {
+				$_file = Configure::read('tmp_dir').basename($file, '.tmp').'.csv';
+				move_uploaded_file($file, $_file);
+
+				$status = $this->request->data('UploadCsv.status');
+				$recalc_formula = is_array($status) && in_array('recalc_formula', array_values($status));
+
+				$params = array('csv_file' => $_file, 'fieldRights' => $this->_getRights(), 'recalc_formula' => $recalc_formula);
+				$id = $this->Task->add($user_id, 'UploadNewProducts', $params);
+				$this->Task->runBkg($id);
+				$this->redirect(array('action' => 'UploadNewProducts'));
+				return;
+			}
+			$this->set('avgTime', $this->Task->avgExecTime('UploadNewProducts'));
 		}
+		$this->set('task', $task);
 	}
 	
 	public function checkProducts() {
