@@ -61,6 +61,10 @@
 	if (isset($columns[$field])) {
 		$columns[$field]['format'] = 'string';
 	}
+	$field = 'PMFormData.fk_'.Configure::read('Params.x_info');
+	if (isset($columns[$field])) {
+		$columns[$field]['format'] = 'string';
+	}
     /*
     unset($columns['Media.id']);
     unset($columns['Media.object_type']);
@@ -123,17 +127,19 @@
 				$aColors[$_val][] = $row['Product']['id'];
 			}
 
-			if (in_array($field_id, array(Configure::read('Params.crossNumber'), Configure::read('Params.motor'), Configure::read('Params.motorTS')))) { //
-				if ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::STRING) {
-					$detail_nums = explode("<br>", str_replace(array(', ', ','), '<br>', $row['PMFormData'][$_field]));
-				} else {
-					$detail_nums = explode("<br>", str_replace(array('<br />', '<br/>'), '<br>', $row['PMFormData'][$_field]));
-				}
-				if (count($detail_nums) > 1) {
-					$items = 'строк(а)';
-					$row['PMFormData'][$_field] = $this->element('AdminProduct/detail_nums', compact('detail_nums', 'items'));
-				} else {
-					$row['PMFormData'][$_field] = implode('<br />', $detail_nums);
+			foreach(array('crossNumber', 'motor', 'motorTS', 'x_info') as $key) {
+				if ($field_id == Configure::read('Params.'.$key)) { //
+					if ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::STRING) {
+						$detail_nums = explode("<br>", str_replace(array(', ', ','), '<br>', $row['PMFormData'][$_field]));
+					} else {
+						$detail_nums = explode("<br>", str_replace(array('<br />', '<br/>'), '<br>', $row['PMFormData'][$_field]));
+					}
+					if (count($detail_nums) > 1) {
+						$items = 'строк(а)';
+						$row['PMFormData'][$_field] = $this->element('AdminProduct/detail_nums', compact('detail_nums', 'items'));
+					} else {
+						$row['PMFormData'][$_field] = implode('<br />', $detail_nums);
+					}
 				}
 			}
 		}

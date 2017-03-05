@@ -56,7 +56,8 @@ Configure::write('Params', array(
 	'motorTS' => 34,
 	'skladSNG' => 49,
 	'skladOrig' => 72,
-	'skladEur' => 71
+	'skladEur' => 71,
+	'x_info' => 9
 ));
 
 Configure::write('Search', array(
