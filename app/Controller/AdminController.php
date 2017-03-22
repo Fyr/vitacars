@@ -26,8 +26,8 @@ class AdminController extends AppController {
 			// 'slider' => array('label' => __('Slider'), 'href' => array('controller' => 'AdminSlider', 'action' => 'index')),
 			// 'settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index'))
 			'Upload' => array('label' => __('Uploadings'), 'href' => '', 'submenu' => array(
-				array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index')),
-				array('label' => __('Upload new products'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'uploadNewProducts')),
+				array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminTasks', 'action' => 'index', 'UploadCounters')),
+				array('label' => __('Upload new products'), 'href' => array('controller' => 'AdminTasks', 'action' => 'index', 'UploadNewProducts')),
 				array('label' => __('Check products'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'checkProducts')),
 			)),
 			'Orders' => array('label' => __('Orders'), 'href' => '', 'submenu' => array(
@@ -40,7 +40,7 @@ class AdminController extends AppController {
 			'System' => array('label' => __('System'), 'href' => '', 'submenu' => array(
 				'Settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index')),
 				'Events' => array('label' => __('Events'), 'href' => array('controller' => 'AdminUserLogs', 'action' => 'index')),
-				'UpdateProducts' => array('label' => __('Update products'), 'href' => array('controller' => 'AdminSettings', 'action' => 'updateProducts')),
+				'UpdateProducts' => array('label' => __('Update products'), 'href' => array('controller' => 'AdminTasks', 'action' => 'index', 'ProductDescr')),
 			))
 		);
 		$this->aBottomLinks = $this->aNavBar;
@@ -88,7 +88,7 @@ class AdminController extends AppController {
 		return AuthComponent::user();
 	}
 	
-	protected function _getRights($field = 'field') {
+	public function _getRights($field = 'field') {
 		$field_rights = $this->currUser($field.'_rights');
 		return ($field_rights) ? explode(',', $field_rights) : array();
 	}

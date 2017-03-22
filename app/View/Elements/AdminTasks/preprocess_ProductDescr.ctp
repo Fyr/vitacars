@@ -1,10 +1,6 @@
 <?
 	$this->Html->css(array('bootstrap-multiselect'), array('inline' => false));
 	$this->Html->script(array('vendor/bootstrap-multiselect' ), array('inline' => false));
-	echo $this->element('admin_title', array('title' => __('Обновление продуктов')));
-?>
-<div class="span8 offset2" style="margin-bottom: 20px;">
-<?
 	echo $this->PHForm->create('Filter');
 	echo $this->element('admin_content');
 	echo $this->PHForm->input('zone', array(
@@ -30,7 +26,6 @@
 	echo $this->PHForm->submit(__('Apply').' <i class="icon-white icon-chevron-right"></i>', array('class' => 'btn btn-success pull-right', 'name' => 'apply', 'value' => 'apply'));
 	echo $this->PHForm->end();
 ?>
-</div>
 <script type="text/javascript">
 $(function(){
 	$('#FilterBrandId').multiselect({

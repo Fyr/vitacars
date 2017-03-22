@@ -12,8 +12,6 @@ class UploadNewProductsTask extends AppShell {
         $this->Task->setProgress($this->id, 0, 3); // 3 subtasks
         $this->Task->setStatus($this->id, Task::RUN);
 
-        fdebug(array('recalc_formula' => $this->params['recalc_formula']));
-
         $aData['keys'] = CsvReader::getHeaders($this->params['csv_file']);
 
         $this->aFormFields = $this->PMFormField->getFieldsList('SubcategoryParam', '');

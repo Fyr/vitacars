@@ -56,7 +56,9 @@ class ProductDescrTask extends AppShell {
 
                 $row['Product']['brand'] = $aBrandOptions[$row['Product']['brand_id']];
                 $row['Product']['category'] = $aCategoryOptions[$row['Product']['cat_id']];
-                $row['Product']['subcategory'] = $aSubcategoryOptions[$row['Product']['subcat_id']];
+
+                $subcat_id = $row['Product']['subcat_id'];
+                $row['Product']['subcategory'] = ($subcat_id && isset($aSubcategoryOptions[$subcat_id])) ? $aSubcategoryOptions[$subcat_id] : '';
 
                 $row['Product'][$field] = $this->Tpl->format($tpl, $row);
                 $this->Product->clear();

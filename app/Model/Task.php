@@ -29,6 +29,7 @@ class Task extends AppModel {
 			'UploadNewProducts_readCsv' => __('Process CSV file'),
 			'UploadCounters_checkProducts' => __('Check products data'),
 			'UploadCounters_createProducts' => __('Create products and needed data'),
+			'ProductDescr' => __('Update products'),
 			'TestProgress' => 'Test progress task executing...',
 			'TestProgress_task1' => '1. Test task 1 executing...',
 			'TestProgress_task2' => '2. Test task 2 executing...',
