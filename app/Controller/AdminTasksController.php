@@ -12,12 +12,16 @@ class AdminTasksController extends AdminController {
 		}
 		parent::beforeFilter();
 	}
+
+	public function index() {
+
+	}
     
-    public function index($taskName) {
+    public function task($taskName) {
 		$title = $this->Task->getTitle($taskName);
 		$task = $this->Task->getActiveTask($taskName);
 		$avgTime = $this->Task->avgExecTime($taskName);
-		$taskComponent = $this->Components->load($taskName.'Task');
+		$taskComponent = $this->Components->load('Task'.$taskName);
 		$taskComponent->initialize($this);
 		if ($task) {
 			$id = Hash::get($task, 'Task.id');
@@ -29,11 +33,11 @@ class AdminTasksController extends AdminController {
 			} elseif ($status == Task::ABORTED) {
 				$this->Task->close($id);
 				$this->setFlash(__('Processing was aborted by user'), 'error');
-				$this->redirect(array('action' => 'index', $taskName));
+				$this->redirect(array('action' => 'task', $taskName));
 			}  elseif ($status == Task::ERROR) {
 				$this->Task->close($id);
 				$this->setFlash(__('Process execution error! %s', $xdata), 'error');
-				$this->redirect(array('action' => 'index', $taskName));
+				$this->redirect(array('action' => 'task', $taskName));
 			}
 
 			$task = $this->Task->getFullData($id);
@@ -43,10 +47,11 @@ class AdminTasksController extends AdminController {
 		} else {
 			if ($taskComponent->preProcess()) {
 				sleep(1); // дать время на запуск таска
-				$this->redirect(array('action' => 'index', $taskName));
+				$this->redirect(array('action' => 'task', $taskName));
 			}
 		}
 		$this->set(compact('taskName', 'title', 'task', 'avgTime'));
     }
+
 
 }

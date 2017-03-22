@@ -3,7 +3,7 @@ App::uses('Component', 'Controller');
 App::uses('Brand', 'Model');
 App::uses('Category', 'Model');
 
-class ProductDescrTaskComponent extends Component {
+class TaskProductDescrComponent extends Component {
 
 	protected $_;
 
@@ -27,6 +27,6 @@ class ProductDescrTaskComponent extends Component {
 
 	public function postProcess($aID) {
 		$this->_->setFlash(__('%s products have been successfully updated', count($aID)), 'success');
-		$this->_->redirect(array('controller' => 'AdminTasks', 'action' => 'index', 'ProductDescr'));
+		$this->_->redirect(array('controller' => 'AdminTasks', 'action' => 'task', 'ProductDescr'));
 	}
 }

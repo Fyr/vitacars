@@ -25,9 +25,10 @@ class AdminController extends AppController {
 			'Users' => array('label' => __('Users'), 'href' => array('controller' => 'AdminUsers', 'action' => 'index')),
 			// 'slider' => array('label' => __('Slider'), 'href' => array('controller' => 'AdminSlider', 'action' => 'index')),
 			// 'settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index'))
-			'Upload' => array('label' => __('Uploadings'), 'href' => '', 'submenu' => array(
-				array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminTasks', 'action' => 'index', 'UploadCounters')),
-				array('label' => __('Upload new products'), 'href' => array('controller' => 'AdminTasks', 'action' => 'index', 'UploadNewProducts')),
+			'BkgTasks' => array('label' => __('Bkg.tasks'), 'href' => '', 'submenu' => array(
+				array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminTasks', 'action' => 'task', 'UploadCounters')),
+				array('label' => __('Upload new products'), 'href' => array('controller' => 'AdminTasks', 'action' => 'task', 'UploadNewProducts')),
+				array('label' => __('Update products'), 'href' => array('controller' => 'AdminTasks', 'action' => 'task', 'ProductDescr')),
 				array('label' => __('Check products'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'checkProducts')),
 			)),
 			'Orders' => array('label' => __('Orders'), 'href' => '', 'submenu' => array(
@@ -40,7 +41,7 @@ class AdminController extends AppController {
 			'System' => array('label' => __('System'), 'href' => '', 'submenu' => array(
 				'Settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index')),
 				'Events' => array('label' => __('Events'), 'href' => array('controller' => 'AdminUserLogs', 'action' => 'index')),
-				'UpdateProducts' => array('label' => __('Update products'), 'href' => array('controller' => 'AdminTasks', 'action' => 'index', 'ProductDescr')),
+
 			))
 		);
 		$this->aBottomLinks = $this->aNavBar;

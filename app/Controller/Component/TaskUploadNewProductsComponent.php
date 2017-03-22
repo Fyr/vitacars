@@ -1,7 +1,7 @@
 <?php
 App::uses('Component', 'Controller');
 
-class UploadCountersTaskComponent extends Component {
+class TaskUploadNewProductsComponent extends Component {
 
 	protected $_;
 
@@ -16,10 +16,10 @@ class UploadCountersTaskComponent extends Component {
 			move_uploaded_file($file, $_file);
 
 			$status = $this->_->request->data('UploadCsv.status');
-			$set_zero = is_array($status) && in_array('set_zero', array_values($status));
+			$recalc_formula = is_array($status) && in_array('recalc_formula', array_values($status));
 
-			$params = array('csv_file' => $_file, 'fieldRights' => $this->_->_getRights(), 'set_zero' => $set_zero);
-			$id = $this->_->Task->add($user_id, 'UploadCounters', $params);
+			$params = array('csv_file' => $_file, 'fieldRights' => $this->_->_getRights(), 'recalc_formula' => $recalc_formula);
+			$id = $this->_->Task->add($user_id, 'UploadNewProducts', $params);
 			$this->_->Task->runBkg($id);
 			return true;
 		}
@@ -28,14 +28,21 @@ class UploadCountersTaskComponent extends Component {
 
 	public function postProcess($aID) {
 		$user_id = AuthComponent::user('id');
-		// $aID = $this->_->Task->getData($task_id, 'xdata');
 		$this->_->setFlash(__('%s products have been successfully updated', count($aID)), 'success');
+		$route = array(
+			'controller' => 'AdminProducts',
+			'action' => 'index',
+			'sort' => 'Product.id',
+			'direction' => 'asc',
+			'limit' => (count($aID) > 1000) ? 1000 : count($aID)
+		);
 		if (count($aID) > 50) {
 			$file = Configure::read('tmp_dir').'user_products_'.$user_id.'.tmp';
 			file_put_contents($file, implode("\r\n", $aID));
-			$this->_->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => 'list'));
+			$route['Product.id'] = 'list';
 		} else {
-			$this->_->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.id' => implode(',', $aID)));
+			$route['Product.id'] = implode(',', $aID);
 		}
+		$this->_->redirect($route);
 	}
 }
