@@ -690,3 +690,6 @@ msgstr "Создание продуктов и необходимых данны
 
 msgid "Bkg.tasks"
 msgstr "Фон.задачи"
+
+msgid "1C Import"
+msgstr "Импорт данных из 1С"

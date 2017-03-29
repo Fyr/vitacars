@@ -1,6 +1,15 @@
 <?
     $objectType = 'Task';
     $title = __('Bkg.tasks');// $this->ObjectType->getTitle('index', $objectType);
+    $aStatusOptions = array(
+        Task::CREATED => 'Запуск',
+        Task::RUN => 'Выполняется',
+        Task::DONE => 'Выполнена',
+        Task::ERROR => 'Ошибка',
+        Task::ABORT => 'Прервать задачу',
+        Task::ABORTED => 'Прервана',
+        Task::TERMINATED => 'Снята',
+    );
     $aStatusMsg = array(
         Task::CREATED => 'Запуск задачи...',
         Task::RUN => 'Выполняется...',
@@ -18,14 +27,18 @@
     unset($actions['row']['edit']);
 
     $columns = $this->PHTableGrid->getDefaultColumns($objectType);
+    $columns['Task.created']['nowrap'] = true;
     $columns['Task.task_name']['label'] = 'Задача';
     $columns['Task.status']['label'] = 'Статус';
     $columns['Task.user_id']['label'] = __('Username');
     $columns['Task.user_id']['format'] = 'string';
+    $columns['Task.user_id']['showFilter'] = false;
     $columns['Task.exec_time']['label'] = 'Время выполнения';
     $columns['Task.exec_time']['format'] = 'string';
+    $columns['Task.exec_time']['showFilter'] = false;
     $columns['Task.progress']['label'] = 'Прогресс';
     $columns['Task.progress']['format'] = 'string';
+    $columns['Task.progress']['showFilter'] = false;
     unset($columns['Task.total']);
     unset($columns['Task.xdata']);
     $columns['Task.active']['format'] = 'string';
@@ -40,7 +53,8 @@
         'key' => 'Task.terminate',
         'label' => 'Снять',
         'format' => 'string',
-        'align' => 'center'
+        'align' => 'center',
+        'showFilter' => false
     );
     $aRows = array('legend-red' => array(), 'legend-red' => array(), 'legend-green' => array());
     foreach($data as &$row) {
@@ -49,7 +63,12 @@
         $row['Task']['exec_time'] = $this->PHTime->niceShortTime($row['Task']['exec_time']);
         $row['Task']['active'] = ($row['Task']['active']) ? '<i class="icon-color icon-check"></i>' : '';
         $row['Task']['cached'] = ($aCached[$task_id]) ? '<i class="icon-color icon-check"></i>' : '';
-        $row['Task']['progress'] = $this->element('AdminTasks/progress_str', $row['Task']);
+        if ($aCached[$task_id]) {
+            // берем прогресс из кэша т.к. БД могла еще не обновится
+            $row['Task']['progress'] = $this->element('AdminTasks/progress_str', $aCached[$task_id]);
+        } else {
+            $row['Task']['progress'] = $this->element('AdminTasks/progress_str', $row['Task']);
+        }
 
         $status = $row['Task']['status'];
         $row['Task']['status'] = (isset($aStatusMsg[$status])) ? $aStatusMsg[$status] : '???';
@@ -62,6 +81,7 @@
         $task_name = $row['Task']['task_name'];
 
         if (!isset($aHangs[$task_id]) && in_array($status, array(Task::CREATED, Task::RUN))) {
+            // если задача нормально выполняется - делаем ссылку на ее просмотр
             $row['Task']['task_name'] = $this->Html->link($aTaskOptions[$row['Task']['task_name']],
                 array('action' => 'task', $row['Task']['task_name']),
                 array('target' => '_blank', 'title' => 'Просмотр задачи')
@@ -116,10 +136,14 @@
                 }
 
                 $aSubtaskFields['status'][] = $this->Html->tag('span', $task['status'], array('class' => ''));
-                $aSubtaskFields['progress'][] = $this->Html->tag('span', $this->element('AdminTasks/progress_str', $task), array('class' => ''));
+                if ($aCached[$task['id']]) {
+                    $aSubtaskFields['progress'][] = $this->Html->tag('span', $this->element('AdminTasks/progress_str', $aCached[$task['id']]), array('class' => ''));
+                } else {
+                    $aSubtaskFields['progress'][] = $this->Html->tag('span', $this->element('AdminTasks/progress_str', $task), array('class' => ''));
+                }
                 $aSubtaskFields['exec_time'][] = $this->Html->tag('span', $this->PHTime->niceShortTime($task['exec_time']), array('class' => ''));
                 $aSubtaskFields['active'][] = $this->Html->tag('span', ($task['active']) ? '<i class="icon-color icon-check"></i>' : '', array('class' => ''));
-                $aSubtaskFields['cached'][] = $this->Html->tag('span', ($aCached[$task_id]) ? '<i class="icon-color icon-check"></i>' : '', array('class' => ''));
+                $aSubtaskFields['cached'][] = $this->Html->tag('span', ($aCached[$task['id']]) ? '<i class="icon-color icon-check"></i>' : '', array('class' => ''));
             }
 
             foreach($aSubtaskFields as $field => $rows) {
@@ -139,6 +163,24 @@
 </style>
 <script type="text/javascript">
 $(document).ready(function(){
+    var aMainTaskOptions = <?=json_encode($aMainTaskOptions)?>;
+    var aStatusOptions = <?=json_encode($aStatusOptions)?>;
+    var parent_renderTableFilterCell = grid_Task.renderTableFilterCell;
+    grid_Task.renderTableFilterCell = function (col, val) {
+        if (col.key == 'Task.task_name') {
+            return Format.tag('th', null, grid_Task.renderFilterSelect(col, aMainTaskOptions, val));
+        } else if (col.key == 'Task.status') {
+            return Format.tag('th', null, grid_Task.renderFilterSelect(col, aStatusOptions, val));
+        } else if (col.key == 'Task.active') {
+            return Format.tag('th', null, grid_Task.renderFilterBoolean(col, val));
+        } else if (col.key == 'Task.cached') {
+            return Format.tag('th', null, grid_Task.renderFilterBoolean(col, val));
+        } else {
+            return parent_renderTableFilterCell(col, val);
+        }
+    };
+    grid_Task.render();
+
     $('.detail-nums .expand-num').click(function(){
         $(this).hide();
         $(this).parent().find('.collapse-num').show();

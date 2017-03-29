@@ -33,33 +33,39 @@ class AdminTasksController extends AdminController {
 		));
 		$aUsers[0] = __('System');
 
-		$aTaskOptions = $this->Task->getOptions();
 		$aChildTasks = $this->Task->findAllByParentId(Hash::extract($data, '{n}.Task.id'), null, array('id' => 'asc'));
 		$aChildTasks = Hash::combine($aChildTasks, '{n}.Task.id', '{n}.Task', '{n}.Task.parent_id');
 
 		$aCached = array();
 		$aHangs = array();
+		$aRunStatus = array(Task::CREATED, Task::RUN, Task::ABORT);
 		foreach($data as &$row) {
 			$id = $row['Task']['id'];
 			$aCached[$id] = Cache::read($id, 'tasks');
-
-			$lRun = in_array($row['Task']['status'], array(Task::CREATED, Task::RUN, Task::ABORT));
 			if ($aCached[$id]) {
-				// TODO: запихивать в $row progressInfo и анализировать ЕГО
-				// if (!$lRun || !isset($aCached[$id]['modified']) || (isset($aCached[$id]['modified']) && (time() - $aCached[$id]['modified']) > Task::TIMEOUT)) {
+				// если есть кэш - получаем инфу о зависании задачи по таймауту
 				if (Hash::get($this->Task->getProgressInfo($id), 'hangs')) {
 					$aHangs[$id] = true;
 				}
-				if ($lRun && isset($aChildTasks[$id])) {
-					//foreach($aChildTasks[$id] as $childTask)
-				}
-				//}
-			} elseif ($lRun) {
+			} elseif (in_array($row['Task']['status'], $aRunStatus)) {
+				// если задача по статусу выполняется, а кэша нет - это тоже не нормально
 				$aHangs[$id] = false;
+			}
+			if (isset($aChildTasks[$id])) {
+				foreach ($aChildTasks[$id] as $_id => $task) {
+					$aCached[$_id] = Cache::read($_id, 'tasks');
+					if (!$aCached[$_id] && in_array($row['Task']['status'], $aRunStatus) && in_array($task['status'], $aRunStatus)) {
+						// если ПОДзадача по статусу выполняется, а кэша у нее нет - это не нормально для осн.задачи
+						// бывают случаи когда подзадача выполняется (exception), а онс.задача имеет статус ERROR - добавил проверку на статус осн.задачи
+						$aHangs[$id] = false;
+					}
+				}
 			}
 		}
 
-		$this->set(compact('data', 'aUsers', 'aTaskOptions', 'aChildTasks', 'aCached', 'aHangs'));
+		$aTaskOptions = $this->Task->getOptions(false);
+		$aMainTaskOptions = $this->Task->getOptions(true);
+		$this->set(compact('data', 'aUsers', 'aTaskOptions', 'aMainTaskOptions', 'aChildTasks', 'aCached', 'aHangs'));
 	}
     
     public function task($taskName) {

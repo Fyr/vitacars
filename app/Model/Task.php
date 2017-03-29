@@ -11,29 +11,41 @@ class Task extends AppModel {
 
 	const TIMEOUT = 30; // сек.
 
-	public function getOptions() {
-		$aTitle = array(
-			'UploadCounters' => __('Upload counters'),
-			'UploadCounters_readCsv' => __('Process CSV file'),
-			'UploadCounters_initCounters' => __('UploadCounters_initCounters'),
-			'UploadCounters_updateCounters' => __('UploadCounters_updateCounters'),
-			'UploadCounters_updateRest' => __('UploadCounters_updateRest'),
-			'UploadNewProducts' => __('Upload new products'),
-			'UploadNewProducts_readCsv' => __('Process CSV file'),
-			'UploadCounters_checkProducts' => __('Check products data'),
-			'UploadCounters_createProducts' => __('Create products and needed data'),
-			'ProductDescr' => __('Update products'),
-			'TestProgress' => 'Test progress task executing...',
-			'TestProgress_task1' => '1. Test task 1 executing...',
-			'TestProgress_task2' => '2. Test task 2 executing...',
-			'TestProgress_task3' => '3. Test task 3 executing...',
-		);
+	public function getOptions($lMain = false) {
+		if ($lMain) {
+			$aTitle = array(
+				'UploadCounters' => __('Upload counters'),
+				'UploadNewProducts' => __('Upload new products'),
+				'ProductDescr' => __('Update products'),
+				'Import1C' => __('1C Import'),
+				'UploadCheckProducts' => __('Check products by CSV')
+			);
+		} else {
+			$aTitle = array(
+				'UploadCounters' => __('Upload counters'),
+				'UploadCounters_readCsv' => __('Process CSV file'),
+				'UploadCounters_initCounters' => __('UploadCounters_initCounters'),
+				'UploadCounters_updateCounters' => __('UploadCounters_updateCounters'),
+				'UploadCounters_updateRest' => __('UploadCounters_updateRest'),
+				'UploadNewProducts' => __('Upload new products'),
+				'UploadNewProducts_readCsv' => __('Process CSV file'),
+				'UploadCounters_checkProducts' => __('Check products data'),
+				'UploadCounters_createProducts' => __('Create products and needed data'),
+				'ProductDescr' => __('Update products'),
+				'Import1C' => __('1C Import')
+			);
+		}
 		return $aTitle;
 	}
 
 	public function getTitle($task_name) {
 		return Hash::get($this->getOptions(), $task_name);
 	}
+
+	/*
+	public function getStatusOptions() {
+	}
+	*/
 
 	public function add($user_id, $task_name, $aParams = array(), $parent_id = 0) {
 		$this->clear();
