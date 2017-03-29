@@ -131,8 +131,10 @@
                 $task['status'] = (isset($aStatusMsg[$status])) ? $aStatusMsg[$status] : '???';
                 if ($status == Task::ERROR) {
                     $task['status'].= ($task['xdata']) ? ' '.unserialize($task['xdata']) : 'Неизвестная ошибка!';
-                } elseif ($status == Task::ABORTED && $task['xdata']) {
-                    $task['status'] = unserialize($row['Task']['xdata']);
+                } elseif ($status == Task::ABORTED) {
+                    // $task['status'] = unserialize($row['Task']['xdata']);
+                    // выводит Прервана по неизвестной причине, если была прервана осн.задача
+                    $task['status'] = $aStatusOptions[Task::ABORTED];
                 }
 
                 $aSubtaskFields['status'][] = $this->Html->tag('span', $task['status'], array('class' => ''));

@@ -52,9 +52,11 @@ function setProgress(task, context) {
 }
 
 function renderStatus(task) {
-	setTitle(task.status == '<?=Task::ABORT?>' ? ABORT : task.task_name);
+	var ifHangs = (task.progress.hangs) ? ' ' + HANGS : '';
+	setTitle(task.status == '<?=Task::ABORT?>' ? ABORT : task.task_name + ifHangs);
+
 	if (task.subtask) {
-		setTitle(task.subtask.task_name);
+		setTitle(task.subtask.task_name + ifHangs);
 		if (task.subtask.progress) {
 			setProgress(task.subtask, '#progressSubtask');
 			if (task.subtask.progress.time_finish > task.progress.time_finish) {
@@ -93,6 +95,7 @@ function updateStatus(url) {
 }
 $(function(){
 	ABORT = 'Остановка процесса...';
+	HANGS = '(не отвечает)';
 	renderStatus(<?=json_encode($task)?>);
 	updateStatus('<?=$this->Html->url(array('controller' => 'AdminAjax', 'action' => 'getTaskStatus', Hash::get($task, 'id')))?>.json');
 	$('#taskAbort').click(function(){

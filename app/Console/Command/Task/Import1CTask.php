@@ -94,6 +94,7 @@ class Import1CTask extends AppShell {
             $this->Task->setData($this->id, 'xdata', $aID);
             $this->Task->setStatus($this->id, Task::DONE);
             $this->Logger->write('DONE', array('TaskID' => $this->id, 'File' => $this->params['csv_file']));
+            $this->Task->close($this->id); // сразу закрываем таск
         } catch (Exception $e) {
             $this->PMFormData->trxRollback();
             $this->Logger->write('ABORTED', array('TaskID' => $this->id, 'File' => $this->params['csv_file']));
