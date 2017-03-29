@@ -7,5 +7,5 @@
 ?>
 	</div>
 	<div class="small-text">
-		<!-- <?=__('CMS Development')?> - PHPPainKiller.ru -->
+		<!-- <?=__('CMS Development')?> - PhpPainKiller.ru -->
 	</div>

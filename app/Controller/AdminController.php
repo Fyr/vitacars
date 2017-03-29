@@ -22,10 +22,7 @@ class AdminController extends AppController {
 				'Products' => array('label' => __('Products'), 'href' => array('controller' => 'AdminProducts', 'action' => 'index')),
 				// 'Settings' => array('label' => __('Product Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index'))
 			)),
-			'Users' => array('label' => __('Users'), 'href' => array('controller' => 'AdminUsers', 'action' => 'index')),
-			// 'slider' => array('label' => __('Slider'), 'href' => array('controller' => 'AdminSlider', 'action' => 'index')),
-			// 'settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index'))
-			'BkgTasks' => array('label' => __('Bkg.tasks'), 'href' => '', 'submenu' => array(
+			'Tasks' => array('label' => __('Bkg.tasks'), 'href' => '', 'submenu' => array(
 				array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminTasks', 'action' => 'task', 'UploadCounters')),
 				array('label' => __('Upload new products'), 'href' => array('controller' => 'AdminTasks', 'action' => 'task', 'UploadNewProducts')),
 				array('label' => __('Update products'), 'href' => array('controller' => 'AdminTasks', 'action' => 'task', 'ProductDescr')),
@@ -38,10 +35,13 @@ class AdminController extends AppController {
 			'Reports' => array('label' => __('Reports'), 'href' => '', 'submenu' => array(
 				array('label' => __('Sales by period'), 'href' => array('controller' => 'AdminReports', 'action' => 'sales')),
 			)),
+			// 'slider' => array('label' => __('Slider'), 'href' => array('controller' => 'AdminSlider', 'action' => 'index')),
+			// 'settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index'))
 			'System' => array('label' => __('System'), 'href' => '', 'submenu' => array(
 				'Settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index')),
+				'Users' => array('label' => __('Users'), 'href' => array('controller' => 'AdminUsers', 'action' => 'index')),
 				'Events' => array('label' => __('Events'), 'href' => array('controller' => 'AdminUserLogs', 'action' => 'index')),
-
+				'BkgTasks' => array('label' => __('Bkg.tasks'), 'href' => array('controller' => 'AdminTasks', 'action' => 'index')),
 			))
 		);
 		$this->aBottomLinks = $this->aNavBar;

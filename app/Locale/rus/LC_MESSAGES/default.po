@@ -560,13 +560,13 @@ msgid "Upload counters"
 msgstr "Загрузка счетчиков"
 
 msgid "UploadCounters_initCounters"
-msgstr "1. Инициализация счетчиков..."
+msgstr "Инициализация счетчиков"
 
 msgid "UploadCounters_updateCounters"
-msgstr "2. Обновление счетчиков..."
+msgstr "Обновление счетчиков"
 
 msgid "UploadCounters_updateRest"
-msgstr "3. Обновление БД и пересчет формул..."
+msgstr "Обновление БД и пересчет формул"
 
 msgid "Process execution error! %s"
 msgstr "Ошибка выполнения процесса! %s"

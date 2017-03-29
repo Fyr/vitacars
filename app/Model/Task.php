@@ -1,24 +1,17 @@
 <?
 App::uses('AppModel', 'Model');
 class Task extends AppModel {
-	/*
-	const CREATED = 0;
-	const RUN = 1;
-	const DONE = 2;
-	const ABORT = 3;
-	const ABORTED = 4;
-	const ERROR = 5;
-	const CLOSED = 6;
-	*/
 	const CREATED = 'CREATED';
 	const RUN = 'RUN';
 	const DONE = 'DONE';
 	const ABORT = 'ABORT';
 	const ABORTED = 'ABORTED';
 	const ERROR = 'ERROR';
-	const CLOSED = 'CLOSED';
+	const TERMINATED = 'TERMINATED';
 
-	public function getTitle($task_name) {
+	const TIMEOUT = 30; // сек.
+
+	public function getOptions() {
 		$aTitle = array(
 			'UploadCounters' => __('Upload counters'),
 			'UploadCounters_readCsv' => __('Process CSV file'),
@@ -35,7 +28,11 @@ class Task extends AppModel {
 			'TestProgress_task2' => '2. Test task 2 executing...',
 			'TestProgress_task3' => '3. Test task 3 executing...',
 		);
-		return Hash::get($aTitle, $task_name);
+		return $aTitle;
+	}
+
+	public function getTitle($task_name) {
+		return Hash::get($this->getOptions(), $task_name);
 	}
 
 	public function add($user_id, $task_name, $aParams = array(), $parent_id = 0) {
@@ -50,6 +47,7 @@ class Task extends AppModel {
 			'id' => $this->id,
 			'task_name' => $this->getTitle($task_name),
 			'created' => time(),
+			'modified' => time(),
 			'status' => self::CREATED,
 			'progress' => 0, 'total' => 0
 		);
@@ -82,6 +80,7 @@ class Task extends AppModel {
 	public function setData($id, $key, $val) {
 		$task = Cache::read($id, 'tasks');
 		$task[$key] = $val;
+		$task['modified'] = time();
 		Cache::write($id, $task, 'tasks');
 	}
 
@@ -136,17 +135,13 @@ class Task extends AppModel {
 		$exec_time = time() - Hash::get($task, 'created');
 		$avg_speed = ($exec_time > 0) ? $progress / $exec_time : 0;
 		$time_finish = ($progress > 0) ? ($total - $progress) * $exec_time / $progress : 0;
-		/*
-		if ($subtask_id = $this->getData($id, 'subtask_id')) {
-			$subtask = $this->getProgressInfo($subtask_id);
-			$_time_finish = $subtask['time_finish'];
-			$time_finish = ($time_finish < $_time_finish) ? $_time_finish : $time_finish;
-		}
-		*/
+
 		$progress = floor($progress);
 		$avg_speed = round($avg_speed, 2);
 		$time_finish = round($time_finish);
-		return compact('progress', 'total', 'percent', 'exec_time', 'avg_speed', 'time_finish');
+		$hangs = in_array(Hash::get($task, 'status'), array(self::CREATED, self::RUN, self::ABORT))
+			&& (time() - Hash::get($task, 'modified')) > self::TIMEOUT;
+		return compact('progress', 'total', 'percent', 'exec_time', 'avg_speed', 'time_finish', 'hangs');
 	}
 
 	public function getFullData($id) {
@@ -161,22 +156,26 @@ class Task extends AppModel {
 		return $task;
 	}
 
-	public function close($id) {
+	public function close($id, $status = null) {
 		$this->clear();
-		$this->save(array('id' => $id, 'active' => 0));
+		$data = array('id' => $id, 'active' => 0);
+		if ($status) {
+			$data['status'] = $status;
+		}
+		$this->save($data);
 		if (Cache::read($id, 'tasks')) { // safe deleting cache
 			Cache::delete($id, 'tasks');
 		}
 
-		$this->closeSubtasks($id);
+		$this->closeSubtasks($id, $status);
 	}
 
-	public function closeSubtasks($id) {
+	public function closeSubtasks($id, $status = null) {
 		$subtasks = $this->find('all', array('conditions' => array('parent_id' => $id)));
 		if ($subtasks) {
 			$ids = Hash::extract($subtasks, '{n}.Task.id');
 			foreach($ids as $id) {
-				$this->close($id);
+				$this->close($id, $status);
 			}
 		}
 	}

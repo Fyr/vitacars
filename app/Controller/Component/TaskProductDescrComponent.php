@@ -12,8 +12,9 @@ class TaskProductDescrComponent extends Component {
 	}
 
 	public function preProcess() {
+		$user_id = AuthComponent::user('id');
 		if ($this->_->request->is(array('post', 'put'))) {
-			$id = $this->_->Task->add(0, 'ProductDescr', $this->_->request->data('Filter'));
+			$id = $this->_->Task->add($user_id, 'ProductDescr', $this->_->request->data('Filter'));
 			$this->_->Task->runBkg($id);
 			return true;
 		}

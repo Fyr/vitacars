@@ -1,9 +1,12 @@
 <?php
 App::uses('AdminController', 'Controller');
 App::uses('Task', 'Model');
+App::uses('User', 'Model');
+App::uses('PHTime', 'Core.View/Helper');
 class AdminTasksController extends AdminController {
     public $name = 'AdminTasks';
-    public $uses = array('Task');
+    public $uses = array('Task', 'User');
+	public $helpers = array('Core.PHTime');
     
     public function beforeFilter() {
 		if (!$this->isAdmin()) {
@@ -11,10 +14,52 @@ class AdminTasksController extends AdminController {
 			return;
 		}
 		parent::beforeFilter();
+		if ($this->request->action == 'index') {
+			$this->currMenu = 'System';
+		}
 	}
 
 	public function index() {
+		$this->paginate = array(
+			'conditions' => array('Task.parent_id' => 0),
+			'fields' => array('created', 'user_id', 'task_name', 'progress', 'total', 'exec_time', 'xdata', 'status', 'active'),
+			'order' => array('Task.created' => 'desc')
+		);
+		$data = $this->PCTableGrid->paginate('Task');
 
+		$aUsers = $this->User->find('list', array(
+			'fields' => array('id', 'username'),
+			'conditions' => array('id' => array_unique(Hash::extract($data, '{n}.Task.user_id')))
+		));
+		$aUsers[0] = __('System');
+
+		$aTaskOptions = $this->Task->getOptions();
+		$aChildTasks = $this->Task->findAllByParentId(Hash::extract($data, '{n}.Task.id'), null, array('id' => 'asc'));
+		$aChildTasks = Hash::combine($aChildTasks, '{n}.Task.id', '{n}.Task', '{n}.Task.parent_id');
+
+		$aCached = array();
+		$aHangs = array();
+		foreach($data as &$row) {
+			$id = $row['Task']['id'];
+			$aCached[$id] = Cache::read($id, 'tasks');
+
+			$lRun = in_array($row['Task']['status'], array(Task::CREATED, Task::RUN, Task::ABORT));
+			if ($aCached[$id]) {
+				// TODO: запихивать в $row progressInfo и анализировать ЕГО
+				// if (!$lRun || !isset($aCached[$id]['modified']) || (isset($aCached[$id]['modified']) && (time() - $aCached[$id]['modified']) > Task::TIMEOUT)) {
+				if (Hash::get($this->Task->getProgressInfo($id), 'hangs')) {
+					$aHangs[$id] = true;
+				}
+				if ($lRun && isset($aChildTasks[$id])) {
+					//foreach($aChildTasks[$id] as $childTask)
+				}
+				//}
+			} elseif ($lRun) {
+				$aHangs[$id] = false;
+			}
+		}
+
+		$this->set(compact('data', 'aUsers', 'aTaskOptions', 'aChildTasks', 'aCached', 'aHangs'));
 	}
     
     public function task($taskName) {
@@ -53,5 +98,9 @@ class AdminTasksController extends AdminController {
 		$this->set(compact('taskName', 'title', 'task', 'avgTime'));
     }
 
-
+	public function terminate($task_id) {
+		$this->autoRender = false;
+		$this->Task->close($task_id, Task::TERMINATED);
+		$this->redirect(array('action' => 'index'));
+	}
 }
