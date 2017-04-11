@@ -7,9 +7,22 @@ class AdminTasksController extends AdminController {
     public $name = 'AdminTasks';
     public $uses = array('Task', 'User');
 	public $helpers = array('Core.PHTime');
+
+	private function checkLoadCountersRights($task) {
+		if ($this->isAdmin() || (AuthComponent::user('load_counters') && $task === 'UploadCounters')) {
+			return true;
+		}
+
+		return false;
+	}
     
     public function beforeFilter() {
-		if (!$this->isAdmin()) {
+		if ($this->request->action == 'task' && Hash::get($this->request->params, 'pass.0') == 'UploadCounters') {
+			if (!($this->isAdmin() || AuthComponent::user('load_counters'))) {
+				$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
+				return;
+			}
+		} elseif (!$this->isAdmin()) {
 			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
 			return;
 		}
@@ -23,7 +36,7 @@ class AdminTasksController extends AdminController {
 		$this->paginate = array(
 			'conditions' => array('Task.parent_id' => 0),
 			'fields' => array('created', 'user_id', 'task_name', 'progress', 'total', 'exec_time', 'xdata', 'status', 'active'),
-			'order' => array('Task.created' => 'desc')
+			'order' => array('Task.id' => 'desc')
 		);
 		$data = $this->PCTableGrid->paginate('Task');
 

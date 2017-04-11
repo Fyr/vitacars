@@ -59,8 +59,8 @@ class AdminController extends AppController {
 				$this->aNavBar['Products']['submenu']['Brands'] = array('label' => __('Brands'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Brand'));
 			}
 			if (AuthComponent::user('load_counters')) {
-				$this->aNavBar['Upload'] = array('label' => __('Uploadings'), 'href' => '', 'submenu' => array());
-				$this->aNavBar['Upload']['submenu'][] = array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminUploadCsv', 'action' => 'index'));
+				$this->aNavBar['Tasks'] = array('label' => __('Uploadings'), 'href' => '', 'submenu' => array());
+				$this->aNavBar['Tasks']['submenu'][] = array('label' => __('Upload counters'), 'href' => array('controller' => 'AdminTasks', 'action' => 'task', 'UploadCounters'));
 			}
 			$this->aNavBar['Orders'] = array('label' => __('Orders'), 'href' => '', 'submenu' => array(
 				array('label' => __('Orders'), 'href' => array('controller' => 'AdminOrders', 'action' => 'index')),
@@ -71,6 +71,12 @@ class AdminController extends AppController {
 		
 	    $this->currMenu = $this->_getCurrMenu();
 	    $this->currLink = $this->currMenu;
+
+		if ($id = $this->currUser('id')) {
+			$this->loadModel('User');
+			$this->User->clear();
+			$this->User->save(array('id' => $id, 'last_action' => date('Y-m-d H:i:s')));
+		}
 	}
 	
 	public function beforeRender() {
@@ -95,7 +101,53 @@ class AdminController extends AppController {
 	}
 	
 	public function index() {
-		$this->redirect(array('controller' => 'AdminProducts'));
+		if (!$this->isAdmin()) {
+			$this->redirect(array('controller' => 'AdminProducts'));
+			return;
+		}
+
+		$aCount = array();
+		foreach(array('Brand', 'Category', 'Subcategory', 'Product') as $model) {
+			$this->loadModel($model);
+			$aCount[$model] = $this->{$model}->find('count');
+		}
+
+		$this->loadModel('Task');
+		$aTasks = $this->Task->find('all', array(
+			'conditions' => array('Task.parent_id' => 0),
+			'fields' => array('id', 'created', 'task_name', 'progress', 'total', 'exec_time', 'status', 'xdata'),
+			'order' => array('Task.id' => 'desc'),
+			'limit' => 10
+		));
+		$aCached = array();
+		$aHangs = array();
+		$aRunStatus = array(Task::CREATED, Task::RUN, Task::ABORT);
+		foreach($aTasks as &$task) {
+			$id = $task['Task']['id'];
+			$aCached[$id] = Cache::read($id, 'tasks');
+			if ($aCached[$id]) {
+				// если есть кэш - получаем инфу о зависании задачи по таймауту
+				if (Hash::get($this->Task->getProgressInfo($id), 'hangs')) {
+					$aHangs[$id] = true;
+				}
+			} elseif (in_array($task['Task']['status'], $aRunStatus)) {
+				// если задача по статусу выполняется, а кэша нет - это тоже не нормально
+				$aHangs[$id] = false;
+			}
+		}
+
+		$todayTasks = $this->Task->find('count', array(
+			'conditions' => array('Task.parent_id' => 0, 'DATE(created)' => date('Y-m-d'))
+		));
+		$aMainTaskOptions = $this->Task->getOptions(true);
+
+		$this->loadModel('User');
+		$aUsersOnline = $this->User->find('all', array(
+			'fields' => array('id', 'username', 'last_action'),
+			'conditions' => array('User.last_action IS NOT NULL', 'User.last_action > ' => date('Y-m-d H:i:s', time() - MINUTE * 30)),
+			'order' => 'User.last_action desc'
+		));
+		$this->set(compact('aCount', 'aTasks', 'aMainTaskOptions', 'todayTasks', 'aCached', 'aHangs', 'aUsersOnline'));
 	}
 	
 	protected function _getCurrMenu() {
