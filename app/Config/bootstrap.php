@@ -57,7 +57,9 @@ Configure::write('Params', array(
 	'skladSNG' => 49,
 	'skladOrig' => 72,
 	'skladEur' => 71,
-	'x_info' => 9
+	'x_info' => 9,
+	'discountPrice' => 18,
+	'discount' => 82
 ));
 
 Configure::write('Search', array(

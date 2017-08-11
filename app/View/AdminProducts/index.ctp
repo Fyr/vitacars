@@ -125,6 +125,9 @@
 			}
 			if ($field_id == Configure::read('Params.color')) { // цвет
 				$aColors[$_val][] = $row['Product']['id'];
+			} elseif ($field_id == Configure::read('Params.discountPrice') && Hash::get($row['PMFormData'], 'fk_'.Configure::read('Params.discount'))) { // цена со скидкой
+				// $row['PMFormData'][$_field] = $this->Html->tag('span', $row['PMFormData'][$_field], array('class' => 'discount'));
+				$row['PMFormData'][$_field] = $this->Html->link($row['PMFormData'][$_field], 'javascript::void(0)', array('class' => 'discount', 'title' => 'Окончательная цена со скидкой'));
 			}
 
 			foreach(array('crossNumber', 'motor', 'motorTS', 'x_info') as $key) {
@@ -209,6 +212,8 @@
 	#grid_Product .grid .fixed { position: fixed; top: 43px; left: 40px; margin-left: 1px;}
 	#grid_Product .grid .duplicateHead .grid-filter { display: none !important;}
 	#grid_Product .grid .originalHead .grid-filter { background: #fff;}
+	#grid_Product .grid .discount { font-weight: bold; color: #f00; }
+	#grid_Product .grid .discount:hover { text-decoration: none; }
 </style>
 
 <script type="text/javascript">
