@@ -693,3 +693,6 @@ msgstr "Фон.задачи"
 
 msgid "1C Import"
 msgstr "Импорт данных из 1С"
+
+msgid "Recalc formula"
+msgstr "Пересчет формул"

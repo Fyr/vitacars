@@ -604,4 +604,21 @@ class AdminUpdateController extends AdminController {
 		// print_r(CsvReader::parse('data2.csv', array('keys' => array('detail_num', 'qty'))));
 		echo '</pre>';
 	}
+
+	public function update14() {
+		$this->layout = 'admin';
+		$this->autoRender = true;
+		$this->loadModel('Task');
+
+		$task = $this->Task->getActiveTask('VelesParser', 0);
+		if ($task) {
+			$id = Hash::get($task, 'Task.id');
+			$task = $this->Task->getFullData($id);
+			$this->set(compact('task'));
+		} else {
+			$id = $this->Task->add(0, 'VelesParser');
+			$this->Task->runBkg($id);
+			$this->redirect(array('action' => 'update14'));
+		}
+	}
 }
