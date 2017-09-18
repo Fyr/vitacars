@@ -74,6 +74,8 @@
 	unset($columns['Product.cat_id']);
     unset($columns['Product.brand_id']);
     unset($columns['PMFormData.fk_23']);
+	unset($columns['PMFormData.fk_23']);
+	unset($columns['PMFormData.fk_'.Configure::read('Params.discountComment')]);
 
     foreach($columns as $key => &$column) {
     	if (isset($aLabels[$key])) {
@@ -127,7 +129,14 @@
 				$aColors[$_val][] = $row['Product']['id'];
 			} elseif ($field_id == Configure::read('Params.discountPrice') && Hash::get($row['PMFormData'], 'fk_'.Configure::read('Params.discount'))) { // цена со скидкой
 				// $row['PMFormData'][$_field] = $this->Html->tag('span', $row['PMFormData'][$_field], array('class' => 'discount'));
-				$row['PMFormData'][$_field] = $this->Html->link($row['PMFormData'][$_field], 'javascript::void(0)', array('class' => 'discount', 'title' => 'Окончательная цена со скидкой'));
+
+				if ($comment = Hash::get($row['PMFormData'], 'fk_'.Configure::read('Params.discountComment'))) {
+					$row['PMFormData'][$_field] = $this->Html->tag('span', $row['PMFormData'][$_field], array('class' => 'discount')).' '.
+						$this->Html->link('', 'javascript::void(0)', array('class' => 'icon-color icon-info', 'title' => $comment, 'rel' => "tooltip"));
+				} else {
+					$comment = 'Окончательная цена со скидкой';
+					$row['PMFormData'][$_field] = $this->Html->link($row['PMFormData'][$_field], 'javascript::', array('class' => 'discount', 'title' => $comment));
+				}
 			}
 
 			foreach(array('crossNumber', 'motor', 'motorTS', 'x_info') as $key) {

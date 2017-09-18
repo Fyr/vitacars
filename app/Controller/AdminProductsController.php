@@ -69,6 +69,10 @@ class AdminProductsController extends AdminController {
     		}
     	}
     	$this->set('aLabels', $aLabels);
+		$discountComment = 'PMFormData.fk_'.Configure::read('Params.discountComment');
+		if (!in_array($discountComment, $aFields)) {
+			$aFields[] = $discountComment;
+		}
 		if (!$this->_isGridFilter()) {
 			$this->aFields = $aFields;
 			$aFields = array();

@@ -59,7 +59,8 @@ Configure::write('Params', array(
 	'skladEur' => 71,
 	'x_info' => 9,
 	'discountPrice' => 18,
-	'discount' => 82
+	'discount' => 82,
+	'discountComment' => 83
 ));
 
 Configure::write('Search', array(
