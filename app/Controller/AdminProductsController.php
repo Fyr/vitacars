@@ -226,7 +226,13 @@ class AdminProductsController extends AdminController {
 		}
 		$this->paginate['conditions'] = array('Product.id' => $product_ids);
 
-		$order = array("Product.code = '{$detail_num}' DESC", "Product.code = '{$_detail_num}' DESC");
+		$order = array(
+			"Product.code = '{$detail_num}' AND Product.detail_num = '{$detail_num}' DESC",
+			"Product.code = '{$detail_num}' DESC",
+			"Product.code = '{$_detail_num}' DESC",
+			"Product.detail_num LIKE '%{$detail_num}%' DESC",
+			"Product.detail_num LIKE '%{$_detail_num}%' DESC"
+		);
 		foreach ($product_ids as $id) {
 			$order[] = 'Product.id = ' . $id . ' DESC';
 		}
