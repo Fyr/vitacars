@@ -42,6 +42,7 @@ class AdminController extends AppController {
 				'Users' => array('label' => __('Users'), 'href' => array('controller' => 'AdminUsers', 'action' => 'index')),
 				'Events' => array('label' => __('Events'), 'href' => array('controller' => 'AdminUserLogs', 'action' => 'index')),
 				'BkgTasks' => array('label' => __('Bkg.tasks'), 'href' => array('controller' => 'AdminTasks', 'action' => 'index')),
+				'Messages' => array('label' => __('Messages'), 'href' => array('controller' => 'AdminMessages', 'action' => 'index')),
 			))
 		);
 		$this->aBottomLinks = $this->aNavBar;
@@ -76,6 +77,13 @@ class AdminController extends AppController {
 			$this->loadModel('User');
 			$this->User->clear();
 			$this->User->save(array('id' => $id, 'last_action' => date('Y-m-d H:i:s')));
+
+			$this->loadModel('Message');
+			$messages = array(
+				'unread' => $this->Message->find('count', array('conditions' => array('user_id' => $id, 'active' => 1))),
+				'total' => $this->Message->find('count', array('conditions' => array('user_id' => $id)))
+			);
+			$this->set(compact('messages'));
 		}
 	}
 	

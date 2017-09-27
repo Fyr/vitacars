@@ -4,6 +4,9 @@ msgstr "Пользователь"
 msgid "Invalid username or password, try again"
 msgstr "Неправильное имя пользователя или пароль"
 
+msgid "Are you sure to delete this record?"
+msgstr "Вы уверены что хотите удалить эту запись?"
+
 msgid "Static Pages"
 msgstr "Стат.страницы"
 
@@ -696,3 +699,39 @@ msgstr "Импорт данных из 1С"
 
 msgid "Recalc formula"
 msgstr "Пересчет формул"
+
+msgid "Messages"
+msgstr "Сообщения"
+
+msgid "Message"
+msgstr "Сообщение"
+
+msgid "Create message"
+msgstr "Создать сообщение"
+
+msgid "Edit message"
+msgstr "Редактировать сообщение"
+
+msgid "Sent"
+msgstr "Отправлено"
+
+msgid "Recipients"
+msgstr "Получатели"
+
+msgid "New subject..."
+msgstr "Новая тема..."
+
+msgid "Message body..."
+msgstr "Текст сообщения..."
+
+msgid "Message have been successfully sent to %s users"
+msgstr "Сообщение было отправлено %s получателям"
+
+msgid "Yesterday"
+msgstr "Вчера"
+
+msgid "Today"
+msgstr "Сегодня"
+
+msgid "You have specified no recipients!"
+msgstr "Вы не указали получателей для отправки!"
