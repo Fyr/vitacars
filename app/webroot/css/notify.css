@@ -1,0 +1,45 @@
+.unread { font-weight: bold; }
+.admin .ui-dialog.ui-force-show {
+    display: block !important;
+    opacity: 1 !important;
+}
+.admin .ui-dialog {
+    background: #fafafa !important;
+    border-color: #fafafa !important;
+    position: fixed !important;
+}
+.admin .ui-dialog .ui-dialog-title {
+    padding-right: 15px;
+}
+.admin .ui-dialog .ui-dialog-titlebar {
+    border-top-color: #fafafa !important;
+    border-left-color: #fafafa !important;
+    border-right-color: #fafafa !important;
+}
+.admin .ui-dialog-title {
+    font-size: 16px;
+}
+.admin .ui-dialog .ui-dialog-titlebar-close {
+    background: url('/img/glyphicons-halflings.png') -312px 0 no-repeat;
+    border: 1px solid #000;
+    width: 16px;
+    height: 16px;
+    opacity: 0.5 !important;
+    top: 35px;
+}
+.admin .ui-dialog .ui-dialog-titlebar-close:hover {
+    opacity: 1 !important;
+}
+#notify {
+    padding: 1px;
+}
+#notify #content {
+    border-bottom: 1px solid #aaa;
+    padding: 3px 5px;
+    height: 60px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+#notify a {
+    text-decoration: none;
+}

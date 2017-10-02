@@ -19,6 +19,7 @@ class AdminAuthController extends AppController {
 					'host' => gethostbyaddr($_SERVER['REMOTE_ADDR'])
 				);
 				$this->UserLog->save($data);
+				$this->Session->write('checkMsgTime', '2017-09-26 00:00:00'); // to show all unread messages when user loggs in
 				return $this->redirect($this->Auth->redirect());
 			} else {
 				$user = $this->User->findByUsername($this->request->data('User.username'));

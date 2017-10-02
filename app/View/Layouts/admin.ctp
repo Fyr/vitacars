@@ -7,7 +7,7 @@
 <?php
 	echo $this->Html->meta('icon');
 
-	echo $this->Html->css(array('bootstrap.min', 'bootstrap-responsive.min', 'jquery-ui-1.10.3.custom', 'admin'));
+	echo $this->Html->css(array('bootstrap.min', 'bootstrap-responsive.min', 'jquery-ui-1.10.3.custom', 'admin', 'notify'));
 	$aScripts = array(
 		'vendor/jquery/jquery-1.10.2.min',
 		'vendor/jquery/jquery.cookie',
@@ -44,6 +44,7 @@
 				<!--div class="span8 offset2" style="height:1px;min-height:1px;"></div-->
 				<?=$this->element('/AdminUI/admin_flash')?>
     			<?=$this->fetch('content')?>
+				<?=$this->element('notify')?>
     		</div>
     	</div>
     </section>
@@ -54,7 +55,7 @@
 </div>
 <?
 	if (TEST_ENV) {
-		// echo $this->element('sql_dump');
+		echo $this->element('sql_dump');
 	}
 ?>
 </body>

@@ -49,6 +49,11 @@ class AdminMessagesController extends AdminController {
 	}
     
     public function edit($id = 0) {
+		if (!$this->isAdmin()) {
+			$this->redirect(array('controller' => 'AdminMessages', 'action' => 'messageList'));
+			return;
+		}
+
     	$this->PCArticle->setModel('Notify')->edit(&$id, &$lSaved);
 		if ($lSaved) {
 			$id = $this->Notify->id;

@@ -1,5 +1,5 @@
 <?
-	$title = __('Messages');
+	$title = 'Сообщения';
     $actions = $this->PHTableGrid->getDefaultActions('Message');
     $columns = $this->PHTableGrid->getDefaultColumns('Message');
     $columns['Message.active']['label'] = 'Прочитано';
@@ -29,6 +29,3 @@
     echo $this->element('admin_title', compact('title'));
     echo $this->PHTableGrid->render('Message', compact('actions', 'data', 'columns'));
 ?>
-<style>
-    .unread { font-weight: bold; }
-</style>

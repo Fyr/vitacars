@@ -701,16 +701,16 @@ msgid "Recalc formula"
 msgstr "Пересчет формул"
 
 msgid "Messages"
-msgstr "Сообщения"
+msgstr "Уведомления"
 
 msgid "Message"
-msgstr "Сообщение"
+msgstr "Уведомление"
 
 msgid "Create message"
-msgstr "Создать сообщение"
+msgstr "Создать уведомление"
 
 msgid "Edit message"
-msgstr "Редактировать сообщение"
+msgstr "Редактировать уведомление"
 
 msgid "Sent"
 msgstr "Отправлено"

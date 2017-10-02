@@ -77,19 +77,28 @@ class AdminController extends AppController {
 			$this->loadModel('User');
 			$this->User->clear();
 			$this->User->save(array('id' => $id, 'last_action' => date('Y-m-d H:i:s')));
-
-			$this->loadModel('Message');
-			$messages = array(
-				'unread' => $this->Message->find('count', array('conditions' => array('user_id' => $id, 'active' => 1))),
-				'total' => $this->Message->find('count', array('conditions' => array('user_id' => $id)))
-			);
-			$this->set(compact('messages'));
 		}
 	}
 	
 	public function beforeRender() {
 		parent::beforeRender();
 		$this->set('isAdmin', $this->isAdmin());
+
+		if ($id = $this->currUser('id')) {
+			// get stats about unread messages
+			$this->loadModel('Message');
+			// $unreadMsgs = $this->Message->findAllByUserIdAndActive($id, true);
+			$messages = array(
+				'unread' => $this->Message->find('count', array('conditions' => array('user_id' => $id, 'active' => 1))),
+				'total' => $this->Message->find('count', array('conditions' => array('user_id' => $id)))
+			);
+
+			// set info about recent messages for notify
+			$time = $this->Session->read('checkMsgTime');
+			$recentMsgs = $this->Message->getRecentMessages($id, $time);
+			$this->Session->write('checkMsgTime', date('Y-m-d H:i:s'));
+			$this->set(compact('messages', 'recentMsgs'));
+		}
 	}
 	
 	public function isAdmin() {
