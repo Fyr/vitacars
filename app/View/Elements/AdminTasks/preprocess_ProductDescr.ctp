@@ -11,7 +11,11 @@
 		'options' => array('0' => 'все продукты', '1' => 'без описания', '2' => 'только с описанием'),
 		'label' => array('text' => 'Обновление', 'class' => 'control-label')
 	));
-
+	echo $this->PHForm->input('data_type', array(
+		'options' => array('descr' => 'Описание', 'seo' => 'SEO'),
+		'multiple' => true,
+		'label' => array('text' => 'Данные', 'class' => 'control-label')
+	));
 	echo $this->PHForm->input('brand_id', array(
 		'options' => $aBrandOptions,
 		'multiple' => true,
@@ -26,6 +30,7 @@
 	echo $this->PHForm->submit(__('Apply').' <i class="icon-white icon-chevron-right"></i>', array('class' => 'btn btn-success pull-right', 'name' => 'apply', 'value' => 'apply'));
 	echo $this->PHForm->end();
 ?>
+<br/><br/>
 <script type="text/javascript">
 $(function(){
 	$('#FilterBrandId').multiselect({
@@ -34,6 +39,10 @@ $(function(){
 	});
 	$('#FilterCategoryId').multiselect({
 		nonSelectedText: '- все категории -',
+		nSelectedText: 'выбрано'
+	});
+	$('#FilterDataType').multiselect({
+		nonSelectedText: '- все данные -',
 		nSelectedText: 'выбрано'
 	});
 });

@@ -16,7 +16,7 @@
 				'label' => array('text' => 'Брэнды для поиска Gpz', 'class' => 'control-label')
 			)),
 		'Tpl_Orders' => $this->element('AdminSettings/orders'),
-		'Tpl_ProductDescr' => $this->element('AdminSettings/products')
+		'Tpl_ProductDescr' => $this->element('AdminSettings/products'),
 	);
 
 	echo $this->element('admin_tabs', compact('aTabs'));

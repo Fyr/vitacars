@@ -670,6 +670,9 @@ msgstr "Шаблон СФ"
 msgid "Tpl_ProductDescr"
 msgstr "Шаблон продукта"
 
+msgid "Tpl_ProductSeo"
+msgstr "SEO-шаблон продукта"
+
 msgid "Process CSV file"
 msgstr "Обработка CSV файла"
 

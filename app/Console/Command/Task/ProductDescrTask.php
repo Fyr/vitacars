@@ -5,7 +5,7 @@ App::uses('Product', 'Model');
 App::uses('PMFormData', 'Form.Model');
 App::uses('TplHelper', 'View/Helper');
 class ProductDescrTask extends AppShell {
-    public $uses = array('Product', 'Form.PMFormData', 'Settings', 'Brand', 'Category', 'Subcategory');
+    public $uses = array('Product', 'Form.PMFormData', 'Settings', 'Brand', 'Category', 'Subcategory', 'Seo');
 
     public function execute() {
         // $this->loadModel('Settings');
@@ -21,13 +21,14 @@ class ProductDescrTask extends AppShell {
         } elseif ($this->params['update'] == 2) {
             $conditions[] = "(Product.{$field} IS NOT NULL AND Product.{$field} != '')";
         }
+        $data_type = (!$this->params['data_type']) ? array('descr', 'seo') : $this->params['data_type'];
         if ($this->params['brand_id']) {
             $conditions['Product.brand_id'] = $this->params['brand_id'];
         }
         if ($this->params['category_id']) {
             $conditions['Product.cat_id'] = $this->params['category_id'];
         }
-        // fdebug($conditions);
+
         $total = $this->Product->find('count', compact('conditions'));
         $this->Task->setProgress($this->id, 0, $total);
 
@@ -60,10 +61,20 @@ class ProductDescrTask extends AppShell {
                 $subcat_id = $row['Product']['subcat_id'];
                 $row['Product']['subcategory'] = ($subcat_id && isset($aSubcategoryOptions[$subcat_id])) ? $aSubcategoryOptions[$subcat_id] : '';
 
-                $row['Product'][$field] = $this->Tpl->format($tpl, $row);
-                $this->Product->clear();
-                $this->Product->save($row);
-
+                if (in_array('descr', $data_type)) {
+                    $row['Product'][$field] = $this->Tpl->format($tpl, $row);
+                    $this->Product->clear();
+                    $this->Product->save($row); // нужно сохранять все данные чтобы переформировать данные для Search
+                }
+                if (in_array('seo', $data_type)) {
+                    $seo_data = array('id' => $row['Seo']['id']);
+                    foreach(array('title', 'keywords', 'descr') as $_field) {
+                        $seo_tpl = Configure::read('Settings.tpl_product_seo_'.$_field.'_'.$this->params['zone']);
+                        $seo_data[$_field.'_'.$this->params['zone']] = $this->Tpl->format($seo_tpl, $row);
+                    }
+                    $this->Seo->clear();
+                    $this->Seo->save($seo_data);
+                }
                 $i++;
                 $this->Task->setProgress($this->id, $i);
             }
