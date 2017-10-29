@@ -31,6 +31,7 @@ class DetailNum extends AppModel {
 	public function findDetails($detail_nums, $lFindSame = true, $numType = false) {
 		$conditions = array('detail_num' => $detail_nums);
 		$limit = 500;
+		$order = array('num_type' => 'ASC');
 		if (strpos(implode('', $detail_nums), '*') !== false) {
 			if (count($detail_nums) == 1) {
 				$conditions = array('detail_num LIKE ' => str_replace('*', '%', $detail_nums[0]));
@@ -40,11 +41,14 @@ class DetailNum extends AppModel {
 					$conditions['OR'][] = array('detail_num LIKE "' => str_replace('*', '%', $dn).'"');
 				}
 			}
+		} else {
+			foreach($detail_nums as $dn) {
+				$order[] = "detail_num = '{$dn}' DESC";
+			}
 		}
 		if ($numType) {
 			$conditions['num_type'] = $numType;
 		}
-		$order = 'num_type';
 		$aRows = $this->find('all', compact('conditions', 'limit', 'order'));
 		$product_ids = array_unique(Hash::extract($aRows, '{n}.DetailNum.product_id'));
 		if (count($product_ids) > 100) {
@@ -58,7 +62,7 @@ class DetailNum extends AppModel {
 		if ($numType) {
 			$conditions['num_type'] = $numType;
 		}
-		$aRows = $this->find('all', compact('conditions', 'limit'));
+		$aRows = $this->find('all', compact('conditions', 'limit', 'order'));
 		$nums = array_unique(Hash::extract($aRows, '{n}.DetailNum.detail_num'));
 		if (count($detail_nums) != count($nums) && count($nums) < 500) {
 			return $this->findDetails($nums, $lFindSame, $numType);
