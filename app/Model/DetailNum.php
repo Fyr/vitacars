@@ -84,4 +84,8 @@ class DetailNum extends AppModel {
 	public function isReachLimit() {
 		return $this->lReachLimit;
 	}
+
+	public function parseCrossNumbers($crossNumbers) {
+		$crossNumbers = explode("\n", str_replace(array("\r\n", "\r"), "\n", $crossNumbers));
+	}
 }

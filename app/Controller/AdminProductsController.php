@@ -244,6 +244,9 @@ class AdminProductsController extends AdminController {
 	}
 
 	private function _isGridFilter() {
+		if ($this->request->action == 'printXls') {
+			return true;
+		}
 		foreach($this->request->named as $key => $val) {
 			if (strpos($key, 'Product.') !== false || strpos($key, 'PMFormData.') !== false) {
 				return true;

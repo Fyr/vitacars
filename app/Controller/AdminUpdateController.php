@@ -621,4 +621,21 @@ class AdminUpdateController extends AdminController {
 			$this->redirect(array('action' => 'update14'));
 		}
 	}
+
+	public function update15() {
+		$this->layout = 'admin';
+		$this->autoRender = true;
+		$this->loadModel('Task');
+
+		$task = $this->Task->getActiveTask('CrossnumParser', 0);
+		if ($task) {
+			$id = Hash::get($task, 'Task.id');
+			$task = $this->Task->getFullData($id);
+			$this->set(compact('task'));
+		} else {
+			$id = $this->Task->add(0, 'CrossnumParser');
+			$this->Task->runBkg($id);
+			$this->redirect(array('action' => 'update15'));
+		}
+	}
 }

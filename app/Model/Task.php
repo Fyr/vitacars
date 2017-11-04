@@ -20,7 +20,8 @@ class Task extends AppModel {
 				'Import1C' => __('1C Import'),
 				'UploadCheckProducts' => __('Check products by CSV'),
 				'RecalcFormula' => __('Recalc formula'),
-				'VelesParser' => 'Veles-Torg.by Parser'
+				'VelesParser' => 'Veles-Torg.by Parser',
+				'CrossnumParser' => 'Cross numbers parser'
 			);
 		} else {
 			$aTitle = array(
@@ -35,7 +36,8 @@ class Task extends AppModel {
 				'UploadCounters_createProducts' => __('Create products and needed data'),
 				'ProductDescr' => __('Update products'),
 				'Import1C' => __('1C Import'),
-				'VelesParser' => 'Veles-Torg.by Parser'
+				'VelesParser' => 'Veles-Torg.by Parser',
+				'CrossnumParser' => 'Cross numbers parser'
 			);
 		}
 		return $aTitle;
