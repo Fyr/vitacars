@@ -23,7 +23,7 @@ class TaskCrossnumParserComponent extends Component {
 	}
 
 	public function postProcess($aID) {
-		$this->_->setFlash(__('%s products have been successfully added', count($aID)), 'success');
+		$this->_->setFlash(__('%s products have been successfully added', count($aID)).'. '.__('Download %s', '<a href="/files/crossnumparser.csv">CSV</a>'), 'success');
 		$this->_->redirect(array('controller' => 'AdminTasks', 'action' => 'task', 'CrossnumParser'));
 	}
 }

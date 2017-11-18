@@ -738,3 +738,6 @@ msgstr "Сегодня"
 
 msgid "You have specified no recipients!"
 msgstr "Вы не указали получателей для отправки!"
+
+msgid "Download %s"
+msgstr "Скачать %s"
