@@ -125,7 +125,7 @@
 					$row['PMFormData'][$_field] = nl2br($row['PMFormData'][$_field]);
 				}
 			}
-			if ($field_id == Configure::read('Params.color')) { // цвет
+			if ($field_id == Configure::read('Params.color')) { // выделение строки цветом
 				$aColors[$_val][] = $row['Product']['id'];
 			} elseif ($field_id == Configure::read('Params.discountPrice') && Hash::get($row['PMFormData'], 'fk_'.Configure::read('Params.discount'))) { // цена со скидкой
 				// $row['PMFormData'][$_field] = $this->Html->tag('span', $row['PMFormData'][$_field], array('class' => 'discount'));
@@ -138,6 +138,15 @@
 					$row['PMFormData'][$_field] = $this->Html->link($row['PMFormData'][$_field], 'javascript::', array('class' => 'discount', 'title' => $comment));
 				}
 			}
+
+			// выделение цветом отдельных ячеек
+			/*
+			foreach(Configure::read('Params.fkColor') as $class => $fk_keys) {
+				if (in_array($field_id, $fk_keys)) {
+					// $row['PMFormData'][$_field]
+				}
+			}
+			*/
 
 			foreach(array('crossNumber', 'motor', 'motorTS', 'x_info') as $key) {
 				if ($field_id == Configure::read('Params.'.$key)) { //
@@ -223,6 +232,7 @@
 	#grid_Product .grid .originalHead .grid-filter { background: #fff;}
 	#grid_Product .grid .discount { font-weight: bold; color: #f00; }
 	#grid_Product .grid .discount:hover { text-decoration: none; }
+	#grid_Product .grid .fk-green {font-weight: bold; color: #0a0;}
 </style>
 
 <script type="text/javascript">
@@ -250,6 +260,9 @@ $(document).ready(function(){
 			}
 		}
 	}
+
+	colorifyCells(<?=json_encode(Configure::read('Params.fkColor'))?>);
+	hideEmptyColumns();
 
 	var tableHeadWidth = $('#grid_Product .grid thead').width();
 	
@@ -350,7 +363,6 @@ $(document).ready(function(){
 			$('#row_' + id).addClass('legend-yellow');
 		}
 	}
-
 });
 
 function submitFilter() {
@@ -376,6 +388,50 @@ function sendToPrintBrands(nonZeroAmount) {
 	$('input[name="aID"]').val('');
 	$('input[name="nonZeroAmount"]').val(nonZeroAmount);
 	$('#printXls').submit();
+}
+
+function colorifyCells(fkColor) {
+	var fkCells = {};
+	for(fkClass in fkColor) {
+		fkCells[fkClass] = [];
+		$('#grid_Product > table.grid > thead > tr.first > th').each(function(i, e){
+			var fk = $(e).data('grid_col');
+			if (fk && in_array(parseInt(fk.replace(/PMFormData\.fk_/, '')), fkColor[fkClass])) {
+				fkCells[fkClass].push(i);
+			}
+		});
+	}
+	for(fkClass in fkCells) {
+		for(var i = 0; i < fkCells[fkClass].length; i++) {
+			var fkPos = fkCells[fkClass][i];
+			$('#grid_Product > table.grid > tbody > tr > td:nth-child(' + (fkPos+1) + ')').addClass(fkClass);
+		}
+	}
+}
+
+function isColumnEmpty(col) {
+	var $cells = $('#grid_Product > table.grid > tbody > tr > td:nth-child(' + (col+1) + ')');
+	for (var i = 0; i < $cells.length; i++) {
+		if ($cells.get(i).innerHTML) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function hideColumn(i) {
+	$('#grid_Product > table.grid > tbody > tr > td:nth-child(' + (i+1) + ')').addClass('hidden');
+	$('#grid_Product > table.grid > thead > tr > th:nth-child(' + (i+1) + ')').addClass('hidden');
+	var $lastRow = $('#grid_Product > table.grid > tbody > tr#last-tr');
+	$lastRow.attr('colspan', $lastRow.attr('colspan') - 1);
+}
+
+function hideEmptyColumns() {
+	$('#grid_Product > table.grid > thead > tr.first > th').each(function(i, e){
+		if (isColumnEmpty(i)) {
+			hideColumn(i);
+		}
+	});
 }
 
 </script>

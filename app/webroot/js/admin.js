@@ -60,3 +60,7 @@ String.prototype.ucFirst = function() {
 	}
 	return str;
 };
+
+function in_array(needle, haystack) {
+    return $.inArray(needle, haystack) > -1;
+}

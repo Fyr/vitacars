@@ -60,7 +60,10 @@ Configure::write('Params', array(
 	'x_info' => 9,
 	'discountPrice' => 18,
 	'discount' => 82,
-	'discountComment' => 83
+	'discountComment' => 83,
+	'fkColor' => array(
+		'fk-green' => array(31, 77)
+	)
 ));
 
 Configure::write('Search', array(
