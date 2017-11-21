@@ -14,7 +14,7 @@ class CsvReader {
 		$enclose = (isset($options['enclose'])) ? $options['enclose'] : '"';
 		$Task = (isset($options['Task'])) ? $options['Task'] : null;
 		$task_id = (isset($options['task_id'])) ? $options['task_id'] : 0;
-		$subtask_id = (isset($options['task_id'])) ? $options['subtask_id'] : 0;
+		$subtask_id = (isset($options['subtask_id'])) ? $options['subtask_id'] : 0;
 
 		$eol = "\n";
 		$eol_len = mb_strlen($eol);
@@ -87,7 +87,7 @@ class CsvReader {
 			}
 			if ($ch === $eol) {
 				if ($Task) {
-					$Task->setProgress($subtask_id, $totalLines);
+					$Task->setProgress($subtask_id, $line);
 
 					$_progress = $Task->getProgressInfo($subtask_id);
 					$Task->setProgress($task_id, $progress['progress'] + $_progress['percent'] * 0.01);
