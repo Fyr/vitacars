@@ -627,14 +627,15 @@ class AdminUpdateController extends AdminController {
 		$this->autoRender = true;
 		$this->loadModel('Task');
 
-		$task = $this->Task->getActiveTask('CrossnumParser', 0);
+		$task = $this->Task->getActiveTask('CrossCsvParser', 0);
 		if ($task) {
 			$id = Hash::get($task, 'Task.id');
 			$task = $this->Task->getFullData($id);
 			$this->set(compact('task'));
 		} else {
-			$id = $this->Task->add(0, 'CrossnumParser');
+			$id = $this->Task->add(0, 'CrossCsvParser');
 			$this->Task->runBkg($id);
+			sleep(1);
 			$this->redirect(array('action' => 'update15'));
 		}
 	}

@@ -1,6 +1,6 @@
 <div class="span8 offset2">
 <?
-    $title = 'Cross Number Parser';
+    $title = 'Cross CSV Parser';
     echo $this->element('admin_title', compact('title'));
     echo $this->element('admin_content');
     echo $this->element('progress', compact('task'));
