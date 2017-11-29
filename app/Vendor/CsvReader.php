@@ -62,13 +62,13 @@ class CsvReader {
 				}
 				$lastCh = mb_substr($csv, $endPos - 1, 1);
 				$val = mb_substr($csv, $startPos, $endPos - $startPos + (($lastCh === $enclose) ? -1 : 0));
-				$row[$key] = str_replace('\`', '"', $val);
+				$row[$key] = self::postProcess($val);
 				$startPos = $endPos + mb_strlen($csv_div);
 			} elseif (!$lEnclose && ($ch === $eol || $endPos == $strlen)) { // конец строки или конец файла
 				// добавить последнюю ячейку
 				$key = $keys[$col];
 				$val = mb_substr($csv, $startPos, $endPos - $startPos);
-				$row[$key] = str_replace('\`', '"', $val);
+				$row[$key] = self::postProcess($val);
 				if (count($row) != count($keys)) {
 					throw new Exception(__('CSV format error: Less values then headers (Line %s)', $line));
 				}
@@ -114,6 +114,17 @@ class CsvReader {
 		// Получаем заголовки
 		$startPos = mb_strpos($csv, $eol);
 		return explode($csv_div, trim(mb_substr($csv, 0, $startPos)));
+	}
+
+	static function postProcess($val)
+	{
+		$val = str_replace('\`', '"', $val);
+
+		// check float with ',' instead of '.'
+		if (preg_match('/^\d+\,\d+$/', $val) === 1) {
+			$val = floatval(str_replace(',', '.', $val));
+		}
+		return $val;
 	}
 }
 ?>
