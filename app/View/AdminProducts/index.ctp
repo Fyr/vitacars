@@ -83,7 +83,8 @@
     	}
     }
     $aColors = array();
-    foreach($aRowset as &$row) {
+
+foreach($aRowset as &$row) {
 		$row['Category']['title'] = $aCategories[$row['Product']['cat_id']]['title'];
     	$img = (isset($aProductMedia[$row['Product']['id']])) ? $this->Media->imageUrl($aProductMedia[$row['Product']['id']], '100x') : array();
     	if ($img) {

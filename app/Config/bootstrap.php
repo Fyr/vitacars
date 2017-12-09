@@ -60,9 +60,9 @@ Configure::write('Params', array(
 	'x_info' => 9,
 	'discountPrice' => 18,
 	'discount' => 82,
-	'discountComment' => 83,
+	'discountComment' => 84,
 	'fkColor' => array(
-		'fk-green' => array(31, 77)
+		'fk-green' => array(18, 31, 77)
 	)
 ));
 

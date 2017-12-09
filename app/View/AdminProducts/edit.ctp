@@ -5,9 +5,9 @@
 	
     $id = $this->request->data('Product.id');
     $title = $this->ObjectType->getTitle(($id) ? 'edit' : 'create', $objectType);
-?>
-	<?=$this->element('admin_title', compact('title'))?>
-<?
+
+echo $this->element('admin_title', compact('title'));
+
 	if ($this->request->data('Product.motor')) {
 		$this->request->data('PMFormData.fk_6', $this->request->data('Product.motor'));
 	}
@@ -22,7 +22,8 @@
 		'SEO' => $this->element('/AdminProduct/admin_edit_Seo'),
 		'Tech-params' => $this->element('/AdminProduct/admin_edit_TechParams', compact('form', 'formValues'))
     );
-    if ($id) {
+
+if ($id) {
     	// $aTabs['Tech-params'] = $this->element('/AdminProduct/admin_edit_TechParams', compact('form', 'formValues'));
         $aTabs['Media'] = $this->element('Media.edit', array('object_type' => $objectType, 'object_id' => $id));
     }
