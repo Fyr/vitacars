@@ -82,8 +82,9 @@ class PMFormField extends AppModel {
 		extract($data);
 		return serialize(compact('formula', 'decimals', 'div_float', 'div_int'));
 	}
-	
-	private function unpackFormulaOptions($options) {
+
+	public function unpackFormulaOptions($options)
+	{
 		return ($options) ? unserialize($options) : array();
 	}
 	

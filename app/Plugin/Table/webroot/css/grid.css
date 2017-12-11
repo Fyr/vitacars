@@ -198,3 +198,7 @@ td.align-right {
 .grid .grid-row.legend-green td {
 	background-color: #bdb !important;
 }
+
+.grid i[class^="icon-"], .grid i[class*=" icon-"] {
+	margin-top: -1px;
+}

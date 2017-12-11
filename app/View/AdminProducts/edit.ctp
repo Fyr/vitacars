@@ -15,16 +15,24 @@ echo $this->element('admin_title', compact('title'));
     echo $this->PHForm->create('Product');
     echo $this->Form->hidden('PMFormData.id', array('value' => Hash::get($this->request->data, 'PMFormData.id')));
     echo $this->Form->hidden('Seo.id', array('value' => Hash::get($this->request->data, 'Seo.id')));
-    
+
+$prices = array();
+foreach ($form as $i => $field) {
+    if ($field['PMFormField']['is_price']) {
+        $prices[] = $field;
+        unset($form[$i]);
+    }
+}
+
     $aTabs = array(
         'General' => $this->element('/AdminProduct/admin_edit_General'),
         'Descr' => $this->element('edit_body'),
 		'SEO' => $this->element('/AdminProduct/admin_edit_Seo'),
-		'Tech-params' => $this->element('/AdminProduct/admin_edit_TechParams', compact('form', 'formValues'))
+        'Tech-params' => $this->element('/AdminProduct/admin_edit_TechParams', compact('form', 'formValues')),
     );
 
 if ($id) {
-    	// $aTabs['Tech-params'] = $this->element('/AdminProduct/admin_edit_TechParams', compact('form', 'formValues'));
+    $aTabs['Prices'] = $this->element('/AdminProduct/admin_edit_Prices', array('form' => $prices));
         $aTabs['Media'] = $this->element('Media.edit', array('object_type' => $objectType, 'object_id' => $id));
     }
     

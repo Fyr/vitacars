@@ -741,3 +741,6 @@ msgstr "Вы не указали получателей для отправки!
 
 msgid "Download %s"
 msgstr "Скачать %s"
+
+msgid "Prices"
+msgstr "Цены"

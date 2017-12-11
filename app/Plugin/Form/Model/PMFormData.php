@@ -84,12 +84,13 @@ class PMFormData extends AppModel {
 		return false;
 	}
 
-	public function _recalcFormula($data, $aFormFields, $aConst) {
+	public function _recalcFormula($data, $aFormFields, $aConst, $aExclude = array())
+	{
 		$aData = array();
 		$aFormula = array();
 		foreach($aFormFields as $row) {
 			$field_id = $row['PMFormField']['id'];
-			if ($row['PMFormField']['field_type'] == FieldTypes::FORMULA) {
+			if ($row['PMFormField']['field_type'] == FieldTypes::FORMULA && !in_array($field_id, $aExclude)) {
 				$aFormula['fk_'.$field_id] = $row['PMFormField'];
 			}
 			if ($row['PMFormField']['key']) {

@@ -1,8 +1,9 @@
 <?
 	$title = $this->ObjectType->getTitle('index', $objectType);
+
     $createURL = $this->Html->url(array('action' => 'edit', 0));
     $createTitle = $this->ObjectType->getTitle('create', $objectType);
-    $actions = $this->PHTableGrid->getDefaultActions($objectType);
+$actions = $this->PHTableGrid->getDefaultActions('PMFormConst');
     $actions['table']['add']['href'] = $createURL;
     $actions['table']['add']['label'] = $createTitle;
     
@@ -10,13 +11,22 @@
     $deleteURL = $this->Html->url(array('action' => 'delete')).'/{$id}?model=Form.PMFormField&backURL='.urlencode($backURL);
     $actions['row']['delete'] = $this->Html->link('', $deleteURL, array('class' => 'icon-color icon-delete', 'title' => __('Delete record')), __('Are you sure to delete this record?'));
 
-    foreach($aRows as &$row) {
+foreach ($data as &$row) {
         $fieldType = $row['PMFormConst']['field_type'];
         $row['PMFormConst']['field_type'] = $aFieldTypes[$fieldType];
+
+    $row['PMFormConst']['is_price_kurs'] = ($row['PMFormConst']['is_price_kurs'])
+        ? $row['PMFormConst']['price_kurs_from'] . '&nbsp;<i class="icon-chevron-right"></i>&nbsp;' . $row['PMFormConst']['price_kurs_to']
+        : '';
     }
 
     $columns = $this->PHTableGrid->getDefaultColumns('PMFormConst');
     $columns['PMFormConst.field_type']['format'] = 'string';
+unset($columns['PMFormConst.price_kurs_from']);
+unset($columns['PMFormConst.price_kurs_to']);
+$columns['PMFormConst.is_price_kurs']['label'] = 'Пересчет цен';
+$columns['PMFormConst.is_price_kurs']['format'] = 'string';
+
 ?>
 <?=$this->element('admin_title', compact('title'))?>
 <div class="text-center">
@@ -29,5 +39,5 @@
 </div>
 <br/>
 <?
-    echo $this->PHTableGrid->render('PMFormConst', array('actions' => $actions, 'data' => $aRows, 'columns' => $columns));
+echo $this->PHTableGrid->render('PMFormConst', compact('actions', 'data', 'columns'));
 ?>

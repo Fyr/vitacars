@@ -6,7 +6,7 @@ class AdminProductsController extends AdminController {
 
     public $name = 'AdminProducts';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
-    public $uses = array('Product', 'Form.PMForm', 'Form.PMFormField', 'Form.PMFormData', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media', 'Search', 'DetailNum');
+	public $uses = array('Product', 'Form.PMForm', 'Form.PMFormField', 'Form.PMFormData', 'Form.PMFormConst', 'Form.PHFormField', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media', 'Search', 'DetailNum', 'FormPrice');
     public $helpers = array('ObjectType', 'Form.PHFormFields', 'Form.PHFormData', 'Price');
 
     private $paramDetail, $aFormula, $aFieldKeys, $aBrandOptions, $aFields;
@@ -308,6 +308,11 @@ class AdminProductsController extends AdminController {
 		if (!$this->isAdmin()) {
 			return $this->redirect(array('action' => 'index'));
 		}
+
+		$aKurs = $this->PMFormConst->findAllByIsPriceKurs(1);
+		$this->set('aKurs', $aKurs);
+		$fields = $this->PMFormField->getObjectList('SubcategoryParam', '', 'PMFormField.sort_order');
+
 		if (!$id) {
 			// выставляем типы для записей
 			$this->request->data('Product.object_type', $this->Product->objectType);
@@ -318,6 +323,8 @@ class AdminProductsController extends AdminController {
 		$remain = 0;
 		if ($this->request->is(array('post', 'put'))) {
 			$this->request->data('Product.motor', $this->request->data('PMFormData.fk_6'));
+
+			// Пересчет движения отстаток для отчета
 			$a1_val = 0; $a2_val = 0;
 			$a1 = 'PMFormData.fk_'.Configure::read('Params.A1');
 			$a2 = 'PMFormData.fk_'.Configure::read('Params.A2');
@@ -327,13 +334,13 @@ class AdminProductsController extends AdminController {
 				$a2_val = intval(Hash::get($product, $a2));
 			}
 			$remain = (intval($this->request->data($a1)) - $a1_val) + (intval($this->request->data($a2)) - $a2_val);
+			$priceData = $this->request->data('PMFormData');
 		}
 
-		$fields = $this->PMFormField->getObjectList('SubcategoryParam', '', 'PMFormField.sort_order');
 		$this->PCArticle->setModel('Product')->edit(&$id, &$lSaved);
 		if ($lSaved) {
+			$product_id = $id;
 			if ($remain) {
-				$product_id = $id;
 				$this->ProductRemain->save(compact('product_id', 'remain'));
 
 				// скорректировать статистику за год
@@ -341,6 +348,27 @@ class AdminProductsController extends AdminController {
 				$this->PMFormData->saveField($field, intval($this->PMFormData->field($field)) + $remain); // уже выставлен нужный $this->PMFormData->id
 			}
 			$this->PMFormData->recalcFormula($this->PMFormData->id, $fields);
+
+			// Пересчет цен вводимых вручную
+			$this->FormPrice->deleteAll(compact('product_id'));
+			foreach ($fields as $field) {
+				$field = $field['PMFormField'];
+				$fk_id = 'fk_' . $field['id'];
+				if ($field['field_type'] == FieldTypes::FORMULA && ($price = floatval(Hash::get($priceData, $fk_id)))) {
+					$calculated = $this->PMFormData->field($fk_id);
+					$kurs = floatval($this->request->data('PMFormData.' . $fk_id . '_kurs'));
+					$koeff = floatval($this->request->data('PMFormData.' . $fk_id . '_koeff'));
+					$options = $this->PMFormField->unpackFormulaOptions($field['options']);
+
+					$value = $this->PMFormField->formatFormula($price * $kurs * $koeff, $options);
+					$currency_from = $this->request->data('PMFormData.' . $fk_id . '_from');
+					$this->PMFormData->saveField($fk_id, $value); // перебиваем формулы
+
+					$this->FormPrice->clear();
+					$fk_id = $field['id'];
+					$this->FormPrice->save(compact('product_id', 'fk_id', 'calculated', 'kurs', 'currency_from', 'price', 'koeff'));
+				}
+			}
 
 			$baseRoute = array('action' => 'index');
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
@@ -350,7 +378,7 @@ class AdminProductsController extends AdminController {
 		$fieldsAvail = array();
 		foreach($fields as $_field) {
 			$_field_id = $_field['PMFormField']['id'];
-			if ((!$field_rights || in_array($_field_id, $field_rights)) && $_field['PMFormField']['field_type'] != FieldTypes::FORMULA) {
+			if ((!$field_rights || in_array($_field_id, $field_rights)) && ($_field['PMFormField']['field_type'] != FieldTypes::FORMULA || $_field['PMFormField']['is_price'])) {
 				$fieldsAvail[] = $_field;
 
 				if (!$id) {
@@ -372,6 +400,10 @@ class AdminProductsController extends AdminController {
 		)));
 
 		$this->set('aBrandOptions', $this->Brand->getOptions());
+
+		$aCurrency = array('BYR', 'USD', 'EUR', 'RUR', 'UAH');
+		$this->set('aCurrency', array_combine($aCurrency, $aCurrency));
+		$this->set('xPrices', $this->FormPrice->findAllByProductId($id));
 
 		if (!$id) {
 			// выставляем значения по умолчанию

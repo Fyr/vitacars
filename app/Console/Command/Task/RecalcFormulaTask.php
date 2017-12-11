@@ -2,7 +2,7 @@
 App::uses('Shell', 'Console');
 App::uses('AppShell', 'Console/Command');
 class RecalcFormulaTask extends AppShell {
-    public $uses = array('Form.PMFormConst', 'Form.PMFormData', 'Form.PMFormField');
+    public $uses = array('Form.PMFormConst', 'Form.PMFormData', 'Form.PMFormField', 'FormPrice');
 
     public function execute() {
 
@@ -19,8 +19,9 @@ class RecalcFormulaTask extends AppShell {
         $fields = $this->PMFormField->getObjectList('SubcategoryParam', '');
         $i = 0;
 
+        $conditions = array();
         $this->PMFormData->trxBegin();
-        while ($rowset = $this->PMFormData->find('all', compact('page', 'limit'))) {
+        while ($rowset = $this->PMFormData->find('all', compact('page', 'limit', 'conditions'))) {
             $page++;
             foreach($rowset as $row) {
                 $status = $this->Task->getStatus($this->id);
@@ -29,7 +30,9 @@ class RecalcFormulaTask extends AppShell {
                     throw new Exception(__('Processing was aborted by user'));
                 }
 
-                $this->PMFormData->_recalcFormula($row, $fields, $aConst);
+                $xPrices = $this->FormPrice->findAllByProductId($row['PMFormData']['object_id']);
+                $aExclude = ($xPrices) ? Hash::extract($xPrices, '{n}.FormPrice.fk_id') : array();
+                $this->PMFormData->_recalcFormula($row, $fields, $aConst, $aExclude);
 
                 $i++;
                 $this->Task->setProgress($this->id, $i);

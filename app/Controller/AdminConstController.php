@@ -22,11 +22,11 @@ class AdminConstController extends AdminController {
     
     public function index() {
     	$this->paginate = array(
-    		'fields' => array('id', 'field_type', 'label', 'key', 'value', 'sort_order'),
+			'fields' => array('id', 'field_type', 'label', 'key', 'value', 'is_price_kurs', 'sort_order', 'price_kurs_from', 'price_kurs_to'),
     		'order' => array('PMFormConst.sort_order' => 'asc')
     	);
-    	$aRows = $this->PCTableGrid->paginate('PMFormConst');
-		$this->set(compact('aRows'));
+		$data = $this->PCTableGrid->paginate('PMFormConst');
+		$this->set(compact('data'));
     }
     
     public function edit($id = 0) {
@@ -55,5 +55,7 @@ class AdminConstController extends AdminController {
 				'sort_order' => 1
 			));
 		}
+		$aCurrency = array('BYR', 'USD', 'EUR', 'RUR', 'UAH');
+		$this->set('aCurrency', array_combine($aCurrency, $aCurrency));
     }
 }
