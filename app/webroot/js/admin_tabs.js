@@ -14,6 +14,6 @@ $(document).ready(function(){
     if (url.indexOf('#tab-') > 0) {
         var a = url.split('#');
         var tabID = a[1];
-        $('ul#nav #' + tabID + ' a').click();
+        $('ul#navTabs #' + tabID + ' a').click();
     }
 });
