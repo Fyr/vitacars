@@ -1,9 +1,11 @@
 <?php
 App::uses('AdminController', 'Controller');
 App::uses('FieldTypes', 'Form.Vendor');
+
+// App::uses('Currency', 'Model');
 class AdminFormsController extends AdminController {
 	public $name = 'AdminForms';
-	public $uses = array('Form.PMFormField', 'Form.PMFormKey', 'Form.PMFormData', 'Form.PMFormConst', 'Task');
+	public $uses = array('Form.PMFormField', 'Form.PMFormKey', 'Form.PMFormData', 'Form.PMFormConst', 'Task', 'Currency');
 	
 	public function beforeFilter() {
 		if (!$this->isAdmin()) {
@@ -34,6 +36,7 @@ class AdminFormsController extends AdminController {
 				$this->request->data('PMFormField.id', $id);
 			}
 			$this->request->data('PMFormField.object_type', 'SubcategoryParam');
+			$this->request->data('PMFormField.options', $this->PMFormField->packOptions($this->request->data('PMFormField')));
 			
 			if ($this->PMFormField->save($this->request->data)) {
 				$id = $this->PMFormField->id;
@@ -48,18 +51,22 @@ class AdminFormsController extends AdminController {
 				return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
 			}
 		} elseif ($id) {
-			$field = $this->PMFormField->findById($id);
-			$this->request->data = $field;
-		}
-
-		if (!$id) {
+			$this->request->data = $this->PMFormField->findById($id);
+			// $data['PMFormField'] = array_merge($data['PMFormField'], $this->PMFormField->unpackOptions());
+			// $this->request->data = array_merge($this->request->data, $this->PMFormField->unpackOptions($this->request->data('PMFormField')));
+			$this->request->data('PMFormField', $this->PMFormField->unpackOptions($this->request->data('PMFormField')));
+		} else {
 			$this->request->data('PMFormField.sort_order', '0');
+			$this->request->data('PMFormField.decimals', '2');
+			$this->request->data('PMFormField.div_float', '.');
+			$this->request->data('PMFormField.div_int', ',');
+			$this->request->data('PMFormField.price_decimals', '2');
+			$this->request->data('PMFormField.price_div_float', '.');
+			$this->request->data('PMFormField.price_div_int', ',');
 		}
 
 		$this->set('aFieldTypes', FieldTypes::getTypes());
-		$this->set('PMFormField__SELECT', FieldTypes::SELECT);
-		$this->set('PMFormField__MULTISELECT', FieldTypes::MULTISELECT);
-		$this->set('PMFormField__FORMULA', FieldTypes::FORMULA);
+		$this->set('aCurrency', $this->Currency->getOptions());
     }
     
     public function recalcFormula() {

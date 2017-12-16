@@ -7,9 +7,9 @@ class PMFormField extends AppModel {
 	
 	public $validate = array(
 		'key' => array(
-			'rule' => '/^[A-Z]+[A-Z0-9_]*$/',
+			'rule' => '/^[A-Za-z]+[A-Za-z0-9_]*$/',
 			'allowEmpty' => true,
-			'message' => 'Неверный формат ключа. Пример: A1, B1, AA1, BB1, CCC'
+			'message' => 'Неверный формат ключа. Пример: a1, B1, AA1, Bb_1, Price, Price_USD1'
 		),
 		'sort_order' => array(
 			'rule' => '/^[0-9]+$/',
@@ -39,24 +39,6 @@ class PMFormField extends AppModel {
 		return $results;
 	}
 
-	public function beforeSave($options = array()) {
-		// Set default values for formula
-		$fOptions = Hash::get($this->data, 'PMFormField.decimals');
-		if (!$fOptions && $fOptions !== '0') {
-			$this->data['PMFormField']['decimals'] = 2;
-		}
-		if (!$fOptions = Hash::get($this->data, 'PMFormField.div_float')) {
-			$this->data['PMFormField']['div_float'] = ',';
-		}
-		if (!$fOptions = Hash::get($this->data, 'PMFormField.div_int')) {
-			$this->data['PMFormField']['div_int'] = ' ';
-		}
-		if ($fOptions = Hash::get($this->data, 'PMFormField.formula')) {
-			$this->data['PMFormField']['options'] = $this->packFormulaOptions($this->data['PMFormField']);
-		}
-		return true;
-	}
-	
 	public function afterSave($created, $options = array()) {
 		$this->PMFormData = $this->loadModel('Form.PMFormData');
 		$sql_field = sprintf(FieldTypes::getSqlTypes($this->data['PMFormField']['field_type']), $this->id);
@@ -77,8 +59,34 @@ class PMFormField extends AppModel {
 		$this->query($sql);
 		return true;
 	}
-	
-	private function packFormulaOptions($data) {
+
+	public function packOptions($data)
+	{
+		$options = array();
+		if ($data['field_type'] == FieldTypes::FORMULA) {
+			foreach (array('formula', 'decimals', 'div_float', 'div_int') as $_field) {
+				$options[$_field] = Hash::get($data, $_field);
+			}
+		} else if ($data['field_type'] == FieldTypes::PRICE) {
+			foreach (array('formula', 'decimals', 'div_float', 'div_int', 'prefix', 'postfix', 'currency') as $_field) {
+				$options['price_' . $_field] = Hash::get($data, 'price_' . $_field);
+			}
+		}
+		return (in_array($data['field_type'], array(FieldTypes::FORMULA, FieldTypes::PRICE))) ? serialize($options) : $data['options'];
+	}
+
+	public function unpackOptions($data)
+	{
+		if (in_array($data['field_type'], array(FieldTypes::FORMULA, FieldTypes::PRICE))) {
+			foreach (unserialize($data['options']) as $key => $val) {
+				$data[$key] = $val;
+			}
+		};
+		return $data;
+	}
+
+	public function packFormulaOptions($data)
+	{
 		extract($data);
 		return serialize(compact('formula', 'decimals', 'div_float', 'div_int'));
 	}

@@ -14,6 +14,7 @@ class FieldTypes {
 	// const EDITOR = 12;
 	const MULTISELECT = 13;
 	const FORMULA = 14;
+	const PRICE = 15;
 	
 	static public function getTypes($id = false) {
 		$aTypes = array(
@@ -30,7 +31,8 @@ class FieldTypes {
 			// self::URL => __d('form', 'URL'),
 			// self::UPLOAD_FILE => __d('form', 'Upload file'),
 			// self::EDITOR => __d('form', 'Editor'),
-			self::FORMULA => __d('form', 'Formula')
+			self::FORMULA => __d('form', 'Formula'),
+			self::PRICE => __d('form', 'Price (Float+Formula)')
 		);
 		return ($id) ? Hash::get($aTypes, $id) : $aTypes;
 	}
@@ -59,7 +61,8 @@ class FieldTypes {
 			// self::URL => __d('form', 'URL'),
 			// self::UPLOAD_FILE => __d('form', 'Upload file'),
 			// self::EDITOR => __d('form', 'Editor'),
-			self::FORMULA => '`fk_%d` varchar(60) DEFAULT ""'
+			self::FORMULA => '`fk_%d` varchar(60) DEFAULT ""',
+			self::PRICE => '`fk_%d` float(9,4) DEFAULT "0.00"',
 		);
 		return ($id) ? Hash::get($aTypes, $id) : $aTypes;
 	}

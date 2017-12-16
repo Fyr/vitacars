@@ -33,3 +33,6 @@ msgstr "Текст.редактор"
 
 msgid "Formula"
 msgstr "Формула"
+
+msgid "Price (Float+Formula)"
+msgstr "Цена (Число + Формула)"
