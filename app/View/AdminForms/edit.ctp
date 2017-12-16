@@ -5,11 +5,21 @@
 	echo $this->element('admin_title', compact('title'));
 	echo $this->PHForm->create('PMFormField');
 	echo $this->element('admin_content');
-echo $this->PHForm->input('field_type', array(
-	'options' => $aFieldTypes,
-	'onchange' => 'FieldType_onChange()',
-	'disabled' => $id && true
-));
+if ($id) {
+	echo $this->PHForm->hidden('field_type');
+	echo $this->PHForm->input('_field_type', array(
+		'options' => $aFieldTypes,
+		'onchange' => 'FieldType_onChange()',
+		'value' => $this->request->data('PMFormField.field_type'),
+		'disabled' => true
+	));
+} else {
+	echo $this->PHForm->input('field_type', array(
+		'options' => $aFieldTypes,
+		'onchange' => 'FieldType_onChange()',
+		'disabled' => true
+	));
+}
 	echo $this->PHForm->input('label', array('class' => 'input-medium'));
 	echo $this->PHForm->input('label_bg', array('class' => 'input-medium', 'label' => array(
 		'class' => 'control-label', 'text' => 'Метка для .bg'
@@ -39,12 +49,11 @@ echo $this->PHForm->input('field_type', array(
 	<span class="options options-<?= FieldTypes::PRICE ?>">
 		<fieldset>
 			<legend>Настройки</legend>
-
 			<?
 			echo $this->PHForm->input('price_prefix', array(
 				'class' => 'input-small',
 				'label' => array('text' => 'Префикс цены', 'class' => 'control-label'),
-				'after' => '<span class="small-text"><br/>($P для ₽, $E для &euro;)<br/><br/></span>'
+				'after' => '<span class="small-text"><br/>($P для ₽, $E для &euro;)<br/></span></div>'
 			));
 			echo $this->PHForm->input('price_decimals', array(
 				'class' => 'input-mini',
@@ -60,8 +69,8 @@ echo $this->PHForm->input('field_type', array(
 			));
 			echo $this->PHForm->input('price_postfix', array(
 				'class' => 'input-small',
-				// 'label' => array('text' => 'Постфикс цены <br/><small>($P для RUR)</small>', 'class' => 'control-label')
 				'label' => array('text' => 'Постфикс цены', 'class' => 'control-label'),
+				'after' => '<span class="small-text"><br/>($P для ₽, $E для &euro;)<br/></span></div>'
 			));
 			echo $this->PHForm->input('price_currency', array(
 				'options' => $aCurrency,
@@ -91,23 +100,8 @@ echo $this->PHForm->input('field_type', array(
 		var $e = $('#PMFormFieldFieldType');
 		$('.options').hide();
 		$('.options-' + $e.val()).show();
-		/*
-		 if ($(e).val() ==
-		<?=FieldTypes::SELECT?> || $(e).val() ==
-		<?=FieldTypes::MULTISELECT?>) {
-		$options.show();
-		 } else if ($(e).val() ==
-		<?=FieldTypes::FORMULA?>) {
-		$formula.show();
-		if (!$('#PMFormFieldFormula').val()) {
-			$('#PMFormFieldDecimals').val('0');
-			$('#PMFormFieldDivFloat').val(',');
-			$('#PMFormFieldDivInt').val(' ');
-		}
-		 }*/
 }
 $(document).ready(function(){
 	FieldType_onChange();
-	// $('#PMFormFieldEditForm').submit();
 });
 </script>

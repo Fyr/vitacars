@@ -44,8 +44,10 @@ class PMFormField extends AppModel {
 		$sql_field = sprintf(FieldTypes::getSqlTypes($this->data['PMFormField']['field_type']), $this->id);
 		$created = $created || (isset($options['forceCreate']) && $options['forceCreate']);
 		$sql = 'ALTER TABLE '.$this->PMFormData->getTableName().(($created) ? ' ADD ' : ' MODIFY ').$sql_field;
-		$this->Logger->write(($created) ? 'INSERT' : 'UPDATE', 'SQL:'.$sql);
-		$this->query($sql);
+		if ($created) {
+			$this->Logger->write(($created) ? 'INSERT' : 'UPDATE', 'SQL:' . $sql);
+			$this->query($sql);
+		}
 	}
 	
 	public function beforeDelete($cascade = true) {
