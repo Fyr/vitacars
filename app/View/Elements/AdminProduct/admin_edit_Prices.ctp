@@ -29,6 +29,8 @@
         $value = '';
         $formatted = '';
         $koeff = 1.00;
+        $kurs = 1;
+        $currency_from = '';
         if ($field['field_type'] == FieldTypes::FORMULA) {
             // перевести из символьного в числовой формат
             // если записывать формулу в формате float - придется много где править
@@ -54,9 +56,7 @@
 
         list($label, $curr) = explode(',', $field['label']);
         $curr = trim($curr);
-        $kurs = 1;
         $kursOptions = array('' => $curr . ' =');
-        $currency_from = '';
         foreach ($aKurs as $const) {
             $const = $const['PMFormConst'];
             if ($const['price_kurs_to'] == $curr) {
