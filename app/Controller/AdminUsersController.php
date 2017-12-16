@@ -3,7 +3,7 @@ App::uses('AdminController', 'Controller');
 class AdminUsersController extends AdminController {
     public $name = 'AdminUsers';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
-    public $uses = array('User', 'Form.FormField', 'Brand');
+	public $uses = array('User', 'Form.PMFormField', 'Brand');
     
     public function beforeFilter() {
 		if (!$this->isAdmin()) {
@@ -46,7 +46,7 @@ class AdminUsersController extends AdminController {
 			$this->request->data('User.password', '');
 		}
 		$this->paginate = array(
-			'FormField' => array(
+			'PMFormField' => array(
 				'fields' => array('id', 'field_type', 'label'),
     			'limit' => 100
 			),
@@ -55,6 +55,6 @@ class AdminUsersController extends AdminController {
     		)
     	);
     	$this->PCTableGrid->paginate('Brand');
-    	$this->PCTableGrid->paginate('FormField');
+		$this->PCTableGrid->paginate('PMFormField');
     }
 }

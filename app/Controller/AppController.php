@@ -62,4 +62,21 @@ class AppController extends Controller {
 			system("../Console/cake bkg_service {$method} < /dev/null > task.log &");
 		}
 	}
+
+	/*
+	 private function setDataSource($dataSource, $models) {
+		if (is_string($models)) {
+			$models = array($models);
+		}
+		foreach($models as $model) {
+    		$this->{$model}->setDataSource($dataSource);
+    		$db = ConnectionManager::getDataSource($dataSource);
+    		$this->{$model}->schemaName = $db->getSchemaName();
+    		$this->{$model}->clear(); // на всякий случай чистим поля модели
+    	}
+    	if (in_array('xMedia', $models)) {
+    		$this->xMedia->setBasePath(($dataSource == 'agromotors_ru') ? PATH_FILES_UPLOAD_RU : PATH_FILES_UPLOAD_BY);
+    	}
+	}
+	 */
 }

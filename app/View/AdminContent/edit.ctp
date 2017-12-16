@@ -8,18 +8,15 @@
     if ($objectType == 'Subcategory' && $objectID) {
 		$title = $category['Category']['title'].': '.$title;
 	}
-?>
-	<?=$this->element('admin_title', compact('title'))?>
-<?
+echo $this->element('admin_title', compact('title'));
+
     echo $this->PHForm->create('Article');
     $aTabs = array(
         'General' => $this->element('/AdminContent/admin_edit_'.$objectType),
 		'Descr' => $this->element('edit_body', array('teaser' => $objectType == 'Brand'))
     );
-    if ($objectType == 'Subcategory' && $objectID) {
-    	// $aTabs['Tech-params'] = $this->element('/AdminContent/admin_edit_Params');
-    }
-    if (in_array($objectType, array('Category', 'Subcategory', 'Brand'))) {
+
+if (in_array($objectType, array('Category', 'Subcategory', 'Brand'))) {
     	$aTabs['SEO'] = $this->element('Seo.edit');
     }
     if ($id) {
@@ -27,9 +24,6 @@
     }
 	echo $this->element('admin_tabs', compact('aTabs'));
 	echo $this->element('Form.form_actions', array('backURL' => $this->ObjectType->getBaseURL($objectType, $objectID)));
-	if ($objectType == 'Subcategory' && $objectID) {
-		echo $this->PHForm->hidden('FormKey.field_id', array('value' => implode(',', $formKeys)));
-	}
     echo $this->PHForm->end();
 ?>
 </div>

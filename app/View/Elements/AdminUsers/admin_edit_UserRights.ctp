@@ -1,5 +1,5 @@
 <?
-	echo $this->PHTableGrid->render('FormField', array(
+echo $this->PHTableGrid->render('PMFormField', array(
 		'actions' => array(
 			'table' => array(),
 			'row' => array(),

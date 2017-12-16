@@ -18,7 +18,7 @@
 </div>
 <script type="text/javascript">
 $(document).ready(function(){
-	var $grid = $('#grid_FormField');
+	var $grid = $('#grid_PMFormField');
 	var $grid1 = $('#grid_PriceField');
 	var $grid2 = $('#grid_Brand');
 	

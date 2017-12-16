@@ -130,14 +130,14 @@ class AdminUpdateController extends AdminController {
 	}
 	
 	public function update4() {
-		$this->loadModel('Form.FormField');
+		$this->loadModel('Form.PMFormField');
 		$this->loadModel('Form.PMFormValue');
 		$this->loadModel('Form.PMFormField');
 		$this->loadModel('Form.PMFormData');
 		$this->loadModel('SiteArticle');
 		
 		// пересохраняем поля, чтобы создать form_data
-		$aRowset = Hash::combine($this->FormField->find('all'), '{n}.FormField.id', '{n}.FormField');
+		$aRowset = Hash::combine($this->PMFormField->find('all'), '{n}.FormField.id', '{n}.FormField');
 		foreach($aRowset as $formField) {
 			if (!FieldTypes::getSqlTypes($formField['field_type'])) {
 				echo 'Error! Unexisted field type: '.$formField['id'].' - '.$formField['field_type'].'<br>';
@@ -260,7 +260,7 @@ class AdminUpdateController extends AdminController {
 		ignore_user_abort(true);
 		set_time_limit(0);
 		$this->loadModel('DetailNum');
-		$this->loadModel('Form.FormData');
+		$this->loadModel('Form.PMFormData');
 		$fields = array('id', 'object_id', 'fk_60');
 		$conditions = array('fk_60 IS NOT NULL'); //
 		$page = 1;

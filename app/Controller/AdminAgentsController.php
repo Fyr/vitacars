@@ -3,7 +3,7 @@ App::uses('AdminController', 'Controller');
 class AdminAgentsController extends AdminController {
     public $name = 'AdminAgents';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
-    public $uses = array('Agent', 'Form.FormField', 'Brand');
+	public $uses = array('Agent', 'Brand');
     
     public function beforeRender() {
 		$this->currMenu = 'Orders';

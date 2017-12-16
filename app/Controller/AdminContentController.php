@@ -3,7 +3,7 @@ App::uses('AdminController', 'Controller');
 class AdminContentController extends AdminController {
     public $name = 'AdminContent';
     public $components = array('Article.PCArticle');
-    public $uses = array('Category', 'Subcategory', 'Brand', 'Form.FormField', 'Form.PMForm');
+	public $uses = array('Category', 'Subcategory', 'Brand', 'Form.PMForm');
     public $helpers = array('ObjectType');
     
     public function index($objectType, $objectID = '') {
@@ -85,12 +85,6 @@ class AdminContentController extends AdminController {
 				} else {
 					$formID = $form['PMForm']['id'];
 				}
-				
-				// по моему это не нужно
-				/*
-				$fields = $this->request->data('FormKey.field_id');
-				$this->PMForm->bindFields($formID, ($fields) ? explode(',', $fields) : array());
-				*/
 			}
 			if (in_array($objectType, array('Category', 'Subcategory', 'Brand'))) {
 				$this->loadModel('Seo.Seo');
@@ -110,19 +104,6 @@ class AdminContentController extends AdminController {
 		if ($objectType == 'Subcategory' && $objectID) {
         	$this->set('category', $this->Category->findById($objectID));
         	$this->currMenu = 'Category';
-        	
-			$this->paginate = array(
-	    		'fields' => array('field_type', 'label', 'fieldset', 'required'),
-	    		'limit' => 100
-	    	);
-	    	$this->PCTableGrid->paginate('FormField');
-	    	
-	    	$formKeys = array();
-	    	if ($id) {
-	    		$form = $this->PMForm->getObject('Subcategory', $id);
-	    		$formKeys = $this->PMForm->getFormKeys(Hash::get($form, 'PMForm.id'));
-	    	}
-	    	$this->set('formKeys', $formKeys);
 		}
 		
 		if (in_array($objectType, array('Category', 'Subcategory', 'Brand'))) {
