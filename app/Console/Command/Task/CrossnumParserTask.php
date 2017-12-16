@@ -38,8 +38,8 @@ class CrossnumParserTask extends AppShell {
         $this->Product->unbindModel(array('hasOne' => array('Media', 'Seo', 'Search')));
 
         $headers = array('brand_id', 'cat_id', 'subcat_id', 'title', 'title_rus', 'code', 'detail_num', 'orig_id');
-        fdebug(WEBROOT_DIR.'/files/crossnumparser.csv');
-        $csv = new CsvWriter(WEBROOT_DIR.'/files/crossnumparser.csv', $headers);
+        $csvFile = PATH_FILES_UPLOAD . 'crossnumparser.csv';
+        $csv = new CsvWriter($csvFile, $headers);
         $csv->writeHeaders();
 
         while ($rowset = $this->Product->find('all', compact('fields', 'conditions', 'page', 'limit'))) {
@@ -56,7 +56,6 @@ class CrossnumParserTask extends AppShell {
                 $aID[] = $id;
 
                 $aRows = $this->_preprocess($row['PMFormData'][$fk_cross]);
-                // fdebug(array($aRows, $row));
                 foreach($aRows as $_row) {
                     list($subcat, $detail_nums) = $this->_parseCrossNumber($_row);
                     if ($subcat && $detail_nums) {
