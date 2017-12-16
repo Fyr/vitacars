@@ -43,8 +43,8 @@
 		$tab = ($lang == 'by') ? '' : '_' . $lang;
 ?>
 	<div id="descr-tab-content-<?=$lang?>" class="descr-tab-content">
-		<fieldset class="fieldset">
-			<legend style="font-size: 14px;"><b>SEO-данные (meta-тэги)</b></legend>
+		<fieldset>
+			<legend>SEO-данные (meta-тэги)</legend>
 <?
 		echo $this->PHForm->input('tpl_product_seo_title_'.$lang, array('label' => array('text' => 'Title', 'class' => 'control-label')));
 		echo $this->PHForm->input('tpl_product_seo_keywords_'.$lang, array('label' => array('text' => 'Keywords', 'class' => 'control-label')));
