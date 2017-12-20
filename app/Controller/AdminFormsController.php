@@ -52,8 +52,6 @@ class AdminFormsController extends AdminController {
 			}
 		} elseif ($id) {
 			$this->request->data = $this->PMFormField->findById($id);
-			// $data['PMFormField'] = array_merge($data['PMFormField'], $this->PMFormField->unpackOptions());
-			// $this->request->data = array_merge($this->request->data, $this->PMFormField->unpackOptions($this->request->data('PMFormField')));
 			$this->request->data('PMFormField', $this->PMFormField->unpackOptions($this->request->data('PMFormField')));
 		} else {
 			$this->request->data('PMFormField.sort_order', '0');
@@ -101,26 +99,7 @@ class AdminFormsController extends AdminController {
 			$this->set('avgTime', $this->Task->avgExecTime('RecalcFormula'));
 		}
 		$this->set('task', $task);
-		/*
-		$fields = array('key', 'value');
-		$conditions = array('PMFormConst.object_type' => 'SubcategoryParam');
-		$aConst = $this->PMFormConst->find('list', compact('fields', 'conditions'));
 
-    	$page = 1;
-    	$limit = 1000;
-    	$count = 0;
-    	$fields = $this->PMFormField->getObjectList('SubcategoryParam', '');
-    	while ($rowset = $this->PMFormData->find('all', compact('page', 'limit'))) {
-    		$page++;
-    		foreach($rowset as $row) {
-    			$count++;
-    			// $this->PMFormData->recalcFormula($row['PMFormData']['id'], $fields);
-				$this->PMFormData->_recalcFormula($row, $fields, $aConst);
-			}
-    	}
-    	$this->Session->setFlash(__('%s products have been updated', $count), 'default', array(), 'success');
-    	$this->redirect(array('action' => 'index'));
-		*/
     }
 
 }

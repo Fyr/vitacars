@@ -24,7 +24,8 @@ class PMFormField extends AppModel {
 		$this->Logger = new Logger();
 		$this->Logger->init('form_field');
 	}
-	
+
+	/*
 	public function afterFind($results, $primary = false) {
 		foreach($results as &$_row) {
 			if (is_array($_row) && isset($_row[$this->alias])) {
@@ -38,6 +39,7 @@ class PMFormField extends AppModel {
 		}
 		return $results;
 	}
+	*/
 
 	public function afterSave($created, $options = array()) {
 		$this->PMFormData = $this->loadModel('Form.PMFormData');
@@ -86,28 +88,38 @@ class PMFormField extends AppModel {
 		};
 		return $data;
 	}
+	/*
+        public function packFormulaOptions($data) {
+            extract($data);
+            return serialize(compact('formula', 'decimals', 'div_float', 'div_int'));
+        }
 
-	public function packFormulaOptions($data)
+        public function unpackFormulaOptions($options) {
+            return ($options) ? unserialize($options) : array();
+        }
+    */
+	/**
+	 * @param $formula - PMFormField record (unpacked)
+	 * @param $aData - PMFormData (PMFormField.key) => value
+	 * @return string
+	 */
+	public function calcFormula($row, $aData)
 	{
-		extract($data);
-		return serialize(compact('formula', 'decimals', 'div_float', 'div_int'));
-	}
-
-	public function unpackFormulaOptions($options)
-	{
-		return ($options) ? unserialize($options) : array();
-	}
-	
-	public function calcFormula($options, $aData) {
-		$formula = $this->unpackFormulaOptions($options);
-		extract($aData);
-		$_res = 0;
-		eval('$_res = '.$formula['formula'].';');
-		return $this->formatFormula($_res, $formula);
+		$formula = (isset($row['price_formula']) && $row['price_formula']) ? $row['price_formula'] : $row['formula'];
+		extract($aData); // инициализация ключей для расчета
+		$_res = null;
+		@eval('$_res = ' . $formula . ';');
+		if (isset($row['price_formula']) && $row['price_formula']) {
+			return floatval($_res); // приводим 100% к float
+		}
+		return $this->formatFormula($_res, $row);
 	}
     
 	public function formatFormula($_res, $formula) {
-    	return ($_res) ? number_format($_res, $formula['decimals'], $formula['div_float'], $formula['div_int']) : '';
+		if (($formula['decimals'] || $formula['div_float'] || $formula['div_int']) && is_numeric($_res)) {
+			return number_format($_res, $formula['decimals'], $formula['div_float'], $formula['div_int']);
+		}
+		return $_res;
     }
     
     public function getFieldsList($object_type, $object_id) {

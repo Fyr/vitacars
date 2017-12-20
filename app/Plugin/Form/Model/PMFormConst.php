@@ -6,7 +6,7 @@ class PMFormConst extends AppModel {
 	public $validate = array(
 		'key' => array(
 			'rule' => '/^[A-Z]+[A-Z0-9_]*$/',
-			'allowEmpty' => true,
+			'required' => true,
 			'message' => 'Неверный формат ключа. Пример: A1, B1, AA1, BB1, CCC'
 		),
 		'value' => array(
@@ -20,5 +20,11 @@ class PMFormConst extends AppModel {
 			'message' => 'Введите сортировку'
 		)
 	);
-	
+
+	public function getData()
+	{
+		$fields = array('key', 'value');
+		$conditions = array('PMFormConst.object_type' => 'SubcategoryParam');
+		return $this->find('list', compact('fields', 'conditions'));
+	}
 }

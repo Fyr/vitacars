@@ -71,6 +71,7 @@ class PMFormData extends AppModel {
 		return true;
 	}
 	*/
+	/*
 	public function saveData($data, $aFormFields) {
 		foreach($aFormFields as $row) {
 			$field_id = $row['PMFormField']['id'];
@@ -83,44 +84,77 @@ class PMFormData extends AppModel {
 		}
 		return false;
 	}
+	*/
 
-	public function _recalcFormula($data, $aFormFields, $aConst, $aExclude = array())
+	/**
+	 * Пересчет всех формул по записи
+	 * @param $data - PMFormData
+	 * @param $aFormFields - PMFormField
+	 * @param $aConst - PMFormConst
+	 * @param array $aPriceData - FormPrice
+	 * @return bool|mixed
+	 */
+	private function _recalcFormula($data, $aFormFields, $aConst, $aPriceData = array())
 	{
+		$this->PMFormField = $this->loadModel('Form.PMFormField');
 		$aData = array();
 		$aFormula = array();
-		foreach($aFormFields as $row) {
-			$field_id = $row['PMFormField']['id'];
-			if ($row['PMFormField']['field_type'] == FieldTypes::FORMULA && !in_array($field_id, $aExclude)) {
-				$aFormula['fk_'.$field_id] = $row['PMFormField'];
+		$fkPrices = array();
+
+		// пересчитываем цены по курсу в исходные для формул ячейки
+		if ($aPriceData) {
+			foreach ($aPriceData as $row) {
+				$data['PMFormData']['fk_' . $row['fk_id']] = $row['price'] * $row['kurs'] * $row['koeff'];
+				$fkPrices[] = $row['fk_id']; // формируем список полей, цена у которых была перебита вручную (формулу не надо пересчитывать)
 			}
-			if ($row['PMFormField']['key']) {
-				$aData[$row['PMFormField']['key']] = Hash::get($data, 'PMFormData.fk_'.$field_id);
+		}
+
+		foreach($aFormFields as $row) {
+			$row = $this->PMFormField->unpackOptions($row['PMFormField']);
+
+			if ($row['field_type'] == FieldTypes::FORMULA
+				|| ($row['field_type'] == FieldTypes::PRICE && $row['price_formula'] && !in_array($row['id'], $fkPrices))
+			) {
+				$aFormula['fk_' . $row['id']] = $row;
+			}
+			if ($row['key']) {
+				$aData[$row['key']] = Hash::get($data, 'PMFormData.fk_' . $row['id']);
 			}
 		}
 
 		$aData = array_merge($aData, $aConst);
 
-		$_data = array('PMFormData' => array('id' => $data['PMFormData']['id'], 'recalc' => 1));
+		// $_data = array('PMFormData' => array('id' => $data['PMFormData']['id'], 'recalc' => 1));
 		$_ret = true;
 		if ($aFormula) {
-			$this->PMFormField = $this->loadModel('Form.PMFormField');
-			foreach($aFormula as $formula) {
-				$field_id = $formula['id'];
-				$_data['PMFormData']['fk_'.$field_id] = $this->PMFormField->calcFormula($formula['options'], $aData);
+			$data['PMFormData']['recalc'] = 1;
+			foreach ($aFormula as $row) {
+				$data['PMFormData']['fk_' . $row['id']] = $this->PMFormField->calcFormula($row, $aData);
 			}
-			$_ret = $this->save($_data);
+			$_ret = $this->save($data);
 		}
 		return $_ret;
 	}
-	
-	public function recalcFormula($id, $aFormFields) {
+
+	public function recalcFormula($id, $aFormFields = array(), $aConst = array(), $aPriceData = array())
+	{
 		$data = $this->findById($id);
 
-		$this->PMFormConst = $this->loadModel('Form.PMFormConst');
-		$fields = array('key', 'value');
-		$conditions = array('PMFormConst.object_type' => 'SubcategoryParam');
-		$aConst = $this->PMFormConst->find('list', compact('fields', 'conditions'));
+		if (!$aFormFields) {
+			$this->PMFormField = $this->loadModel('Form.PMFormField');
+			$aFormFields = $this->PMFormField->getObjectList('SubcategoryParam', '', 'PMFormField.sort_order');
+		}
 
-		return $this->_recalcFormula($data, $aFormFields, $aConst);
+		if (!$aConst) {
+			$this->PMFormConst = $this->loadModel('Form.PMFormConst');
+			$aConst = $this->PMFormConst->getData();
+		}
+
+		if (!$aPriceData) {
+			$this->FormPrice = $this->loadModel('FormPrice');
+			$aPriceData = $this->FormPrice->getProductPrices($id);
+		}
+
+		return $this->_recalcFormula($data, $aFormFields, $aConst, $aPriceData);
 	}
 }

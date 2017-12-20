@@ -334,7 +334,12 @@ class AdminProductsController extends AdminController {
 				$a2_val = intval(Hash::get($product, $a2));
 			}
 			$remain = (intval($this->request->data($a1)) - $a1_val) + (intval($this->request->data($a2)) - $a2_val);
-			$priceData = $this->request->data('PMFormData');
+			$priceData = array(); // $this->request->data('FormPrice');
+			foreach ($this->request->data('FormPrice') as $fk_id => $priceRow) {
+				if ($priceRow['price']) {
+					$priceData[$fk_id] = $priceRow;
+				}
+			}
 		}
 
 		$this->PCArticle->setModel('Product')->edit(&$id, &$lSaved);
@@ -347,48 +352,35 @@ class AdminProductsController extends AdminController {
 				$field = 'fk_'.Configure::read(($remain > 0) ? 'Params.incomeY' : 'Params.outcomeY');
 				$this->PMFormData->saveField($field, intval($this->PMFormData->field($field)) + $remain); // уже выставлен нужный $this->PMFormData->id
 			}
-			$this->PMFormData->recalcFormula($this->PMFormData->id, $fields);
 
-			// Пересчет цен вводимых вручную
 			$this->FormPrice->deleteAll(compact('product_id'));
-			foreach ($fields as $field) {
-				$field = $field['PMFormField'];
-				$fk_id = 'fk_' . $field['id'];
-				if ($field['field_type'] == FieldTypes::FORMULA && ($price = floatval(Hash::get($priceData, $fk_id)))) {
-					$calculated = $this->PMFormData->field($fk_id);
-					$kurs = floatval($this->request->data('PMFormData.' . $fk_id . '_kurs'));
-					$koeff = floatval($this->request->data('PMFormData.' . $fk_id . '_koeff'));
-					$options = $this->PMFormField->unpackFormulaOptions($field['options']);
-
-					$value = $this->PMFormField->formatFormula($price * $kurs * $koeff, $options);
-					$currency_from = $this->request->data('PMFormData.' . $fk_id . '_from');
-					$this->PMFormData->saveField($fk_id, $value); // перебиваем формулы
-
-					$this->FormPrice->clear();
-					$fk_id = $field['id'];
-					$this->FormPrice->save(compact('product_id', 'fk_id', 'calculated', 'kurs', 'currency_from', 'price', 'koeff'));
-				}
+			foreach ($priceData as $fk_id => $row) {
+				$row['product_id'] = $id;
+				$this->FormPrice->clear();
+				$this->FormPrice->save($row);
 			}
+			$this->PMFormData->recalcFormula($this->PMFormData->id, $fields, null, $priceData);
 
 			$baseRoute = array('action' => 'index');
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
 		}
 
-		$field_rights = $this->_getRights();
 		$fieldsAvail = array();
 		foreach($fields as $_field) {
 			$_field_id = $_field['PMFormField']['id'];
-			if ((!$field_rights || in_array($_field_id, $field_rights)) && ($_field['PMFormField']['field_type'] != FieldTypes::FORMULA || $_field['PMFormField']['is_price'])) {
-				$fieldsAvail[] = $_field;
-
+			if ($_field['PMFormField']['field_type'] != FieldTypes::FORMULA) {
 				if (!$id) {
 					if ($_field['PMFormField']['field_type'] == FieldTypes::INT) {
 						$this->request->data('PMFormData.fk_'.$_field_id, '0');
-					}
-					if ($_field['PMFormField']['field_type'] == FieldTypes::FLOAT ) {
+					} elseif ($_field['PMFormField']['field_type'] == FieldTypes::FLOAT) {
 						$this->request->data('PMFormData.fk_'.$_field_id, '0.00');
 					}
+				} else {
+					if ($_field['PMFormField']['field_type'] == FieldTypes::PRICE) {
+						$_field['PMFormField'] = $this->PMFormField->unpackOptions($_field['PMFormField']);
+					}
 				}
+				$fieldsAvail[] = $_field;
 			}
 		}
 		$this->set('form', $fieldsAvail);
@@ -401,9 +393,9 @@ class AdminProductsController extends AdminController {
 
 		$this->set('aBrandOptions', $this->Brand->getOptions());
 
-		$aCurrency = array('BYR', 'USD', 'EUR', 'RUR', 'UAH');
-		$this->set('aCurrency', array_combine($aCurrency, $aCurrency));
-		$this->set('xPrices', $this->FormPrice->findAllByProductId($id));
+		$this->loadModel('Currency');
+		$this->set('aCurrency', $this->Currency->getOptions());
+		$this->set('xPrices', $this->FormPrice->getProductPrices($id));
 
 		if (!$id) {
 			// выставляем значения по умолчанию

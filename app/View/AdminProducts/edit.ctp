@@ -18,11 +18,11 @@ echo $this->element('admin_title', compact('title'));
 
 $prices = array();
 foreach ($form as $i => $field) {
-    if ($field['PMFormField']['is_price']) {
+    if ($field['PMFormField']['field_type'] == FieldTypes::PRICE) {
         $prices[] = $field;
         unset($form[$i]);
     }
-}
+    }
 
     $aTabs = array(
         'General' => $this->element('/AdminProduct/admin_edit_General'),
