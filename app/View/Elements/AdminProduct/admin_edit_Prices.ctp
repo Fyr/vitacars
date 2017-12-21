@@ -39,23 +39,7 @@
             // $formatted = $xPrices[$field['id']]['calculated'];
             $koeff = $xPrices[$field['id']]['koeff'];
         }
-        /*
-        if ($field['field_type'] == FieldTypes::FORMULA) {
-            // перевести из символьного в числовой формат
-            // если записывать формулу в формате float - придется много где править
-            $formatted = $this->request->data('PMFormData.fk_' . $field['id']); // значение уже отформатировано
-            if (isset($xPrices[$field['id']])) {
-                $value = $xPrices[$field['id']]['price'];
-                $kurs = $xPrices[$field['id']]['kurs'];
-                $currency_from = $xPrices[$field['id']]['currency_from'];
-                $formatted = $xPrices[$field['id']]['calculated'];
-                $koeff = $xPrices[$field['id']]['koeff'];
-            }
-        } else if ($field['field_type'] == FieldTypes::FLOAT || $field['field_type'] == FieldTypes::INT) {
-            $value = $this->request->data('PMFormData.fk_' . $field['id']); // значение уже отформатировано
-            $formatted = '<i class="icon-chevron-right"></i>'; // форматируем по умолчанию
-        }
-        */
+
         $curr = $field['price_currency'];
         $kursOptions = array('' => $curr . ' =');
         foreach ($aKurs as $const) {
@@ -130,7 +114,7 @@
         var koeff = parseFloat($('.price-koeff', tr).val());
         if (!koeff) {
             koeff = 1;
-    }
+        }
         var currencyTo = $('.price-curr-to', tr).val();
         var nds = (currencyTo == 'RUR') ? 1.18 : 1.20;
         if (price) {
@@ -167,7 +151,7 @@
     function updateAllPrices() {
         $('.price-table > tbody >tr').each(function () {
             updatePrices(this.id);
-    });
+        });
     }
     var aKurs;
     $(function () {

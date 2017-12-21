@@ -639,4 +639,24 @@ class AdminUpdateController extends AdminController {
 			$this->redirect(array('action' => 'update15'));
 		}
 	}
+
+	public function update16()
+	{
+		$this->layout = 'admin';
+		$this->autoRender = true;
+		$this->loadModel('Task');
+
+		$task = $this->Task->getActiveTask('UpdateProducts', 0);
+		if ($task) {
+			$id = Hash::get($task, 'Task.id');
+			$task = $this->Task->getFullData($id);
+			$this->set(compact('task'));
+		} else {
+			$id = $this->Task->add(0, 'UpdateProducts');
+			$this->Task->runBkg($id);
+			sleep(1);
+			$this->redirect(array('action' => 'update16'));
+		}
+	}
+
 }
