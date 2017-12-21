@@ -11,9 +11,6 @@ class ImportController extends AppController {
 	const TASK_NAME = 'Import1C';
 
 	public function index($file = '') {
-		echo 'ERROR';
-		return;
-
 		$user_id = 0;
 		$this->Logger->init(Configure::read('import.log'));
 		try {
