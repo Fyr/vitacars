@@ -128,7 +128,6 @@ foreach($aRowset as &$row) {
 					// форумла уже хранится отформатированной
 				} elseif ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::PRICE) {
 					// форматируем по ходу
-					fdebug(array($row['PMFormData'][$_field], $aParams[$field_id]['PMFormField']));
 					$row['PMFormData'][$_field] = $this->Price->formatPrice($row['PMFormData'][$_field], $aParams[$field_id]['PMFormField']);
 				}
 			}

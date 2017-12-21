@@ -27,6 +27,9 @@ class PriceHelper extends AppHelper {
 
 	public function formatPrice($sum, $options)
 	{
+		if (!floatval($sum)) {
+			return '';
+		}
 		$currency = (isset($options['price_currency'])) ? $options['price_currency'] : Configure::read('Settings.price_currency');
 		$defaultOptions = array(
 			'price_prefix' => '',
