@@ -64,7 +64,7 @@ class AdminProductsController extends AdminController {
 				$aCols[$alias] = array(
 					'key' => $alias,
 					'label' => $_field['PMFormField']['label'],
-					'format' => (in_array($_field['PMFormField']['field_type'], array(FieldTypes::INT, FieldTypes::FLOAT, FieldTypes::FORMULA))) ? 'integer' : 'string'
+					'format' => (in_array($_field['PMFormField']['field_type'], array(FieldTypes::INT, FieldTypes::FLOAT, FieldTypes::FORMULA, FieldTypes::PRICE))) ? 'integer' : 'string'
 				);
     		}
     	}

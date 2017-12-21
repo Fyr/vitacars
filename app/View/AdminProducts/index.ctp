@@ -124,6 +124,12 @@ foreach($aRowset as &$row) {
 					$row['PMFormData'][$_field] = str_replace(',', '<br />', $row['PMFormData'][$_field]);
 				} elseif ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::TEXTAREA) {
 					$row['PMFormData'][$_field] = nl2br($row['PMFormData'][$_field]);
+				} elseif ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::FORMULA) {
+					// форумла уже хранится отформатированной
+				} elseif ($aParams[$field_id]['PMFormField']['field_type'] == FieldTypes::PRICE) {
+					// форматируем по ходу
+					fdebug(array($row['PMFormData'][$_field], $aParams[$field_id]['PMFormField']));
+					$row['PMFormData'][$_field] = $this->Price->formatPrice($row['PMFormData'][$_field], $aParams[$field_id]['PMFormField']);
 				}
 			}
 			if ($field_id == Configure::read('Params.color')) { // выделение строки цветом

@@ -124,6 +124,10 @@ class PMFormField extends AppModel {
     
     public function getFieldsList($object_type, $object_id) {
     	$aFields = $this->getObjectList($object_type, $object_id, 'PMFormField.sort_order');
-    	return Hash::combine($aFields, '{n}.PMFormField.id', '{n}');
+		$aFields = Hash::combine($aFields, '{n}.PMFormField.id', '{n}');
+		foreach ($aFields as &$field) {
+			$field['PMFormField'] = $this->unpackOptions($field['PMFormField']);
+		}
+		return $aFields;
     }
 }

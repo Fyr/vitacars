@@ -4,6 +4,8 @@ class PriceHelper extends AppHelper {
 
 	public function format($sum, $currency = '') {
 		$currency = ($currency) ? $currency : Configure::read('Settings.price_currency');
+		/*
+		$currency = ($currency) ? $currency : Configure::read('Settings.price_currency');
 		$sum = number_format(
 			$sum,
 			Configure::read('Settings.decimals_'.$currency),
@@ -12,6 +14,36 @@ class PriceHelper extends AppHelper {
 		);
 		$sum = Configure::read('Settings.price_prefix_'.$currency).$sum.Configure::read('Settings.price_postfix_'.$currency);
 		return str_replace('$P', $this->symbolP(), $sum);
+		*/
+		$options = array(
+			'price_prefix' => Configure::read('Settings.price_prefix_' . $currency),
+			'price_decimals' => Configure::read('Settings.decimals_' . $currency),
+			'price_div_float' => Configure::read('Settings.float_div_' . $currency),
+			'price_div_int' => Configure::read('Settings.int_div_' . $currency),
+			'price_postfix' => Configure::read('Settings.price_postfix_' . $currency)
+		);
+		return $this->formatPrice($sum, $options);
+	}
+
+	public function formatPrice($sum, $options)
+	{
+		$currency = (isset($options['price_currency'])) ? $options['price_currency'] : Configure::read('Settings.price_currency');
+		$defaultOptions = array(
+			'price_prefix' => '',
+			'price_decimals' => 2,
+			'price_div_float' => '.',
+			'price_div_int' => ',',
+			'price_postfix' => ''
+		);
+		$options = array_merge($defaultOptions, $options);
+		$sum = number_format(
+			$sum,
+			$options['price_decimals'],
+			$options['price_div_float'],
+			$options['price_div_int']
+		);
+		$sum = $options['price_prefix'] . $sum . $options['price_postfix'];
+		return str_replace(array('$P', '$E'), array($this->symbolP(), '&euro'), $sum);
 	}
 
 	public function symbolP() {
