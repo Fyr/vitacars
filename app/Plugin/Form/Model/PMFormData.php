@@ -152,7 +152,7 @@ class PMFormData extends AppModel {
 
 		if (!$aPriceData) {
 			$this->FormPrice = $this->loadModel('FormPrice');
-			$aPriceData = $this->FormPrice->getProductPrices($id);
+			$aPriceData = $this->FormPrice->getProductPrices($data['PMFormData']['object_id']);
 		}
 
 		return $this->_recalcFormula($data, $aFormFields, $aConst, $aPriceData);

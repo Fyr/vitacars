@@ -124,11 +124,11 @@
                 if (row.price_kurs_from == curr && row.price_kurs_to == currencyTo) {
                     kurs = parseFloat(row.value);
                     break;
+                }
             }
-        }
         } else {
             price = $('.price-old', tr).val();
-    }
+        }
 
         $('.price-kurs', tr).val(kurs);
         $('.price', tr).html(formatPrice(price * kurs * koeff, currencyTo));

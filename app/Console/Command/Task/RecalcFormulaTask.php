@@ -28,7 +28,7 @@ class RecalcFormulaTask extends AppShell {
                     throw new Exception(__('Processing was aborted by user'));
                 }
 
-                $this->PMFormData->recalcFormula($row, $fields, $aConst);
+                $this->PMFormData->recalcFormula($row['PMFormData']['id'], $fields, $aConst);
 
                 $i++;
                 $this->Task->setProgress($this->id, $i);

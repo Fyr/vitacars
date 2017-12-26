@@ -34,6 +34,7 @@ class Task extends AppModel {
 				'UploadNewProducts_readCsv' => __('Process CSV file'),
 				'UploadCounters_checkProducts' => __('Check products data'),
 				'UploadCounters_createProducts' => __('Create products and needed data'),
+				'RecalcFormula' => __('Recalc formula'),
 				'ProductDescr' => __('Update products'),
 				'Import1C' => __('1C Import'),
 				'VelesParser' => 'Veles-Torg.by Parser',
