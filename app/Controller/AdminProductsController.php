@@ -335,9 +335,11 @@ class AdminProductsController extends AdminController {
 			}
 			$remain = (intval($this->request->data($a1)) - $a1_val) + (intval($this->request->data($a2)) - $a2_val);
 			$priceData = array(); // $this->request->data('FormPrice');
-			foreach ($this->request->data('FormPrice') as $fk_id => $priceRow) {
-				if ($priceRow['price']) {
-					$priceData[$fk_id] = $priceRow;
+			if ($id) {
+				foreach ($this->request->data('FormPrice') as $fk_id => $priceRow) {
+					if ($priceRow['price']) {
+						$priceData[$fk_id] = $priceRow;
+					}
 				}
 			}
 		}
