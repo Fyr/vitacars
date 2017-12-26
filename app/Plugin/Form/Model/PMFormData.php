@@ -111,6 +111,10 @@ class PMFormData extends AppModel {
 
 		foreach($aFormFields as $row) {
 			$row = $this->PMFormField->unpackOptions($row['PMFormField']);
+			if ($row['field_type'] == FieldTypes::PRICE && !$row['price_formula'] && !isset($aPriceData[$row['id']])) {
+				fdebug($row['id'], 'tmp4.log');
+				$data['PMFormData']['fk_' . $row['id']] = 0;
+			}
 
 			if ($row['field_type'] == FieldTypes::FORMULA
 				|| ($row['field_type'] == FieldTypes::PRICE && $row['price_formula'] && !in_array($row['id'], $fkPrices))
