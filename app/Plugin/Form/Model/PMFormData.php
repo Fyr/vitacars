@@ -112,7 +112,6 @@ class PMFormData extends AppModel {
 		foreach($aFormFields as $row) {
 			$row = $this->PMFormField->unpackOptions($row['PMFormField']);
 			if ($row['field_type'] == FieldTypes::PRICE && !$row['price_formula'] && !isset($aPriceData[$row['id']])) {
-				fdebug($row['id'], 'tmp4.log');
 				$data['PMFormData']['fk_' . $row['id']] = 0;
 			}
 
@@ -128,7 +127,6 @@ class PMFormData extends AppModel {
 
 		$aData = array_merge($aData, $aConst);
 
-		// $_data = array('PMFormData' => array('id' => $data['PMFormData']['id'], 'recalc' => 1));
 		$_ret = true;
 		if ($aFormula) {
 			$data['PMFormData']['recalc'] = 1;

@@ -62,7 +62,7 @@ class FieldTypes {
 			// self::UPLOAD_FILE => __d('form', 'Upload file'),
 			// self::EDITOR => __d('form', 'Editor'),
 			self::FORMULA => '`fk_%d` varchar(60) DEFAULT ""',
-			self::PRICE => '`fk_%d` float(9,4) DEFAULT "0.00"',
+			self::PRICE => '`fk_%d` float(12,4) not null default 0.0000'
 		);
 		return ($id) ? Hash::get($aTypes, $id) : $aTypes;
 	}
