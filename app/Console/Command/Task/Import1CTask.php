@@ -27,6 +27,8 @@ class Import1CTask extends AppShell {
             throw new Exception(__('Incorrect CSV data'));
         }
 
+        $this->PMFormData->updateAll(array($data['keys'][1] => 0), true);
+
         // подсуммировать остатки по одинаковым кодам
         $aData = array();
         foreach($data['data'] as $i => $_data) {
