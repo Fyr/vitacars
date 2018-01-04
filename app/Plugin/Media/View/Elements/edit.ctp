@@ -51,7 +51,7 @@
 				</ul>
 				{%
 					if (o.media_type == 'image') {
-				 		aLang = ['by', 'ru', 'bg'];
+				 		aLang = <?= json_encode(Configure::read('domains')) ?>;
 				 		for(var i = 0; i < aLang.length; i++) {
 				 			var lang = aLang[i];
 
@@ -63,7 +63,7 @@
 				 			}
 				%}
 				<div id="media-tab-content-{%=lang%}" class="media-tab-content" style="display: none;">
-					<span class="pull-left" style="position: relative; top: 10px;">Показывать</span>
+					<span class="pull-left" style="position: relative; top: 10px;">Показывать</span>&nbsp;
 					<input type="checkbox" {%=checked%} onchange="mediaGrid.actionUpdate({%=o.id%}, {show_{%=lang%}: (this.checked) ? 1 : 0})" style="position: relative; top: 7px;"/>
 					&nbsp;&nbsp;
 				{%

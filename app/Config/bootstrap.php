@@ -78,7 +78,7 @@ Configure::write('import', array(
 	'db_log' => false
 ));
 
-Configure::write('domains', array('by', 'ru', 'bg'));
+Configure::write('domains', array('by', 'ru', 'ua', 'bg'));
 
 Cache::config('tasks', array(
 	'engine' => 'File',
