@@ -27,6 +27,7 @@ foreach ($form as $i => $field) {
     $aTabs = array(
         'General' => $this->element('/AdminProduct/admin_edit_General'),
         'Descr' => $this->element('edit_body'),
+        'Featured' => $this->element('/AdminProduct/admin_edit_Featured'),
 		'SEO' => $this->element('/AdminProduct/admin_edit_Seo'),
         'Tech-params' => $this->element('/AdminProduct/admin_edit_TechParams', compact('form', 'formValues')),
     );
