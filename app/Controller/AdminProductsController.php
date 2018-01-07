@@ -88,16 +88,6 @@ class AdminProductsController extends AdminController {
         		$detail_num = str_replace(array('*', '~'), '', $detail_num);
         		$this->set('detail_num', $detail_num);
         		if ($detail_num) {
-					if (!in_array($detail_num, Configure::read('Settings.gpz_stop'))) {
-						try {
-							App::uses('GpzApi', 'Model');
-							$this->GpzApi = new GpzApi();
-							$gpzData = $this->GpzApi->search($detail_num);
-							$this->set(compact('gpzData'));
-						} catch (Exception $e) {
-							$this->set('gpzError', $e->getMessage());
-						}
-					}
 					$this->processFilter($detail_num);
         		}
 			}
@@ -406,61 +396,6 @@ class AdminProductsController extends AdminController {
 			$this->request->data('Product.cat_id', 2133); // category = DEUTZ
 			$this->request->data('Product.subcat_id', 2146); // subcategory = DEUTZ 1013
 			$this->request->data('Product.brand_id', 2166); // brand = Deutz
-		}
-	}
-
-	public function price() {
-		$number = $this->request->query('number');
-		$brand = $this->request->query('brand');
-		$currency = $this->request->query('currency');
-		if (!$currency) {
-			$currency = 'byr';
-		}
-		Configure::write('Settings.price_currency', $currency);
-
-		$aCurrency = array(
-			'byr' => 'BYR Белорусские рубли',
-			'rur' => 'RUR Российские рубли',
-			'usd' => 'USD Доллары США',
-			'eur' => 'EUR Евро'
-		);
-
-		$aSorting = array(
-			'brand' => 'Производитель',
-			'partnumber' => 'Номер',
-			'image' => 'Фото',
-			'title' => 'Наименование',
-			'qty' => 'Наличие',
-			'price2' => 'Цена'
-		);
-		$this->set('aSorting', $aSorting);
-		$aOrdering = array(
-			'asc' => 'по возрастанию',
-			'desc' => 'по убыванию'
-		);
-		$this->set('aOrdering', $aOrdering);
-
-		$sort = $this->request->query('sort');
-		if (!$sort || !in_array($sort, array_keys($aSorting))) {
-			$sort = 'price2';
-		}
-		$order = $this->request->query('order');
-		if (!$order || !in_array($order, array_keys($aOrdering))) {
-			$order = 'asc';
-		}
-
-		$this->set(compact('sort', 'order', 'aCurrency', 'currency'));
-
-		$lFullInfo = AuthComponent::user('gpz_fullinfo');
-		try {
-			App::uses('GpzApi', 'Model');
-			$this->GpzApi = new GpzApi();
-			$gpzData = $this->GpzApi->getPrices($brand, $number, $sort, $order, $lFullInfo);
-			$this->set(compact('gpzData'));
-			$this->set('lFullInfo', $lFullInfo);
-			$this->set('aOfferTypeOptions', GpzOffer::options());
-		}  catch (Exception $e){
-			$this->set('gpzError', $e->getMessage());
 		}
 	}
 

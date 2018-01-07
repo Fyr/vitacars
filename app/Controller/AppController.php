@@ -21,16 +21,19 @@ class AppController extends Controller {
 	    // after construct actions here
 		if (!Configure::read('Settings')) {
 			App::uses('Settings', 'Model');
+			/*
 			$this->Settings = new Settings();
 			$this->Settings->setDataSource('giperzap'); // load settings from GiperZap
 			$this->Settings->initData();
+			*/
 
 			$this->Settings = new Settings();
 			$this->Settings->initData();
-
-			$stopWords = Configure::read('Settings.gpz_stop');
-			$stopWords = str_replace(array("\r\n", "\r", "\n"), "|", $stopWords);
-			Configure::write('Settings.gpz_stop', explode("|", $stopWords));
+			/*
+                        $stopWords = Configure::read('Settings.gpz_stop');
+                        $stopWords = str_replace(array("\r\n", "\r", "\n"), "|", $stopWords);
+                        Configure::write('Settings.gpz_stop', explode("|", $stopWords));
+            */
 		}
 	}
 	

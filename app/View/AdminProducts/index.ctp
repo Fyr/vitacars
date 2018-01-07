@@ -223,14 +223,6 @@ foreach($aRowset as &$row) {
 
 ?>
 <br />
-<?
-	if (isset($gpzData) || isset($gpzError)) {
-?>
-<h3 class="text-left">Региональные склады</h3>
-<?
-		echo $this->element('/AdminProduct/gpz_search');
-	}
-?>
 
 <style>
 	#grid_Product .grid .fixed { position: fixed; top: 43px; left: 40px; margin-left: 1px;}

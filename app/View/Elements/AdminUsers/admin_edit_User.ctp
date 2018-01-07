@@ -12,7 +12,6 @@
 			'active' => __('Active'), 
 			'load_counters' => __('Load counters (CSV)'), 
 			// 'view_brands' => __('Brands'),
-			'gpz_fullinfo' => 'Полная информация (giperzap)',
 			'orders' => 'Счет-фактуры'
 		), 
 		'class' => 'checkbox inline'
