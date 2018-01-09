@@ -298,9 +298,19 @@ $(document).ready(function(){
 		nonSelectedText: 'Выберите мотор',
 		nSelectedText: 'выбрано'
 	});
+
+	var brandsData;
+	if (brandsData = $.cookie('brands')) {
+		brandsData = JSON.parse(brandsData);
+		$('#brand').val(brandsData);
+	}
 	$('#brand').multiselect({
 		nonSelectedText: 'Выберите бренд',
-		nSelectedText: 'выбрано'
+		nSelectedText: 'выбрано',
+		onChange: function (option, checked, select) {
+			var brandsData = $('#brand').val();
+			$.cookie('brands', JSON.stringify(brandsData), {expires: 30, path: '/'});
+		}
 	});
 	
 	$('#filterByNumber input').keypress(function(event){
