@@ -8,6 +8,8 @@ App::uses('PMFormData', 'Form.Model');
 class Import1CTask extends AppShell {
     public $uses = array('Product', 'Form.PMFormData', 'Logger', 'ImportLog');
 
+    const TASK_NAME = 'Import1C';
+
     public function execute() {
         $this->Logger->init(Configure::read('import.log'));
 
@@ -38,11 +40,7 @@ class Import1CTask extends AppShell {
         }
 
         $this->Task->setProgress($this->id, 0, count($aData));
-        $status = $this->Task->getStatus($this->id);
-        if ($status !== Task::ABORT) { // могли прервать таск до его начала - проверяем, иначе перетрем событие ABORT
-            $this->Task->setStatus($this->id, Task::RUN);
-        }
-
+        $this->Task->setStatus($this->id, Task::RUN);
         $this->Logger->write('PROCESS', array('TaskID' => $this->id, 'File' => $this->params['csv_file']));
 
         $aID = array();
@@ -94,14 +92,48 @@ class Import1CTask extends AppShell {
             }
             $this->PMFormData->trxCommit();
 
+            // fk_22(A1) - приходит *_1.csv, fk_87(A2) - в *_2.csv. След.файл - должен быть другого типа в первую очередь
+            $task = $this->_getNextTask($data['keys'][1] == $paramA1 ? '2' : '1');
+            if (!$task) {
+                // не найден - пробуем запустить таск того же типа
+                $task = $this->_getNextTask($data['keys'][1] == $paramA1 ? '1' : '2');
+            }
+            if ($task) {
+                // чтобы какой-то процесс не встрял между запуском текущего таска и следующим - сразу меняем найденному таску статус на RUN
+                $this->Task->setStatus($task['Task']['id'], Task::RUN);
+            }
+
+            $this->Logger->write('DONE', array('TaskID' => $this->id, 'File' => $this->params['csv_file']));
             $this->Task->setData($this->id, 'xdata', $aID);
             $this->Task->setStatus($this->id, Task::DONE);
-            $this->Logger->write('DONE', array('TaskID' => $this->id, 'File' => $this->params['csv_file']));
-            $this->Task->close($this->id); // сразу закрываем таск
+            $this->Task->close($this->id);
+
+            if ($task) {
+                $this->Task->runBkg($task['Task']['id']);
+            }
         } catch (Exception $e) {
             $this->PMFormData->trxRollback();
-            $this->Logger->write('ABORTED', array('TaskID' => $this->id, 'File' => $this->params['csv_file']));
-            throw $e;
+            $this->Logger->write('ABORTED', array('TaskID' => $this->id, 'File' => $this->params['csv_file'], 'Error' => $e->getMessage()));
+            throw $e; // throw exception for BkgService
         }
+    }
+
+    private function _getNextTask($type)
+    {
+        $conditions = array('task_name' => self::TASK_NAME, 'status' => array(Task::CREATED), 'params LIKE ' => '%_' . $type . '.csv%');
+        $order = array('Task.id' => 'DESC');
+        $tasks = $this->Task->find('all', compact('conditions', 'order'));
+        if ($tasks) {
+            // извлекаем последний созданный таск
+            $lastTask = array_shift($tasks);
+
+            // остальные таски - удаляем
+            foreach ($tasks as $task) {
+                $this->Logger->write('DELETE', am(array('TaskID' => $task['Task']['id']), unserialize($task['Task']['params'])));
+                $this->Task->remove($task['Task']['id']);
+            }
+            return $lastTask;
+        }
+        return false;
     }
 }

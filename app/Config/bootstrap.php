@@ -48,7 +48,7 @@ define('SEPARATOR_DECIMAL', ',');
 Configure::write('Params', array(
 	'color' => 43,
 	'A1' => 22,
-	'A2' => 27,
+	'A2' => 87,
 	'incomeY' => 27,
 	'outcomeY' => 32,
 	'crossNumber' => 60,

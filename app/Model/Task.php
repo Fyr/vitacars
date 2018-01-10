@@ -75,6 +75,7 @@ class Task extends AppModel {
 	}
 
 	public function runBkg($task_id) {
+		fdebug('../Console/cake.bat BkgService execTask ' . $task_id . "\r\n", 'run.log');
 		if (TEST_ENV) {
 			fdebug('../Console/cake.bat BkgService execTask '.$task_id."\r\n", 'run.bat', false);
 		} else {
@@ -204,6 +205,12 @@ class Task extends AppModel {
 		$DONE = self::DONE;
 		$res = $this->query("SELECT AVG(exec_time) AS avg_exe_time FROM {$tasks} WHERE task_name = '{$task_name}' AND parent_id = 0 AND status = '{$DONE}'");
 		return Hash::get($res, '0.0.avg_exe_time');
+	}
+
+	public function remove($id)
+	{
+		Cache::delete($id, 'tasks');
+		$this->delete($id);
 	}
 
 }

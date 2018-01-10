@@ -16,44 +16,35 @@ class ImportController extends AppController {
 		try {
 			/**
 			 * Во время отработки запроса может придти еще несколько.
-			 * Считаем что запросы могут выполняться параллельно.
+			 * Считаем что запросы могут приходить параллельно.
 			 * Поэтому вполне вероятно что будет выполнено 2 запроса одновременно,
 			 * причем не известно на каком этапе одного запроса может запуститься другой.
-			 * Почему мы сначала добавляем все таски, а потом убиваем все кроме последнего
+			 * Почему мы добавляем все таски, а последний выполненный таск сам запускает след. если таковые есть
 			 */
 			$this->_addTask($file, $user_id);
-
-			$conditions = array('task_name' => self::TASK_NAME, 'status' => array(Task::CREATED, Task::RUN));
-			$order = array('Task.id' => 'DESC');
-			$tasks = $this->Task->find('all', compact('conditions', 'order'));
-			if ($tasks) {
-				$lastTask = array_shift($tasks);
-				// запускаем последний созданный таск если он еще не запущен
-				if ($lastTask['Task']['status'] == Task::CREATED) {
-					$this->Logger->write('RUN BKG', am(array('TaskID' => $lastTask['Task']['id']), unserialize($lastTask['Task']['params'])));
-					$this->Task->runBkg($lastTask['Task']['id']);
-				}
-				// остальные таски - прерываем
-				foreach($tasks as $task) {
-					$this->Logger->write('ABORT', am(array('TaskID' => $task['Task']['id']), unserialize($task['Task']['params'])));
-					$this->Task->setStatus($task['Task']['id'], Task::ABORT);
-				}
-
-				sleep(1); // даем время на прерывание тасков
-
-				// остальные таски - закрываем
-				$conditions = array('id <> ' => $lastTask['Task']['id'], 'task_name' => self::TASK_NAME, 'status' => array(Task::ABORTED, Task::DONE), 'active' => 1);
-				$tasks = $this->Task->find('all', compact('conditions'));
-				foreach ($tasks as $task) {
-					$this->Logger->write('CLOSE', am(array('TaskID' => $task['Task']['id']), unserialize($task['Task']['params'])));
-					$this->Task->close($task['Task']['id']);
-				}
+			$conditions = array('task_name' => self::TASK_NAME, 'status' => array(Task::RUN));
+			$task = $this->Task->find('first', compact('conditions'));
+			if ($task) {
+				echo 'RUN';
+				return;
 			}
-			echo 'SUCCESS';
+
+			// нет выполняемых тасков - запускаем последнюю задачу (она удалит другие если нужно)
+			$conditions = array('task_name' => self::TASK_NAME, 'status' => array(Task::CREATED));
+			$order = array('Task.id' => 'DESC');
+			$task = $this->Task->find('first', compact('conditions', 'order'));
+			if ($task) {
+				$this->Logger->write('RUN BKG', am(array('TaskID' => $task['Task']['id']), unserialize($task['Task']['params'])));
+				$this->Task->runBkg($task['Task']['id']);
+				echo 'SUCCESS';
+				return;
+			}
+
+			echo 'ERROR! NO TASK';
 
 		} catch (Exception $e) {
 			$this->Logger->write('ERROR', array('File' => $file, 'Error' => $e->getMessage()));
-			echo 'ERROR';
+			echo 'ERROR! ' . $e->getMessage();
 		}
 	}
 
@@ -84,9 +75,10 @@ class ImportController extends AppController {
 		if (!file_exists($_path)) {
 			mkdir($_path);
 		}
-		rename($fullPath, $_path.DS.$file);
+		$csv_file = $_path . DS . $file;
+		rename($fullPath, $csv_file);
 
-		$params = array('csv_file' => $_path.DS.$file);
+		$params = compact('csv_file');
 		$id = $this->Task->add($user_id, self::TASK_NAME, $params);
 		$this->Logger->write('ADD TO QUEUE', array('TaskID' => $id, 'File' => $params['csv_file']));
 	}
