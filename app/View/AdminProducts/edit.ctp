@@ -1,6 +1,6 @@
 <div class="span8 offset2">
 <?
-	$this->Html->css(array('bootstrap-multiselect'), array('inline' => false));
+$this->Html->css(array('bootstrap-multiselect', '/Icons/css/icons'), array('inline' => false));
 	$this->Html->script(array('vendor/bootstrap-multiselect'), array('inline' => false));
 	
     $id = $this->request->data('Product.id');

@@ -19,8 +19,9 @@
             ?>
         </th>
         <th>Коэфф.</th>
-        <th>Цена по курсу</th>
-        <th>Цена с НДС</th>
+        <th>Цена<br/>по курсу</th>
+        <th>Цена<br/>с НДС</th>
+        <th>История<br/>цен</th>
     </tr>
     </thead>
     <tbody>
@@ -48,6 +49,9 @@
                 $kursOptions[$const['price_kurs_from']] = $const['price_kurs_from'] . ' *' . $const['value'];
             }
         }
+        $historyURL = $this->Html->url(array('controller' => 'AdminPriceHistory', 'action' => 'index',
+            'PriceHistory.product_id' => $this->request->params['pass'][0], 'PriceHistory.fk_id' => $field['id']
+        ));
         ?>
         <tr id="<?= $field['id'] ?>">
             <td>
@@ -85,7 +89,7 @@
                 <?
                 echo $this->PHForm->input('FormPrice.' . $field['id'] . '.koeff', array(
                     'type' => 'text',
-                    'class' => 'input-small price-koeff',
+                    'class' => 'input-mini price-koeff',
                     'value' => $koeff,
                     'div' => false, 'between' => false, 'after' => false, 'label' => false,
                     'onchange' => 'updatePrices(' . $field['id'] . ')'
@@ -94,6 +98,9 @@
             </td>
             <td class="price" align="right"></td>
             <td class="price-nds" align="right"></td>
+            <td align="center">
+                <a class="icon-color icon-open-folder" href="<?= $historyURL ?>" target="_blank"></a>
+            </td>
         </tr>
         <?
     }

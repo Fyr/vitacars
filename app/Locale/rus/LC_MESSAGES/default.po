@@ -744,3 +744,12 @@ msgstr "Скачать %s"
 
 msgid "Prices"
 msgstr "Цены"
+
+msgid "Prices history"
+msgstr "История изменения цен"
+
+msgid "Old price"
+msgstr "Старая цена"
+
+msgid "New price"
+msgstr "Новая цена"

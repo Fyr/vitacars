@@ -100,17 +100,25 @@ class PMFormData extends AppModel {
 		$aData = array();
 		$aFormula = array();
 		$fkPrices = array();
+		$aPriceFk = array();
+
+		// запоминаем старые цены
+		foreach ($aFormFields as &$_row) {
+			$_row = $this->PMFormField->unpackOptions($_row['PMFormField']);
+			if ($_row['field_type'] == FieldTypes::PRICE) {
+				$aPriceFk[$_row['id']] = Hash::get($data, 'PMFormData.fk_' . $_row['id']);
+			}
+		}
 
 		// пересчитываем цены по курсу в исходные для формул ячейки
 		if ($aPriceData) {
 			foreach ($aPriceData as $row) {
-				$data['PMFormData']['fk_' . $row['fk_id']] = $row['price'] * $row['kurs'] * $row['koeff'];
+				$data['PMFormData']['fk_' . $row['fk_id']] = round($row['price'] * $row['kurs'] * $row['koeff'], 4);
 				$fkPrices[] = $row['fk_id']; // формируем список полей, цена у которых была перебита вручную (формулу не надо пересчитывать)
 			}
 		}
 
 		foreach($aFormFields as $row) {
-			$row = $this->PMFormField->unpackOptions($row['PMFormField']);
 			if ($row['field_type'] == FieldTypes::PRICE && !$row['price_formula'] && !isset($aPriceData[$row['id']])) {
 				$data['PMFormData']['fk_' . $row['id']] = 0;
 			}
@@ -134,6 +142,25 @@ class PMFormData extends AppModel {
 				$data['PMFormData']['fk_' . $row['id']] = $this->PMFormField->calcFormula($row, $aData);
 			}
 			$_ret = $this->save($data);
+		}
+
+		// смотрим изменение цен - формируем историю цен
+		$aPriceHistory = array();
+		foreach ($aPriceFk as $fk_id => $old_price) {
+			// округляем до 2х знаков - почему то баг с сохранением 4х знаков после запятой
+			$old_price = round($old_price, 2);
+			$new_price = round($data['PMFormData']['fk_' . $fk_id], 2);
+			if ($old_price != $new_price) {
+				$product_id = $data['PMFormData']['object_id'];
+				$aPriceHistory[] = compact('product_id', 'fk_id', 'old_price', 'new_price');
+			}
+		}
+		if ($aPriceHistory) {
+			$this->PriceHistory = $this->loadModel('PriceHistory');
+			foreach ($aPriceHistory as $row) {
+				$this->PriceHistory->clear();
+				$this->PriceHistory->save($row);
+			}
 		}
 		return $_ret;
 	}

@@ -110,7 +110,8 @@ class PMFormField extends AppModel {
 		$_res = null;
 		@eval('$_res = ' . $formula . ';');
 		if (isset($row['price_formula']) && $row['price_formula']) {
-			return floatval($_res); // приводим 100% к float
+			// приводим 100% к float
+			return round(floatval($_res), 4); //почему то баг с сохранением 4х знаков после запятой
 		}
 		return $this->formatFormula($_res, $row);
 	}
