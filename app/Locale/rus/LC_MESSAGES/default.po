@@ -753,3 +753,10 @@ msgstr "Старая цена"
 
 msgid "New price"
 msgstr "Новая цена"
+
+msgid "Income"
+msgstr "Приход"
+
+msgid "Outcome"
+msgstr "Расход"
+

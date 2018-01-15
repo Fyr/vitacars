@@ -3,10 +3,11 @@ App::uses('Shell', 'Console');
 App::uses('AppShell', 'Console/Command');
 App::uses('CsvReader', 'Vendor');
 App::uses('Product', 'Model');
+App::uses('ProductRemain', 'Model');
 App::uses('Logger', 'Model');
 App::uses('PMFormData', 'Form.Model');
 class Import1CTask extends AppShell {
-    public $uses = array('Product', 'Form.PMFormData', 'Logger', 'ImportLog');
+    public $uses = array('Product', 'Form.PMFormData', 'Logger', 'ImportLog', 'ProductRemain');
 
     const TASK_NAME = 'Import1C';
 
@@ -52,7 +53,7 @@ class Import1CTask extends AppShell {
         try {
             $this->PMFormData->trxBegin();
 
-            $this->PMFormData->updateAll(array($data['keys'][1] => 0), true); // чистим остальные остатки
+            // $this->PMFormData->updateAll(array($data['keys'][1] => 0), true); // чистим остальные остатки
 
             foreach ($aData as $code => $val) {
                 $i++;
@@ -72,24 +73,38 @@ class Import1CTask extends AppShell {
                     'status' => 'ERROR'
                 );
                 if ($product) {
-                    $fields = array('PMFormData.id');
-                    $formData = $this->PMFormData->findByObjectTypeAndObjectId('ProductParam', $product['Product']['id'], $fields);
+                    $product_id = $product['Product']['id'];
+                    $fields = array('PMFormData.id', $paramA1, $paramA2);
+                    $formData = $this->PMFormData->findByObjectTypeAndObjectId('ProductParam', $product_id, $fields);
                     $this->PMFormData->save(array('id' => $formData['PMFormData']['id'], $key => $val));
 
-                    $logData['product_id'] = $product['Product']['id'];
-                    $logData['form_data_id'] = $formData['PMFormData']['id'];
-                    $logData['status'] = 'OK';
-
+                    $logData = array();
                     $aID[] = $product['Product']['id'];
+
+                    // для отчета по продажам
+                    $a1_val = intval($formData['PMFormData'][$paramA1]);
+                    $a2_val = intval($formData['PMFormData'][$paramA2]);
+                    $remain = 0;
+                    if ($data['keys'][1] == $paramA1) {
+                        $remain = intval($val) - $a1_val;
+                    } elseif ($data['keys'][1] == $paramA2) {
+                        $remain = intval($val) - $a2_val;
+                    }
+                    if ($remain) {
+                        $this->ProductRemain->clear();
+                        $this->ProductRemain->save(compact('product_id', 'remain'));
+                    }
                 }
 
-                if (Configure::read('import.db_log')) {
+                if (Configure::read('import.db_log') && $logData) {
                     $this->ImportLog->clear();
                     $this->ImportLog->save($logData);
                 }
 
                 $this->Task->setProgress($this->id, $i);
             }
+
+            $this->PMFormData->updateAll(array($data['keys'][1] => 0), array('object_type' => 'ProductParam', 'NOT' => array('object_id' => $aID))); // чистим остальные остатки
             $this->PMFormData->trxCommit();
 
             // fk_22(A1) - приходит *_1.csv, fk_87(A2) - в *_2.csv. След.файл - должен быть другого типа в первую очередь

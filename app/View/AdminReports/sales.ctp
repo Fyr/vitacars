@@ -21,38 +21,50 @@
 	<thead>
 		<tr class="first table-gradient">
 			<th class="nowrap">
+				<a class="grid-unsortable" href="javascript:void(0)"><?=__('Brand')?></a>
+			</th>
+			<th class="nowrap">
 				<a class="grid-unsortable" href="javascript:void(0)"><?=__('Code')?></a>
 			</th>
 			<th class="nowrap">
 				<a class="grid-unsortable" href="javascript:void(0)"><?=__('Title rus')?></a>
 			</th>
 			<th class="nowrap">
-				<a class="grid-unsortable" href="javascript:void(0)"><?=__('Sold')?></a>
+				<a class="grid-unsortable" href="javascript:void(0)"><?=__('Income')?></a>
+			</th>
+			<th class="nowrap">
+				<a class="grid-unsortable" href="javascript:void(0)"><?=__('Outcome')?></a>
 			</th>
 		</tr>
 	</thead>
 	<tbody>
 <?
-		$total = 0;
+		$total_income = 0;
+		$total_outcome = 0;
 		foreach($rows as $row) {
-			$qty = abs($row[0]['sum_remain']);
-			$total+= $qty;
+			$qty_income = abs($row[0]['sum_income']);
+			$qty_outcome = abs($row[0]['sum_outcome']);
+			$total_income+= $qty_income;
+			$total_outcome+= $qty_outcome;
+			$article = $aProducts[$row['ProductRemain']['product_id']];
 ?>
 		<tr class="grid-row">
-			<td class="text-left"><?=$row['Product']['code']?></td>
-			<td class="text-left"><?=$row['Product']['title_rus']?></td>
-			<td class="text-right"><?=$qty?></td>
+			<td class="text-left"><?=$article['Brand']['title']?></td>
+			<td class="text-left"><?=$article['Product']['code']?></td>
+			<td class="text-left"><?=$article['Product']['title_rus']?></td>
+			<td class="text-right"><?=$qty_income?></td>
+			<td class="text-right"><?=$qty_outcome?></td>
 		</tr>
 <?
 		}
 ?>
 
 		<tr class="grid-footer table-gradient" id="last-tr">
-			<td></td>
-			<td align="right">
+			<td colspan="3" align="right">
 				<b><?=__('Total')?>:</b>
 			</td>
-			<td style="padding: 5px; text-align: right"><b><?=$total?></b></td>
+			<td style="padding: 5px; text-align: right"><b><?=$total_income?></b></td>
+			<td style="padding: 5px; text-align: right"><b><?=$total_outcome?></b></td>
 		</tr>
 	</tbody>
 	</table>
