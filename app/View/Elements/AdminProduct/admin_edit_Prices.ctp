@@ -42,8 +42,18 @@
         }
 
         $curr = $field['price_currency'];
+        /*
+         * HOT fix - переделать курсы валют на 1 код
+         */
+
+        if ($curr == 'RUR') {
+            $curr = 'RUB';
+        }
         $kursOptions = array('' => $curr . ' =');
-        foreach ($aKurs as $const) {
+        foreach ($aKurs as $i => $const) {
+            if ($const['PMFormConst']['price_kurs_to'] == 'RUR') {
+                $aKurs[$i]['PMFormConst']['price_kurs_to'] = 'RUB';
+            }
             $const = $const['PMFormConst'];
             if ($const['price_kurs_to'] == $curr) {
                 $kursOptions[$const['price_kurs_from']] = $const['price_kurs_from'] . ' *' . $const['value'];
