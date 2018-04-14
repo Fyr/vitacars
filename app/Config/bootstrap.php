@@ -39,8 +39,6 @@ define('EMAIL_ADMIN', 'fyr.work@gmail.com');
 define('EMAIL_ADMIN_CC', 'fyr.work@gmail.com');
 
 define('PATH_FILES_UPLOAD', $_SERVER['DOCUMENT_ROOT'].'/files/');
-define('PATH_FILES_UPLOAD_BY', 'D:\Projects\agromotors.dev\wwwroot\app\webroot\files\\');
-define('PATH_FILES_UPLOAD_RU', 'D:\Projects\agromotors.dev\wwwroot\app\webroot\files_ru\\');
 
 define('SEPARATOR_DEICHARGE', '&nbsp;');
 define('SEPARATOR_DECIMAL', ',');
@@ -73,7 +71,7 @@ Configure::write('Search', array(
 Configure::write('tmp_dir', ROOT.DS.APP_DIR.DS.'tmp'.DS);
 
 Configure::write('import', array(
-	'folder' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'csv'.DS,
+	'folder' => ROOT . DS . APP_DIR . DS . 'tmp' . DS . 'import' . DS,
 	'log' => ROOT.DS.APP_DIR.DS.'tmp'.DS.'logs'.DS.'import.log',
 	'db_log' => false
 ));

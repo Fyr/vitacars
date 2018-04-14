@@ -88,16 +88,7 @@ class PMFormField extends AppModel {
 		};
 		return $data;
 	}
-	/*
-        public function packFormulaOptions($data) {
-            extract($data);
-            return serialize(compact('formula', 'decimals', 'div_float', 'div_int'));
-        }
 
-        public function unpackFormulaOptions($options) {
-            return ($options) ? unserialize($options) : array();
-        }
-    */
 	/**
 	 * @param $formula - PMFormField record (unpacked)
 	 * @param $aData - PMFormData (PMFormField.key) => value

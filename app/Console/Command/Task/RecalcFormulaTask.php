@@ -10,7 +10,7 @@ class RecalcFormulaTask extends AppShell {
         $this->Task->setProgress($this->id, 0, $total);
         $this->Task->setStatus($this->id, Task::RUN);
 
-        $aConst = $this->PMFormConst->getData();
+        $aConst = $this->PMFormConst->find('all');
 
         $page = 1;
         $limit = 1000;

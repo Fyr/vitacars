@@ -103,15 +103,12 @@ class CrossCsvParserTask extends AppShell {
                     $crossNums = implode(', ', $nums);
                 }
                 $aID[] = $product['Product']['id'];
-                fdebug(array($product['Product']['id'], $product['Product']['code'], $product['PMFormData']['fk_60'], $crossNums));
                 $product['PMFormData']['fk_60'] = $crossNums;
 
                 unset($product['Media']);
                 unset($product['Seo']);
                 unset($product['Search']);
                 $this->Product->saveAll($product);
-            } else {
-                fdebug($code."\r\n", 'err.log');
             }
 
             $i++;

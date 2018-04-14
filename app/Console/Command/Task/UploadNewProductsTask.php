@@ -132,6 +132,8 @@ class UploadNewProductsTask extends AppShell {
         $this->Task->setStatus($subtask_id, Task::RUN);
         $progress = $this->Task->getProgressInfo($this->id);
 
+        $aConst = $this->PMFormConst->find('all');
+
         $aID = array();
         foreach($aData['data'] as $line => $row) {
             $status = $this->Task->getStatus($this->id);
@@ -201,7 +203,7 @@ class UploadNewProductsTask extends AppShell {
             }
 
             if ($this->params['recalc_formula']) {
-                $this->PMFormData->recalcFormula($this->Product->PMFormData->id, $this->aFormFields);
+                $this->PMFormData->recalcFormula($this->Product->PMFormData->id, $this->aFormFields, $aConst);
             }
 
             $aID[] = $this->Product->id;

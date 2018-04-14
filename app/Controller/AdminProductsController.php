@@ -351,7 +351,7 @@ class AdminProductsController extends AdminController {
 				$this->FormPrice->clear();
 				$this->FormPrice->save($row);
 			}
-			$this->PMFormData->recalcFormula($this->PMFormData->id, $fields, null, $priceData);
+			$this->PMFormData->recalcFormula($this->PMFormData->id, $fields);
 
 			$baseRoute = array('action' => 'index');
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));

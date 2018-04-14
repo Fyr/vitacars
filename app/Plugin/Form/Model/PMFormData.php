@@ -87,9 +87,49 @@ class PMFormData extends AppModel {
 	*/
 
 	/**
-	 * Пересчет всех формул по записи
+	 * @param $aFormFields - список полей (цен), которые надо пересчитать
+	 * @param $aPriceData - введенные ранее занчения
+	 * @param $aKurs - текущие курсы
+	 * @return array - массив пересчитанных данных
+	 */
+	private function _recalcKurs($aFormFields, $aPriceData, $aKurs, $data)
+	{
+		$changedPrices = array();
+		$this->PriceHistory = $this->loadModel('PriceHistory');
+		$this->FormPrice = $this->loadModel('FormPrice');
+		foreach ($aFormFields as $row) {
+			$fk_id = $row['id'];
+
+			$price_data = $aPriceData[$fk_id];
+			$old_price = $data['PMFormData']['fk_' . $fk_id];
+
+			$_kursKey = $price_data['currency_from'] . '_' . $row['price_currency'];
+			$kurs = (isset($aKurs[$_kursKey]) && $aPriceData[$fk_id]['currency_from']) ? $aKurs[$_kursKey] : 1;
+			$new_price = $price_data['koeff'] * $price_data['price'] * $kurs;
+
+			// округляем до 2х знаков: почему-то есть баг с округлением до 4 знаков и в form_price - 2 знака
+			$old_price = round($old_price, 2);
+			$new_price = round($new_price, 2);
+			if ($old_price != $new_price) { // цена изменилась при пересчете
+				// достаточно сохранить новый курс
+				$this->FormPrice->clear();
+				$this->FormPrice->save(array('id' => $price_data['id'], 'kurs' => $kurs));
+
+				// сохраняем историю изменения цены
+				$product_id = $price_data['product_id'];
+				$this->PriceHistory->clear();
+				$this->PriceHistory->save(compact('product_id', 'fk_id', 'old_price', 'new_price'));
+
+				$changedPrices['fk_' . $fk_id] = $new_price;
+			}
+		}
+		return $changedPrices;
+	}
+
+	/**
+	 * Пересчет всех формул по одной записи
 	 * @param $data - PMFormData
-	 * @param $aFormFields - PMFormField
+	 * @param $aFormFields - PMFormFields
 	 * @param $aConst - PMFormConst
 	 * @param array $aPriceData - FormPrice
 	 * @return bool|mixed
@@ -97,72 +137,101 @@ class PMFormData extends AppModel {
 	private function _recalcFormula($data, $aFormFields, $aConst, $aPriceData = array())
 	{
 		$this->PMFormField = $this->loadModel('Form.PMFormField');
-		$aData = array();
-		$aFormula = array();
-		$fkPrices = array();
-		$aPriceFk = array();
 
-		// запоминаем старые цены
+		/*
+		    Правило перебивания цен такое:
+		Если цена рассчитывается по формуле, то ее конечное значение может быть перебито введенным
+		(возможно с другой валютой, тогда рассчитываем ее по курсу "валюта" -> "родная (конечная)" валюта
+		Это значит что мы сначала должны рассчитать все цены, а потом поменять их значение, если они были перебиты
+
+			Алг-тм пересчета по курсу такой:
+		1. Обрабатываем цены, которые должны быть введены.
+		   Если эта цена была перебита с другой валютой и курс изменился (оптимизация)
+		   то пересчитываем по соотв. курсу и записываем в конечные данные
+		2. Вычисляем все формулы
+		   Нельзя исключать цены из вычислений, т.к. на базе их могут быть другие вычисления
+		3. Перебиваем цены с формулой, которые уже были перебиты
+		   Если у цены другая валюта, пересчитываем по курсу
+		   Цену записываем в конечные данные
+		*/
+
 		foreach ($aFormFields as &$_row) {
+			// т.к. формула хранится в сериализованном виде - распаковываем
 			$_row = $this->PMFormField->unpackOptions($_row['PMFormField']);
-			if ($_row['field_type'] == FieldTypes::PRICE) {
-				$aPriceFk[$_row['id']] = Hash::get($data, 'PMFormData.fk_' . $_row['id']);
+			if (isset($_row['formula']) && !$_row['formula']) {
+				unset($_row['formula']);
+			}
+			if (isset($_row['price_formula']) && !$_row['price_formula']) {
+				unset($_row['price_formula']);
 			}
 		}
 
-		// пересчитываем цены по курсу в исходные для формул ячейки
-		if ($aPriceData) {
-			foreach ($aPriceData as $row) {
-				$data['PMFormData']['fk_' . $row['fk_id']] = round($row['price'] * $row['kurs'] * $row['koeff'], 4);
-				$fkPrices[] = $row['fk_id']; // формируем список полей, цена у которых была перебита вручную (формулу не надо пересчитывать)
-			}
-		}
-
+		$aFormula = array(); // формулы для пересчета
+		$aPrices = array(); // цены вводимые вручную, которые надо пересчитать
+		$aCalcPrices = array(); // рассчитываемые цены, которые надо перебить
+		$aKurs = array(); // текущие курсы
+		$dataKeys = array(); // переменные для пересчета формул
 		foreach($aFormFields as $row) {
-			if ($row['field_type'] == FieldTypes::PRICE && !$row['price_formula'] && !isset($aPriceData[$row['id']])) {
-				$data['PMFormData']['fk_' . $row['id']] = 0;
+			$fk_id = $row['id'];
+			if ($row['field_type'] == FieldTypes::PRICE) {
+				if (isset($aPriceData[$fk_id])) { // цена введена и у нее есть валюта пересчета
+					if (isset($row['price_formula'])) { // цену нужно рассчитывать по формуле
+						// добавляем в пересчет по курсу после вычислений
+						$aCalcPrices[] = $row;
+					} else {
+						// добавляем в пересчет по курсу перед вычислениями
+						$aPrices[] = $row;
+					}
+				}
 			}
-
-			if ($row['field_type'] == FieldTypes::FORMULA
-				|| ($row['field_type'] == FieldTypes::PRICE && $row['price_formula'] && !in_array($row['id'], $fkPrices))
-			) {
-				$aFormula['fk_' . $row['id']] = $row;
-			}
-			if ($row['key']) {
-				$aData[$row['key']] = Hash::get($data, 'PMFormData.fk_' . $row['id']);
+			if (isset($row['price_formula']) || isset($row['formula'])) {
+				$aFormula['fk_' . $fk_id] = $row; // добавляем в формулы на пересчет
 			}
 		}
 
-		$aData = array_merge($aData, $aConst);
-
-		$_ret = true;
-		if ($aFormula) {
-			$data['PMFormData']['recalc'] = 1;
-			foreach ($aFormula as $row) {
-				$data['PMFormData']['fk_' . $row['id']] = $this->PMFormField->calcFormula($row, $aData);
+		// формируем массив констант (переменных для формул) и массив курсов
+		foreach ($aConst as $row) {
+			if ($key = $row['PMFormConst']['key']) {
+				$dataKeys[$key] = $row['PMFormConst']['value'];
 			}
+			if ($row['PMFormConst']['is_price_kurs']) {
+				$key = $row['PMFormConst']['price_kurs_from'] . '_' . $row['PMFormConst']['price_kurs_to'];
+				$aKurs[$key] = floatval($row['PMFormConst']['value']);
+			}
+		}
+
+		// 1. Обрабатываем цены, которые должны быть введены.
+		if ($aPrices) {
+			$aNewPrices = $this->_recalcKurs($aPrices, $aPriceData, $aKurs, $data);
+			$data['PMFormData'] = array_merge($data['PMFormData'], $aNewPrices);
+		}
+
+		// 2. Вычисляем все формулы
+		if ($aFormula) { // если есть формулы для пересчета - пересчитываем
+			// сливаем все данные с ключами в одну кучу для пересчета
+			foreach ($aFormFields as $row) {
+				$fk_id = $row['id'];
+				if ($row['key']) {
+					$dataKeys[$row['key']] = $data['PMFormData']['fk_' . $fk_id];
+				}
+			}
+
+			foreach ($aFormula as $row) {
+				$data['PMFormData']['fk_' . $row['id']] = $this->PMFormField->calcFormula($row, $dataKeys);
+			}
+			$data['PMFormData']['recalc'] = 1; // признак того, что формула пересчитана
+		}
+
+		if ($aCalcPrices) {
+			$aNewPrices = $this->_recalcKurs($aCalcPrices, $aPriceData, $aKurs, $data);
+			$data['PMFormData'] = array_merge($data['PMFormData'], $aNewPrices);
+		}
+
+		// сохраняем запись по продукту, если что-то поменялось
+		$_ret = true;
+		if ($aPrices || $aFormula || $aCalcPrices) {
 			$_ret = $this->save($data);
 		}
-
-		// смотрим изменение цен - формируем историю цен
-		$aPriceHistory = array();
-		foreach ($aPriceFk as $fk_id => $old_price) {
-			// округляем до 2х знаков - почему то баг с сохранением 4х знаков после запятой
-			$old_price = round($old_price, 2);
-			$new_price = round($data['PMFormData']['fk_' . $fk_id], 2);
-			if ($old_price != $new_price) {
-				$product_id = $data['PMFormData']['object_id'];
-				$aPriceHistory[] = compact('product_id', 'fk_id', 'old_price', 'new_price');
-			}
-		}
-		if ($aPriceHistory) {
-			$this->PriceHistory = $this->loadModel('PriceHistory');
-			foreach ($aPriceHistory as $row) {
-				$this->PriceHistory->clear();
-				$this->PriceHistory->save($row);
-			}
-		}
-		return $_ret;
 	}
 
 	public function recalcFormula($id, $aFormFields = array(), $aConst = array(), $aPriceData = array())
@@ -176,7 +245,7 @@ class PMFormData extends AppModel {
 
 		if (!$aConst) {
 			$this->PMFormConst = $this->loadModel('Form.PMFormConst');
-			$aConst = $this->PMFormConst->getData();
+			$aConst = $this->PMFormConst->find('all');
 		}
 
 		if (!$aPriceData) {
