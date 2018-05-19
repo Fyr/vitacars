@@ -5,10 +5,11 @@ App::uses('Settings', 'Model');
 App::uses('PMFormConst', 'Form.Model');
 class RateController extends AppController {
 	public $name = 'Rate';
-	public $uses = array('Form.PMFormConst');
+	public $uses = array('Form.PMFormConst', 'Currency');
 
 	public function refresh() {
-		$aCurrency = array('USD', 'EUR', 'RUB', 'UAH');
+		$aCurrency = $this->Currency->getOptions('', false);
+		unset($aCurrency[0]);
 		$setKurs = array(); $setCrossKurs = array();
 		$errMsg = '';
 

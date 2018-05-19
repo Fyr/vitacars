@@ -4,7 +4,7 @@ App::uses('FieldTypes', 'Form.Vendor');
 class AdminConstController extends AdminController {
     public $name = 'AdminConst';
     public $components = array('Auth', 'Table.PCTableGrid');
-    public $uses = array('Form.PMFormConst');
+	public $uses = array('Form.PMFormConst', 'Currency');
     
     public function beforeFilter() {
 		if (!$this->isAdmin()) {
@@ -55,7 +55,7 @@ class AdminConstController extends AdminController {
 				'sort_order' => 1
 			));
 		}
-		$aCurrency = array('BYR', 'USD', 'EUR', 'RUR', 'UAH');
-		$this->set('aCurrency', array_combine($aCurrency, $aCurrency));
+		$aCurrency = $this->Currency->getOptions();
+		$this->set('aCurrency', $aCurrency);
     }
 }

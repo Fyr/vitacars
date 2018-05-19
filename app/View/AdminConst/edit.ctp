@@ -6,8 +6,8 @@
 	echo $this->PHForm->create('PMFormConst');
 
 $select_kurs = array(
-	$this->PHForm->input('price_kurs_from', array('class' => 'input-small', 'options' => $aCurrency, 'div' => false, 'between' => false, 'after' => false, 'label' => false)),
-	$this->PHForm->input('price_kurs_to', array('class' => 'input-small', 'options' => $aCurrency, 'div' => false, 'between' => false, 'after' => false, 'label' => false))
+	$this->PHForm->input('price_kurs_from', array('options' => $aCurrency, 'div' => false, 'between' => false, 'after' => false, 'label' => false, 'escape' => false)),
+	$this->PHForm->input('price_kurs_to', array('options' => $aCurrency, 'div' => false, 'between' => false, 'after' => false, 'label' => false, 'escape' => false))
 );
 
 	echo $this->element('admin_content');
