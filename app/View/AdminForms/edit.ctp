@@ -17,7 +17,6 @@ if ($id) {
 	echo $this->PHForm->input('field_type', array(
 		'options' => $aFieldTypes,
 		'onchange' => 'FieldType_onChange()',
-		'disabled' => true
 	));
 }
 	echo $this->PHForm->input('label', array('class' => 'input-medium'));
