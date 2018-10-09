@@ -757,6 +757,5 @@ msgstr "Новая цена"
 msgid "Income"
 msgstr "Приход"
 
-msgid "Outcome"
-msgstr "Расход"
-
+msgid "Courses have been updated"
+msgstr "Курсы валют НБРБ были успешно обновлены"

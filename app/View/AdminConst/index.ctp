@@ -36,6 +36,9 @@ $columns['PMFormConst.is_price_kurs']['format'] = 'string';
     <a class="btn btn-success" href="<?=$this->Html->url(array('controller' => 'AdminForms', 'action' => 'recalcFormula'))?>">
         <i class="icon-white icon-refresh"></i> Пересчитать формулы
     </a>
+    <a class="btn btn-info" href="<?= $this->Html->url(array('controller' => 'Rate', 'action' => 'refresh', 1)) ?>">
+        <i class="icon-white icon-refresh"></i> Обновить курсы
+    </a>
 </div>
 <br/>
 <?

@@ -7,10 +7,13 @@ class RateController extends AppController {
 	public $name = 'Rate';
 	public $uses = array('Form.PMFormConst', 'Currency');
 
-	public function refresh() {
+	public function refresh($lRedirect = false)
+	{
 		$aCurrency = $this->Currency->getOptions('', false);
 		unset($aCurrency[0]);
-		$setKurs = array(); $setCrossKurs = array();
+		$setKurs = array();
+		$_setKurs = array();
+		$setCrossKurs = array();
 		$errMsg = '';
 
 		try {
@@ -19,20 +22,24 @@ class RateController extends AppController {
 
 			$rates = @simplexml_load_file('http://www.nbrb.by/Services/XmlExRates.aspx');
 			if (!(($rates instanceof SimpleXMLElement) && isset($rates->Currency))) {
-				throw new Exception('Nbrb.by API: Incorrect rates');
+				throw new Exception(__('Nbrb.by API: Incorrect rates'));
 			}
 			$aRates = array();
 			$aCrossRates = array();
 			foreach($rates->Currency as $rate) {
 				$curr = (string) $rate->CharCode;
 				if (in_array($curr, $aCurrency)) {
-					$kurs = floatval($rate->Rate) / intval($rate->Scale);
+					$kurs = round(floatval($rate->Rate) / intval($rate->Scale), 4);
 					$aRates[$curr] = $kurs;
 					$row = $this->PMFormConst->findByKey($curr.'0');
 					if ($row) {
+
 						if ($kurs != $row['PMFormConst']['value']) {
 							$setKurs[$curr] = $kurs;
-							$this->PMFormConst->save(array('id' => $row['PMFormConst']['id'], 'value' => $kurs));
+							if (!$this->PMFormConst->save(array('id' => $row['PMFormConst']['id'], 'value' => $kurs . ''), false)) {
+								throw new Exception(__('Nbrb.by API: Cannot save currency rates (%s: %s ID = %s)', $curr . '0', $kurs, $row['PMFormConst']['id']));
+							}
+							$_setKurs[] = $curr . ': ' . $kurs;
 
 							$aOtherCurr = array_diff($aCurrency, array($curr));
 							foreach($aOtherCurr as $_curr) {
@@ -46,20 +53,22 @@ class RateController extends AppController {
 
 			foreach($aCrossRates as $key => $kurs) {
 				list($curr, $_curr) = explode('_', str_replace('0', '', $key));
-				$kurs = $aRates[$curr] / $aRates[$_curr];
+				$kurs = round($aRates[$curr] / $aRates[$_curr], 4);
 
 				$row = $this->PMFormConst->findByKey($key);
 				if ($row) {
 					$setCrossKurs[$curr.'->'.$_curr] = $kurs;
-					$this->PMFormConst->save(array('id' => $row['PMFormConst']['id'], 'value' => $kurs));
+					if (!$this->PMFormConst->save(array('id' => $row['PMFormConst']['id'], 'value' => $kurs . ''), false)) {
+						throw new Exception(__('Nbrb.by API: Cannot save currency rates (%s: %s ID = %s)', $curr . '->' . $_curr, $kurs, $row['PMFormConst']['id']));
+					}
 				}
 			}
 
 			$this->PMFormConst->trxCommit();
+			//$this->PMFormConst->trxRollback();
 		} catch (Exception $e) {
 			$this->PMFormConst->trxRollback();
 			$errMsg = $e->getMessage();
-			echo "Error! ".$errMsg;
 		}
 
 		if ($errMsg || $setKurs) {
@@ -75,6 +84,15 @@ class RateController extends AppController {
 
 		$this->autoRender = false;
 		$this->set(compact('errMsg', 'setKurs', 'setCrossKurs'));
+		if ($lRedirect) {
+			if ($errMsg) {
+				$this->setFlash($errMsg, 'error');
+			} else {
+				$this->setFlash(__('Courses have been updated') . ':<br/>' . implode('<br/>', $_setKurs), 'success');
+			}
+			$this->redirect(array('controller' => 'AdminConst', 'action' => 'index'));
+			return;
+		}
 		$this->render('/Emails/html/rates_refresh');
 	}
 }
