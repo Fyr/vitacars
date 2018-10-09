@@ -38,7 +38,7 @@ define('TEST_ENV', isset($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] == 
 define('EMAIL_ADMIN', 'fyr.work@gmail.com');
 define('EMAIL_ADMIN_CC', 'fyr.work@gmail.com');
 
-define('PATH_FILES_UPLOAD', $_SERVER['DOCUMENT_ROOT'].'/files/');
+define('PATH_FILES_UPLOAD', WWW_ROOT.'files'.DS);
 
 define('SEPARATOR_DEICHARGE', '&nbsp;');
 define('SEPARATOR_DECIMAL', ',');
