@@ -26,7 +26,7 @@ App::uses('Shell', 'Console');
  * @package       app.Console.Command
  */
 class AppShell extends Shell {
-    public $uses = array('Task');
+	public $uses = array('Task', 'Settings');
 
     public $id = 0, $user_id = 0, $params = array(); // нужно для BkgServiceShell
 

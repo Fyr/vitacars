@@ -14,6 +14,7 @@ class BkgServiceShell extends AppShell {
         $task->user_id = $taskData['Task']['user_id'];
         $task->params = unserialize($taskData['Task']['params']);
         try {
+            $this->Settings->initData();
             $task->execute();
         } catch (Exception $e) {
             $status = $this->Task->getStatus($id);
