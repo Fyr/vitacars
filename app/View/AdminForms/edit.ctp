@@ -89,6 +89,7 @@ if ($id) {
 // echo $this->PHForm->input('required');
 	echo $this->PHForm->input('exported');
 	echo $this->PHForm->input('is_price');
+echo $this->PHForm->input('is_stock');
 	echo $this->element('admin_content_end');
 	echo $this->element('Form.form_actions', array('backURL' => $this->Html->url(array('action' => 'index'))));
 	echo $this->PHForm->end();

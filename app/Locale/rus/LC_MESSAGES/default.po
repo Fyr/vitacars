@@ -598,6 +598,12 @@ msgstr "Пр.цены"
 msgid "Is price"
 msgstr "Пр.цены"
 
+msgid "Is Stock"
+msgstr "Пр.склада"
+
+msgid "Is stock"
+msgstr "Пр.склада"
+
 msgid "Rates refreshing"
 msgstr "Обновление курсов"
 
