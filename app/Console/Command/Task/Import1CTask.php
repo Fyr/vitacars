@@ -6,29 +6,24 @@ App::uses('Product', 'Model');
 App::uses('ProductRemain', 'Model');
 App::uses('Logger', 'Model');
 App::uses('PMFormData', 'Form.Model');
+App::uses('PMFormField', 'Form.Model');
 class Import1CTask extends AppShell {
-    public $uses = array('Product', 'Form.PMFormData', 'Logger', 'ImportLog', 'ProductRemain');
+    public $uses = array('Product', 'Form.PMFormData', 'Logger', 'ImportLog', 'ProductRemain', 'Form.PMFormField');
 
     const TASK_NAME = 'Import1C';
 
+    private $_stockFks = array();
+
     public function execute() {
+        fdebug($this->_getStockFks());
         $this->Logger->init(Configure::read('import.log'));
 
         $data = CsvReader::parse($this->params['csv_file']);
 
-        if (!(isset($data['keys']) && $data['keys'])) {
-            throw new Exception(__('Incorrect CSV headers'));
-        }
+        $this->_checkCSV($data);
 
         $paramA1 = 'fk_'.Configure::read('Params.A1');
         $paramA2 = 'fk_'.Configure::read('Params.A2');
-        if (!($data['keys'][0] == 'code' && ($data['keys'][1] == $paramA1 || $data['keys'][1] == $paramA2))) {
-            throw new Exception(__('Incorrect header keys: %s', print_r($data['keys'], true)));
-        }
-
-        if (!(isset($data['data']) && $data['data'])) {
-            throw new Exception(__('Incorrect CSV data'));
-        }
 
         // подсуммировать остатки по одинаковым кодам
         $aData = array();
@@ -107,12 +102,21 @@ class Import1CTask extends AppShell {
             $this->PMFormData->updateAll(array($data['keys'][1] => 0), array('object_type' => 'ProductParam', 'NOT' => array('object_id' => $aID))); // чистим остальные остатки
             $this->PMFormData->trxCommit();
 
-            // fk_22(A1) - приходит *_1.csv, fk_87(A2) - в *_2.csv. След.файл - должен быть другого типа в первую очередь
-            $task = $this->_getNextTask($data['keys'][1] == $paramA1 ? '2' : '1');
-            if (!$task) {
-                // не найден - пробуем запустить таск того же типа
-                $task = $this->_getNextTask($data['keys'][1] == $paramA1 ? '1' : '2');
+            // если был обработан файл _1, пытаемся обработать след.файл _2
+            // (След.файл - должен быть другого типа в первую очередь)
+            $type = intval($this->_getCsvType($this->params['csv_file']));
+            $task = false;
+            for ($n = 0; $n <= count($this->_getStockFks()); $n++) {
+                $type++;
+                if ($type > count($this->_getStockFks())) {
+                    $type = 1;
+                }
+                $task = $this->_getNextTask($type . '');
+                if ($task) {
+                    break;
+                }
             }
+
             if ($task) {
                 // чтобы какой-то процесс не встрял между запуском текущего таска и следующим - сразу меняем найденному таску статус на RUN
                 $this->Task->setStatus($task['Task']['id'], Task::RUN);
@@ -131,6 +135,39 @@ class Import1CTask extends AppShell {
             $this->Logger->write('ABORTED', array('TaskID' => $this->id, 'File' => $this->params['csv_file'], 'Error' => $e->getMessage()));
             throw $e; // throw exception for BkgService
         }
+    }
+
+    private function _checkCSV($data)
+    {
+        if (!(isset($data['keys']) && $data['keys'])) {
+            throw new Exception(__('Incorrect CSV headers'));
+        }
+
+        if (!(isset($data['data']) && $data['data'])) {
+            throw new Exception(__('Incorrect CSV data'));
+        }
+
+        if (!($data['keys'][0] == 'code' && in_array($data['keys'][1], $this->_getStockFks()))) {
+            throw new Exception(__('Incorrect header keys: %s', print_r($data['keys'], true)));
+        }
+    }
+
+    private function _getStockFks()
+    {
+        if ($this->_stockFks) {
+            return $this->_stockFks;
+        }
+        $conditions = array('object_type' => 'SubcategoryParam', 'is_stock' => 1);
+        $stockFields = $this->PMFormField->find('all', compact('conditions'));
+        foreach (Hash::extract($stockFields, '{n}.PMFormField.id') as $fk_id) {
+            $this->_stockFks[] = 'fk_' . $fk_id;
+        }
+        return $this->_stockFks;
+    }
+
+    private function _getCsvType($fname)
+    {
+        return array_pop(explode('_', basename($fname, '.csv')));
     }
 
     private function _getNextTask($type)
