@@ -21,9 +21,15 @@ class CrossnumParserTask extends AppShell {
         if ($this->params['category_id']) {
             $conditions['Product.cat_id'] = $this->params['category_id'];
         }
-
-
         $conditions[] = 'TRIM(PMFormData.'.$fk_cross.') != ""';
+        $order = array(
+            'Product.brand_id' => 'ASC',
+            'Product.cat_id' => 'ASC',
+            'Product.subcat_id' => 'ASC',
+            'Product.title' => 'ASC',
+            'Product.title_rus' => 'ASC',
+            'Product.code' => 'ASC'
+        );
 
         $total = $this->Product->find('count', compact('conditions'));
         $this->Task->setProgress($this->id, 0, $total);
@@ -37,18 +43,17 @@ class CrossnumParserTask extends AppShell {
         // $this->Product->unbind(array('belongsTo' => array('Category', 'Subcategory', '')));
         $this->Product->unbindModel(array('hasOne' => array('Media', 'Seo', 'Search')));
 
-        $headers = array('brand_id', 'cat_id', 'subcat_id', 'title', 'title_rus', 'code', 'detail_num', 'orig_id');
+        $headers = array('brand_id', 'cat_id', 'subcat_id', 'title', 'title_rus', 'code', 'detail_num', 'orig_id', '_code', '_detail_num', '_orig_id');
         $csvFile = PATH_FILES_UPLOAD . 'crossnumparser.csv';
         $csv = new CsvWriter($csvFile, $headers);
         $csv->writeHeaders();
+        $aUnique = array();
 
-        while ($rowset = $this->Product->find('all', compact('fields', 'conditions', 'page', 'limit'))) {
+        while ($rowset = $this->Product->find('all', compact('fields', 'conditions', 'page', 'limit', 'order'))) {
             $page++;
-            // $this->Product->trxBegin();
             foreach($rowset as $row) {
                 $status = $this->Task->getStatus($this->id);
                 if ($status == Task::ABORT) {
-                    // $this->Product->trxRollback(); // по любому сохраняем рез-ты пересчета
                     throw new Exception(__('Processing was aborted by user'));
                 }
 
@@ -60,7 +65,7 @@ class CrossnumParserTask extends AppShell {
                     list($subcat, $detail_nums) = $this->_parseCrossNumber($_row);
                     if ($subcat && $detail_nums) {
                         foreach($detail_nums as $dn) {
-                            $csv->writeData(array(
+                            $product = array(
                                 'brand_id' => $row['Brand']['title'],
                                 'cat_id' => $row['Category']['title'],
                                 'subcat_id' => $subcat,
@@ -68,8 +73,14 @@ class CrossnumParserTask extends AppShell {
                                 'title_rus' => $row['Product']['title_rus'],
                                 'code' => ' '.$dn,
                                 'detail_num' => ' '.$dn,
-                                'orig_id' => ' '.$id
-                            ));
+                                // 'orig_id' => ''.$id
+                            );
+                            $hash = $this->_calcHash($product);
+                            if (!isset($aUnique[$hash])) {
+                                $aUnique[$hash] = $id; // add unique hash to disable adding the same product
+                                $product['orig_id'] = $id;
+                                $csv->writeData($product);
+                            }
                         }
                     }
                 }
@@ -77,11 +88,14 @@ class CrossnumParserTask extends AppShell {
                 $i++;
                 $this->Task->setProgress($this->id, $i);
             }
-            // $this->Product->trxCommit();
         }
         $this->Task->setData($this->id, 'xdata', $aID);
         $this->Task->setStatus($this->id, Task::DONE);
+    }
 
+    private function _calcHash($row)
+    {
+        return md5(implode('|', array_values($row)));
     }
 
     private function _preprocess($crossNumbers) {
@@ -105,14 +119,14 @@ class CrossnumParserTask extends AppShell {
         $cat = '';
         foreach($parts as $dn) {
             if ($this->DetailNum->isDigitWord($dn)) {
-                $detail_nums[] = $this->DetailNum->strip($dn);
+                $detail_nums[] = $dn;// $this->DetailNum->strip($dn); не вырезать лидирующие нули
             } else {
                 // убиваем все то, что в скобках
                 $dn = $this->_stripParenthesis($dn);
                 $a_dn = explode(' ', str_replace(array('   ', '  '), ' ', $dn));
                 $dn = array_pop($a_dn);
                 if ($this->DetailNum->isDigitWord($dn)) {
-                    $detail_nums[] = $this->DetailNum->strip($dn);
+                    $detail_nums[] = $dn; // $this->DetailNum->strip($dn); не вырезать лидирующие нули
                 }
                 $cat = implode(' ', $a_dn);
 
