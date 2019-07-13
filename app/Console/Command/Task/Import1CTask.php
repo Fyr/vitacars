@@ -15,7 +15,6 @@ class Import1CTask extends AppShell {
     private $_stockFks = array();
 
     public function execute() {
-        fdebug($this->_getStockFks());
         $this->Logger->init(Configure::read('import.log'));
 
         $data = CsvReader::parse($this->params['csv_file']);
