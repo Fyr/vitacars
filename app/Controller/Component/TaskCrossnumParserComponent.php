@@ -22,8 +22,14 @@ class TaskCrossnumParserComponent extends Component {
 		return false;
 	}
 
-	public function postProcess($aID) {
-		$this->_->setFlash(__('%s products have been successfully added', count($aID)).'. '.__('Download %s', '<a href="/files/crossnumparser.csv">CSV</a>'), 'success');
+	public function postProcess($xdata)
+	{
+		$linkCsv = '<a href="/files/crossnumparser.csv">CSV</a>';
+		$linkXls = '<a href="/files/crossnumparser.xls">XLS</a>';
+		$this->_->setFlash(
+			__('%s products found, %s detail numbers processed, %s new products added', $xdata['total'], $xdata['dn_count'], $xdata['uniq_count'])
+			. '. ' . __('Download file as %s or %s', $linkCsv, $linkXls),
+			'success');
 		$this->_->redirect(array('controller' => 'AdminTasks', 'action' => 'task', 'CrossnumParser'));
 	}
 }

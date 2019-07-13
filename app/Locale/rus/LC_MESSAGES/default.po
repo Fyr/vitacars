@@ -748,6 +748,9 @@ msgstr "Вы не указали получателей для отправки!
 msgid "Download %s"
 msgstr "Скачать %s"
 
+msgid "Download file as %s or %s"
+msgstr "Скачать файл в формате %s или %s"
+
 msgid "Prices"
 msgstr "Цены"
 
@@ -765,3 +768,6 @@ msgstr "Приход"
 
 msgid "Courses have been updated"
 msgstr "Курсы валют НБРБ были успешно обновлены"
+
+msgid "%s products found, %s detail numbers processed, %s new products added"
+msgstr "%s продуктов найдено, %s номеров деталей обработано, %s новых продуктов добавлено"

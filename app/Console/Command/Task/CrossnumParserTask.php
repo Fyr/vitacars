@@ -3,6 +3,7 @@ App::uses('Shell', 'Console');
 App::uses('AppShell', 'Console/Command');
 App::uses('Product', 'Model');
 App::uses('CsvWriter', 'Vendor');
+App::uses('XlsWriter', 'Vendor');
 class CrossnumParserTask extends AppShell {
     public $uses = array('Product', 'Form.PMFormData', 'Settings', 'Brand', 'Category', 'Subcategory', 'DetailNum');
 
@@ -43,11 +44,18 @@ class CrossnumParserTask extends AppShell {
         // $this->Product->unbind(array('belongsTo' => array('Category', 'Subcategory', '')));
         $this->Product->unbindModel(array('hasOne' => array('Media', 'Seo', 'Search')));
 
-        $headers = array('brand_id', 'cat_id', 'subcat_id', 'title', 'title_rus', 'code', 'detail_num', 'orig_id', '_code', '_detail_num', '_orig_id');
+        $headers = array('brand_id', 'cat_id', 'subcat_id', 'title', 'title_rus', 'code', 'detail_num', 'orig_id');
+
         $csvFile = PATH_FILES_UPLOAD . 'crossnumparser.csv';
         $csv = new CsvWriter($csvFile, $headers);
         $csv->writeHeaders();
+
+        $xlsFile = PATH_FILES_UPLOAD . 'crossnumparser.xls';
+        $xls = new XlsWriter('CrossNumParser');
+        $xls->writeHeader(compact('headers'));
+
         $aUnique = array();
+        $dn_count = 0;
 
         while ($rowset = $this->Product->find('all', compact('fields', 'conditions', 'page', 'limit', 'order'))) {
             $page++;
@@ -65,20 +73,25 @@ class CrossnumParserTask extends AppShell {
                     list($subcat, $detail_nums) = $this->_parseCrossNumber($_row);
                     if ($subcat && $detail_nums) {
                         foreach($detail_nums as $dn) {
+                            $dn_count++;
                             $product = array(
                                 'brand_id' => $row['Brand']['title'],
                                 'cat_id' => $row['Category']['title'],
                                 'subcat_id' => $subcat,
                                 'title' => $row['Product']['title'],
                                 'title_rus' => $row['Product']['title_rus'],
-                                'code' => ' '.$dn,
-                                'detail_num' => ' '.$dn,
+                                'code' => $dn,
+                                'detail_num' => $dn,
                                 // 'orig_id' => ''.$id
                             );
                             $hash = $this->_calcHash($product);
                             if (!isset($aUnique[$hash])) {
                                 $aUnique[$hash] = $id; // add unique hash to disable adding the same product
                                 $product['orig_id'] = $id;
+                                $xls->writeDetail($product);
+
+                                $product['code'] = ' ' . $product['code'];
+                                $product['detail_num'] = ' ' . $product['detail_num'];
                                 $csv->writeData($product);
                             }
                         }
@@ -89,8 +102,12 @@ class CrossnumParserTask extends AppShell {
                 $this->Task->setProgress($this->id, $i);
             }
         }
-        $this->Task->setData($this->id, 'xdata', $aID);
+
+        $uniq_count = count($aUnique);
+        $this->Task->setData($this->id, 'xdata', compact('total', 'dn_count', 'uniq_count'));
         $this->Task->setStatus($this->id, Task::DONE);
+
+        $xls->writeFooter();
     }
 
     private function _calcHash($row)
