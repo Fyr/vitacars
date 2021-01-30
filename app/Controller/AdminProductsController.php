@@ -9,7 +9,7 @@ class AdminProductsController extends AdminController {
 	public $uses = array('Product', 'Form.PMForm', 'Form.PMFormField', 'Form.PMFormData', 'Form.PMFormConst', 'Form.PHFormField', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media', 'Search', 'DetailNum', 'FormPrice');
     public $helpers = array('ObjectType', 'Form.PHFormFields', 'Form.PHFormData', 'Price');
 
-    private $paramDetail, $aFormula, $aFieldKeys, $aBrandOptions, $aFields;
+    private $paramDetail, $aFormula, $aFieldKeys, $aBrandOptions, $aFields, $searchDetail;
 
 	public function beforeFilter() {
 		parent::beforeFilter();
@@ -214,6 +214,8 @@ class AdminProductsController extends AdminController {
 
 	private function processNumber($detail_num) {
 		$_detail_num = $this->DetailNum->strip($detail_num);
+		$q = str_replace(array('*', '~'), '', $this->request->named['Product.detail_num']);
+		$this->searchDetail = array('q' => $q, 'detail_num' => $_detail_num) ; // сохраняем оригинальный запрос
 		$product_ids = $this->DetailNum->findDetails($this->DetailNum->stripList('*'.$_detail_num.'*'), true);
 		if ($this->DetailNum->isReachLimit()) {
 			$this->setFlash(__('Too many products. Try to search by more exact keyword'), 'error');
@@ -252,6 +254,7 @@ class AdminProductsController extends AdminController {
 			'hasOne' => array('Seo', 'Media')
 		), false);
 		// $this->Product->belongsTo = false;
+		$this->searchDetail = array();
 		$lFlag = $this->_isGridFilter();
 		$this->_processParams();
 
@@ -292,6 +295,12 @@ class AdminProductsController extends AdminController {
         $field = $this->PMFormField->findByLabel('Мотор');
         $this->set('motorOptions', $field);
 		$this->set('aBrandOptions', $this->_getBrandOptions());
+
+		// добавить историю поиска по номерам
+		if ($this->searchDetail) { // был фильтр по номеру
+			$this->loadModel('SearchHistory');
+			$this->SearchHistory->processSearch($this->searchDetail['q'], $this->searchDetail['detail_num'], $aRowset, $this->currUser('id'));
+		}
 	}
 
 	public function edit($id = 0) {
