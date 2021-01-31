@@ -2,7 +2,7 @@
 App::uses('AdminController', 'Controller');
 class AdminReportsController extends AdminController {
     public $name = 'AdminReports';
-	public $uses = array('ProductRemain', 'Product');
+	public $uses = array('ProductRemain', 'Product', 'SearchHistory');
     
     public function beforeFilter() {
 		if (!$this->isAdmin()) {
@@ -28,4 +28,18 @@ class AdminReportsController extends AdminController {
 	    	}
     	}
     }
+
+	public function search() {
+		if ($this->request->is('post')) {
+			$result = $this->SearchHistory->getProducts($this->request->data('date'), $this->request->data('date2'));
+			if ($result) {
+				$product_ids = Hash::extract($result['rows'], '{n}.product_id');
+				$aProducts = $this->Product->findAllById($product_ids);
+				$result['aProducts'] = Hash::combine($aProducts, '{n}.Product.id', '{n}');
+				$this->set($result);
+				$fName = Configure::read('tmp_dir') . 'user_products_' . $this->Auth->user('id') . '.tmp';
+				file_put_contents($fName, implode("\r\n", $product_ids));
+			}
+		}
+	}
 }

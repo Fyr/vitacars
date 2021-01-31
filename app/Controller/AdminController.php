@@ -34,6 +34,7 @@ class AdminController extends AppController {
 			)),
 			'Reports' => array('label' => __('Reports'), 'href' => '', 'submenu' => array(
 				array('label' => __('Sales by period'), 'href' => array('controller' => 'AdminReports', 'action' => 'sales')),
+				array('label' => __('Search by period'), 'href' => array('controller' => 'AdminReports', 'action' => 'search')),
 			)),
 			// 'slider' => array('label' => __('Slider'), 'href' => array('controller' => 'AdminSlider', 'action' => 'index')),
 			// 'settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index'))
