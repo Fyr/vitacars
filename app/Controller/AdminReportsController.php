@@ -37,7 +37,7 @@ class AdminReportsController extends AdminController {
 				$aProducts = $this->Product->findAllById($product_ids);
 				$result['aProducts'] = Hash::combine($aProducts, '{n}.Product.id', '{n}');
 				$this->set($result);
-				$fName = Configure::read('tmp_dir') . 'user_products_' . $this->Auth->user('id') . '.tmp';
+				$fName = Configure::read('tmp_dir').'user_products_'.$this->Auth->user('id').'.tmp';
 				file_put_contents($fName, implode("\r\n", $product_ids));
 			}
 		}

@@ -12,13 +12,20 @@
 		&nbsp;&nbsp;<?=$this->PHForm->submit(__('Apply').' <i class="icon-white icon-chevron-right"></i>', array('class' => 'btn btn-success', 'name' => 'apply', 'value' => 'apply'))?>
 	</div>
 <?
+	if (!isset($rows) && $this->request->is('post')) {
+?>
+	<div>
+		За указанный период поисковых запросов не найдено
+	</div>
+<?
+	}
 	if (isset($rows)) {
 		$this->Html->css(array('/Table/css/grid'), array('inline' => false));
 		$url = $this->Html->url(array('controller' => 'AdminProducts', 'Product.id' => 'list'));
 ?>
 	<div>
 		Найдено <a href="<?=$url?>"><?=count($aProducts)?> продуктов</a><br/>
-		Всего: <?=count($queries)?> запросов
+		Всего: <?=count($queries)?> поисковых запросов
 	</div>
 	<table class="grid table-bordered shadow" width="95%">
 	<thead>
@@ -40,8 +47,9 @@
 	<tbody>
 <?
 		foreach($rows as $row) {
-			$article = $aProducts[$row['product_id']];
-			$url = $this->Html->url(array('controller' => 'AdminProducts', 'Product.id' => $row['product_id']));
+			if (isset($aProducts[$row['product_id']])) { // почемуто иногда попадаются продукты id-шников которых нету в БД - возможно продукты удалили или какой-то хитрый баг
+				$article = $aProducts[$row['product_id']];
+				$url = $this->Html->url(array('controller' => 'AdminProducts', 'Product.id' => $row['product_id']));
 ?>
 		<tr class="grid-row">
 			<td class="text-center"><?=$row['qty']?></td>
@@ -50,6 +58,7 @@
 			<td class="text-left"><?=$this->Html->link($article['Product']['title_rus'], $url)?></td>
 		</tr>
 <?
+			}
 		}
 ?>
 
