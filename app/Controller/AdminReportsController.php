@@ -31,7 +31,13 @@ class AdminReportsController extends AdminController {
 
 	public function search() {
 		if ($this->request->is('post')) {
-			$result = $this->SearchHistory->getProducts($this->request->data('date'), $this->request->data('date2'));
+			$result = $this->SearchHistory->getProducts(
+				$this->request->data('date'),
+				$this->request->data('date2'),
+				$this->request->data('minQty'),
+				$this->request->data('maxQty')
+			);
+			fdebug($this->request->data);
 			if ($result) {
 				$product_ids = Hash::extract($result['rows'], '{n}.product_id');
 				$aProducts = $this->Product->findAllById($product_ids);
@@ -40,6 +46,8 @@ class AdminReportsController extends AdminController {
 				$fName = Configure::read('tmp_dir').'user_products_'.$this->Auth->user('id').'.tmp';
 				file_put_contents($fName, implode("\r\n", $product_ids));
 			}
+		} else {
+			$this->request->data('minQty', 3);
 		}
 	}
 }

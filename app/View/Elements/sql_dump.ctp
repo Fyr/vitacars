@@ -67,7 +67,7 @@ if ($noLogs || isset($_forced_from_dbo_)):
 				$i['query'] .= " , params[ " . rtrim($bindParam, ', ') . " ]";
 			}
 			$sql = h($i['query']);
-				foreach(array(' FROM ', ' LEFT JOIN ', ' JOIN ', ' GROUP BY ', ' ORDER BY ', ' LIMIT ', ' WHERE ') as $stmt) {
+				foreach(array(' FROM ', ' LEFT JOIN ', ' JOIN ', ' GROUP BY ', ' ORDER BY ', ' LIMIT ', ' WHERE ', ' HAVING ') as $stmt) {
 					$sql = str_ireplace($stmt, "<br/><b>".trim($stmt)."</b> ", $sql);
 				}
 				foreach(array('SELECT', 'INSERT', 'UPDATE', 'DELETE') as $stmt) {

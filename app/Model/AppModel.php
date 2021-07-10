@@ -36,6 +36,28 @@ class AppModel extends Model {
 		return $query;
 	}
 
+	/**
+	 * Fixes bug with HAVING clause: cakePHP BUG - adding "HAVING" class does not work :((((
+	 * @param string $type
+	 * @param array $params
+	 */
+	public function find($type = 'first', $params = array()) {
+		if (isset($params['having']) && $params['having']) {
+			$group = (isset($params['group'])) ? $params['group'] : array();
+			$having = array();
+			foreach($params['having'] as $key => $val) {
+				if (intval($key)) {
+					$having[] = $val;
+				} else {
+					$having[] = $key.$val;
+				}
+			}
+			$params['group'] = implode(',', $group).' HAVING '.implode(' AND ', $having);
+			fdebug(compact('having', 'group'));
+		}
+		return parent::find($type, $params);
+	}
+
 	/*
 	public function loadModel($models) {
 		if (!is_array($models)) {

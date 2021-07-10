@@ -4,11 +4,12 @@
 	echo $this->element('admin_title', compact('title'));
 	echo $this->PHForm->create('Report', array('class' => 'form-inline'));
 	echo $this->element('admin_content');
-// fdebug($this->request->data(), 'tmp6.log');
 ?>
 	<div class="control-group">
 		<?=__('Period')?> <input type="text" class="input-small date" name="data[date]" value="<?=$this->request->data('date')?>" />&nbsp;&nbsp;
-		<input type="text" class="input-small date" name="data[date2]" value="<?=$this->request->data('date2')?>" />
+		<input type="text" class="input-small date" name="data[date2]" value="<?=$this->request->data('date2')?>" />&nbsp;&nbsp;
+		<?=__('Min.qty')?> <input type="text" class="input-small" name="data[minQty]" value="<?=$this->request->data('minQty')?>" />
+		<?=__('Max.qty')?> <input type="text" class="input-small" name="data[maxQty]" value="<?=$this->request->data('maxQty')?>" />
 		&nbsp;&nbsp;<?=$this->PHForm->submit(__('Apply').' <i class="icon-white icon-chevron-right"></i>', array('class' => 'btn btn-success', 'name' => 'apply', 'value' => 'apply'))?>
 	</div>
 <?

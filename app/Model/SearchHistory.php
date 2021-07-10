@@ -28,7 +28,6 @@ class SearchHistory extends AppModel {
 
 	public function getProducts($date, $date2, $minQty = 0, $maxQty = 0) {
 		$conditions = $this->dateRange('created', $date, $date2);
-		$having = array();
 		if (!TEST_ENV) {
 			$conditions['user_id <> '] = 1;
 		}
@@ -41,7 +40,15 @@ class SearchHistory extends AppModel {
 			$fields = array('COUNT(*) AS qty', 'product_id');
 			$group = array('product_id');
 			$order = array('qty' => 'DESC');
-			$aRows = $this->SearchDetail->find('all', compact('conditions', 'fields', 'group', 'order'));
+
+			$having = array();
+			if ($minQty) {
+				$having['qty >= '] = $minQty;
+			}
+			if ($maxQty) {
+				$having['qty <= '] = $maxQty;
+			}
+			$aRows = $this->SearchDetail->find('all', compact('conditions', 'fields', 'group', 'order', 'having'));
 
 			$rows = array();
 			foreach($aRows as $row) {
