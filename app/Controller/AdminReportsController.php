@@ -37,7 +37,6 @@ class AdminReportsController extends AdminController {
 				$this->request->data('minQty'),
 				$this->request->data('maxQty')
 			);
-			fdebug($this->request->data);
 			if ($result) {
 				$product_ids = Hash::extract($result['rows'], '{n}.product_id');
 				$aProducts = $this->Product->findAllById($product_ids);

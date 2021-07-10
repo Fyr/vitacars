@@ -53,7 +53,6 @@ class AppModel extends Model {
 				}
 			}
 			$params['group'] = implode(',', $group).' HAVING '.implode(' AND ', $having);
-			fdebug(compact('having', 'group'));
 		}
 		return parent::find($type, $params);
 	}
