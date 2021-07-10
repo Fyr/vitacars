@@ -780,3 +780,12 @@ msgstr "Мин.кол-во"
 
 msgid "Max.qty"
 msgstr "Макс.кол-во"
+
+msgid "Incorrect CSV headers"
+msgstr "Некорректный заголовок CSV файла (1я строка дожлна содержать ключи)"
+
+msgid "Incorrect CSV data"
+msgstr "Отсутствуют данные в CSV файле"
+
+msgid "Incorrect header keys: %s"
+msgstr "Некорректные ключи заголовка CSV файла (должен быть code и счетчик с признаком склада): %s"

@@ -21,6 +21,7 @@ class BkgServiceShell extends AppShell {
             $status = ($status == Task::ABORT) ? Task::ABORTED : Task::ERROR;
             $this->Task->setData($id, 'xdata', $e->getMessage());
             $this->Task->setStatus($id, $status);
+            $this->Task->close($id);
             $this->out(mb_convert_encoding($e->getMessage(), 'cp1251', 'utf8'));
         }
         $task->cleanup();
