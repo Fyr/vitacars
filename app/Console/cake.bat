@@ -25,7 +25,7 @@ cd ..
 SET app=%0
 SET lib=%~dp0
 
-php -q "%lib%cake.php" -working "%CD% " %*
+C:\OpenServer\modules\php\PHP_5.3\php.exe -q "%lib%cake.php" -working "%CD% " %*
 
 echo.
 
