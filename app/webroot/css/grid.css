@@ -1,0 +1,110 @@
+.grid, .gridEdit {
+	font-family: Tahoma,Arial,san-serif,monotype;
+	font-size: 12px;
+}
+.grid img, .gridEdit img {
+	border-style: none;
+}
+.grid .hide {
+	display: none;
+}
+table.grid {
+	border: 1px solid #EBEFF2;
+}
+grid.last {
+	border-top: 1px solid #EBEFF2;
+}
+.grid > tbody > tr > td {
+	border-left: 1px solid #EBEFF2;
+	padding: 3px 5px;
+}
+.grid > tbody > tr > td > a {
+	position: relative;
+	top: -2px;
+}
+.grid td a.icon img {
+	position: relative;
+	top: 3px;
+}
+
+.grid .odd td {
+	background: #EBEFF2;
+	border-left: 1px solid #FFF;
+}
+
+.grid .odd.td td {
+	background: #EBEFF2;
+	border-left: 1px solid #F4F4F4;
+}
+.grid .odd.td td:first-child {
+	background: #EBEFF2;
+	border-left: 1px solid #EBEFF2;
+}
+
+.grid > thead > tr > th, .grid .th {
+	background: #536575 url(/img/bkg_admin_table.gif) center repeat-x;
+	padding: 5px;
+	font-weight: normal;
+	text-align: center;
+}
+.grid > thead > tr > th {
+	border-left: 1px solid #EBEFF2;
+}
+.grid > tbody > tr > td.first, .grid > thead > tr > th.first {
+	border-style: none;
+}
+
+.grid th, .grid th a, .grid th a:visited {
+	color: #e9e9e9;
+}
+.grid th a:hover {
+	color: #fff;
+}
+.grid th .selected, .grid th .selected a, .grid th .selected a:visited {
+	color: #fff;
+}
+.grid_pagination td {
+	background: #536575 url(/img/bkg_admin_table.gif) center repeat-x;
+	font-size: 11px;
+	color: #ededed;
+	padding: 0px 1px;
+}
+
+/*
+.grid_pagination option {
+	height: 16px;
+}
+*/
+table.grid .icon img {
+	position: relative;
+	top: 2px;
+}
+
+.grid .gridSelectedRow td {
+	background: #a2bdff;
+	border-left: 1px solid #EBEFF2;
+}
+.grid a.icon {
+	margin: 0 1px;
+}
+.gridFilter, .gridFilter input {
+	font-size: 11px;
+}
+
+.gridFilter select, .gridFilter option {
+	font-size: 10px;
+}
+
+.gridFilterError {
+	border: 2px solid #f00;
+}
+table.gridEdit > tbody > tr > td {
+	padding: 3px 5px;
+}
+.gridEdit .ajaxLoader img {
+	position: relative;
+	top: 3px;
+}
+.hide {
+	display: none;
+}

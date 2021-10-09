@@ -21,8 +21,8 @@ Configure::write('Config.language', 'rus');
 CakePlugin::loadAll();
 
 Configure::write('domain', array(
-	'url' => 'vitacars.dev',
-	'title' => 'VitaCars.dev'
+	'url' => 'vitacars.loc',
+	'title' => 'VitaCars.loc'
 ));
 
 // Values from google recaptcha account

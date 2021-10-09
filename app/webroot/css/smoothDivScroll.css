@@ -1,0 +1,62 @@
+/* You can alter this CSS in order to give Smooth Div Scroll your own look'n'feel */
+
+/* Invisible left hotspot */
+div.scrollingHotSpotLeft
+{
+	/* The hotspots have a minimum width of 100 pixels and if there is room the will grow
+    and occupy 15% of the scrollable area (30% combined). Adjust it to your own taste. */
+	min-width: 55px;
+	height: 60px;
+	/* There is a big background image and it's used to solve some problems I experienced
+    in Internet Explorer 6. */
+	background-position: left center;
+	position: absolute;
+	z-index: 200;
+	left: 0;
+    cursor: pointer;
+}
+
+/* Visible left hotspot */
+div.scrollingHotSpotLeftVisible
+{
+	background-image: url(../img/arrows/arrow_left.png);				
+	background-repeat: no-repeat;
+}
+
+/* Invisible right hotspot */
+div.scrollingHotSpotRight
+{
+	min-width: 55px;
+	height: 60px;
+	background-repeat: repeat;
+	background-position: right center;
+	position: absolute;
+	z-index: 200;
+	right: 0;
+    cursor: pointer;
+}
+
+/* Visible right hotspot */
+div.scrollingHotSpotRightVisible
+{
+	background-image: url(../img/arrows/arrow_right.png);
+	background-repeat: no-repeat;
+}
+
+/* The scroll wrapper is always the same width and height as the containing element (div).
+   Overflow is hidden because you don't want to show all of the scrollable area.
+*/
+div.scrollWrapper
+{
+	position: relative;
+	overflow: hidden;
+	height: 100%;
+    margin: 0 42px;
+}
+
+div.scrollableArea
+{
+	position: relative;
+	width: auto;
+	height: 100%;
+}
