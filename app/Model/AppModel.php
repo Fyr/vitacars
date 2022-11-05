@@ -72,6 +72,10 @@ class AppModel extends Model {
 	}
 	*/
 	public function loadModel($modelClass = null, $id = null) {
+		if (isset($this->{$modelClass}) && $this->{$modelClass}) {
+			return $this->{$modelClass};
+		}
+		
 		list($plugin, $modelClass) = pluginSplit($modelClass, true);
 
 		$this->{$modelClass} = ClassRegistry::init(array(

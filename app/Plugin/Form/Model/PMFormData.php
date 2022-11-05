@@ -237,7 +237,11 @@ class PMFormData extends AppModel {
 	public function recalcFormula($id, $aFormFields = array(), $aConst = array(), $aPriceData = array())
 	{
 		$data = $this->findById($id);
+		return $this->recalcFormulaData($data, $aFormFields, $aConst, $aPriceData);
+	}
 
+	public function recalcFormulaData($formData, $aFormFields = array(), $aConst = array(), $aPriceData = array()) 
+	{
 		if (!$aFormFields) {
 			$this->PMFormField = $this->loadModel('Form.PMFormField');
 			$aFormFields = $this->PMFormField->getObjectList('SubcategoryParam', '', 'PMFormField.sort_order');
@@ -250,9 +254,8 @@ class PMFormData extends AppModel {
 
 		if (!$aPriceData) {
 			$this->FormPrice = $this->loadModel('FormPrice');
-			$aPriceData = $this->FormPrice->getProductPrices($data['PMFormData']['object_id']);
+			$aPriceData = $this->FormPrice->getProductPrices($formData['PMFormData']['object_id']);
 		}
-
-		return $this->_recalcFormula($data, $aFormFields, $aConst, $aPriceData);
+		return $this->_recalcFormula($formData, $aFormFields, $aConst, $aPriceData);
 	}
 }
