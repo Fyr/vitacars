@@ -150,13 +150,14 @@ class AdminProductsController extends AdminController {
 			$this->_processParams();
 
 			if ($brands = $this->request->data('brandID')) {
-				$skladSNG = 'PMFormData.fk_'.Configure::read('Params.skladSNG');
-				$skladOrig = 'PMFormData.fk_'.Configure::read('Params.skladOrig');
-				$skladEur = 'PMFormData.fk_'.Configure::read('Params.skladEur');
+				$skladOstatki = array();
+				foreach(Configure::read('Params.sklad_fks') as $sklad_fk) {
+					$skladOstatki[] = 'PMFormData.fk_'.$sklad_fk;
+				}
 
 				$conditions = array('brand_id' => explode(',', $brands));
 				if ($this->request->data('nonZeroAmount')) {
-					$conditions['AND'] = array('OR' => array($skladSNG, $skladOrig, $skladEur));
+					$conditions['AND'] = array('OR' => $skladOstatki);
 				}
 
 				$this->Product->unbindModel(array(
