@@ -26,7 +26,7 @@ class AdminContentController extends AdminController {
         		'fields' => array('id', 'created', 'title', 'teaser', 'featured', 'published')
         	),
         	'Category' => array(
-        		'fields' => array('id', 'title', 'sorting'),
+        		'fields' => array('id', 'title', 'sorting', 'export_bg', 'export_by'),
         		'order' => array('Category.sorting' => 'ASC')
         	),
         	'Subcategory' => array(

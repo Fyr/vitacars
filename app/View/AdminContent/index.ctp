@@ -9,7 +9,11 @@
     $actions['table']['add']['href'] = $createURL;
     $actions['table']['add']['label'] = $createTitle;
 
+    $columns = $this->PHTableGrid->getDefaultColumns($objectType);
     if ($objectType == 'Category') {
+        fdebug($columns);
+        $columns['Category.export_bg']['label'] = 'Экспорт для .BG';
+        $columns['Category.export_by']['label'] = 'Экспорт для .BY';
     	$actions['row'][] = array(
     		'label' => $this->ObjectType->getTitle('index', 'Subcategory'), 
     		'class' => 'icon-color icon-open-folder', 
@@ -27,6 +31,7 @@
 <?
     echo $this->PHTableGrid->render($objectType, array(
         'baseURL' => $this->ObjectType->getBaseURL($objectType, $objectID),
+        'columns' => $columns,
         'actions' => $actions
     ));
 ?>
