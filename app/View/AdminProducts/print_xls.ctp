@@ -51,15 +51,11 @@
 				$val = number_format($val, 2, ',', '');
 			}
 			
-			if ($fieldType == FieldTypes::INT || $fieldType == FieldTypes::FLOAT || $fieldType == FieldTypes::FORMULA) {
+			if (in_array($fieldType, array(FieldTypes::INT, FieldTypes::FLOAT, FieldTypes::FORMULA, FieldTypes.PRICE)) {
 				// $_class.= ' align-right';
 			} else {
 				$val = '&nbsp;'.$val;
 			}
-			/*
-			if ($fieldType == FieldTypes::STRING || $fieldType == FieldTypes::TEXTAREA) {
-			}
-			*/
 ?>
 			<td class="<?=$_class?>"><?=$val?></td>
 <?

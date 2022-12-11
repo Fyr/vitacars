@@ -11,7 +11,6 @@
 
     $columns = $this->PHTableGrid->getDefaultColumns($objectType);
     if ($objectType == 'Category') {
-        fdebug($columns);
         $columns['Category.export_bg']['label'] = 'Экспорт для .BG';
         $columns['Category.export_by']['label'] = 'Экспорт для .BY';
     	$actions['row'][] = array(
