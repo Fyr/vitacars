@@ -41,17 +41,20 @@
 			$fieldType = $formField['field_type'];
 			
 			if ($fieldType == FieldTypes::FORMULA) {
-				// fdebug($aParams[$fk]['PMFormField']);
-				
 				// приводим формулу к стд.виду для Excel
 				$val = str_replace($formField['div_int'], '', $val); // убираем разделители для целой части
 				$val = floatval(str_replace($formField['div_float'], '.', $val));
 				$val = number_format($val, $formField['decimals'], ',', '');
+			} else if ($fieldType == FieldTypes::PRICE) {
+				// приводим формулу к стд.виду для Excel
+				$val = str_replace($formField['price_div_int'], '', $val); // убираем разделители для целой части
+				$val = floatval(str_replace($formField['price_div_float'], '.', $val));
+				$val = number_format($val, $formField['price_decimals'], ',', '');
 			} else if ($fieldType == FieldTypes::FLOAT) {
 				$val = number_format($val, 2, ',', '');
 			}
 			
-			if (in_array($fieldType, array(FieldTypes::INT, FieldTypes::FLOAT, FieldTypes::FORMULA, FieldTypes.PRICE)) {
+			if (in_array($fieldType, array(FieldTypes::INT, FieldTypes::FLOAT, FieldTypes::FORMULA, FieldTypes::PRICE))) {
 				// $_class.= ' align-right';
 			} else {
 				$val = '&nbsp;'.$val;
