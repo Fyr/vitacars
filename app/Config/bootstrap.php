@@ -52,7 +52,6 @@ Configure::write('Params', array(
 	'crossNumber' => 60,
 	'motor' => 6,
 	'motorTS' => 34,
-	'sklad_fks' => array(28,87,30,70,25,96,102,103,105,107),
 	'x_info' => 9,
 	'discountPrice' => 18,
 	'discount' => 82,

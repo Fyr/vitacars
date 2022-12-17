@@ -9,7 +9,7 @@ class AdminProductsController extends AdminController {
 	public $uses = array('Product', 'Form.PMForm', 'Form.PMFormField', 'Form.PMFormData', 'Form.PMFormConst', 'Form.PHFormField', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media', 'Search', 'DetailNum', 'FormPrice');
     public $helpers = array('ObjectType', 'Form.PHFormFields', 'Form.PHFormData', 'Price');
 
-    private $paramDetail, $aFormula, $aFieldKeys, $aBrandOptions, $aFields, $searchDetail;
+    private $paramDetail, $aFormula, $aFieldKeys, $aBrandOptions, $aFields, $searchDetail, $skladOstatki;
 
 	public function beforeFilter() {
 		parent::beforeFilter();
@@ -52,6 +52,7 @@ class AdminProductsController extends AdminController {
     	$aFields = array();
 		$aCols = array();
     	$paramMotor = 0;
+		$this->skladOstatki = array();
     	foreach($aParams as $id => $_field) {
 	    	if (!$field_rights || in_array($_field['PMFormField']['id'], $field_rights)) {
 	    		$alias = 'PMFormData.fk_'.$id;
@@ -66,6 +67,9 @@ class AdminProductsController extends AdminController {
 					'label' => $_field['PMFormField']['label'],
 					'format' => (in_array($_field['PMFormField']['field_type'], array(FieldTypes::INT, FieldTypes::FLOAT, FieldTypes::FORMULA, FieldTypes::PRICE))) ? 'integer' : 'string'
 				);
+				if ($_field['PMFormField']['is_stock']) {
+					$this->skladOstatki[] = $alias;
+				}
     		}
     	}
     	$this->set('aLabels', $aLabels);
@@ -150,14 +154,9 @@ class AdminProductsController extends AdminController {
 			$this->_processParams();
 
 			if ($brands = $this->request->data('brandID')) {
-				$skladOstatki = array();
-				foreach(Configure::read('Params.sklad_fks') as $sklad_fk) {
-					$skladOstatki[] = 'PMFormData.fk_'.$sklad_fk;
-				}
-
 				$conditions = array('brand_id' => explode(',', $brands));
 				if ($this->request->data('nonZeroAmount')) {
-					$conditions['AND'] = array('OR' => $skladOstatki);
+					$conditions['AND'] = array('OR' => $this->skladOstatki);
 				}
 
 				$this->Product->unbindModel(array(
