@@ -56,9 +56,11 @@ $(function () {
 });
 </script>
 <div id="notify" title="<?=$title?>" style="display: none">
+<? /*
 	<div id="content">
 		<p><?=nl2br($body)?></p>
 	</div>
+*/?>
 	<a class="btn-small btn-primary pull-right" href="<?=$this->Html->url($msgURL) ?>">
 		<?=$btnTitle?> <i class="icon-white icon-chevron-right"></i>
 	</a>

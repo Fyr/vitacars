@@ -2,7 +2,7 @@
 <?
     echo $this->element('admin_title', array('title' => $message['Message']['title']));
 	echo $this->element('admin_content');
-	echo nl2br($message['Message']['body']);
+	echo $message['Message']['body'];
 
 	$backURL = $this->Html->url(array('action' => 'messageList'));
 	$deleteLink = $this->Html->link('Удалить <i class="icon-white icon-trash"></i>',

@@ -3,9 +3,12 @@
 		'placeholder' => __('New subject...'),
 		'label' => array('class' => 'control-label', 'text' => 'Тема')
 	));
+	echo $this->element('Article.edit_body');
+	/*
 	echo $this->PHForm->input('body', array(
 		'type' => 'textarea',
 		'placeholder' => __('Message body...'),
 		'label' => array('class' => 'control-label', 'text' => 'Текст')
 	));
+	*/
 ?>
