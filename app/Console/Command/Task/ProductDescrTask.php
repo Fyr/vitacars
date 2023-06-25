@@ -28,6 +28,7 @@ class ProductDescrTask extends AppShell {
         if ($this->params['category_id']) {
             $conditions['Product.cat_id'] = $this->params['category_id'];
         }
+        $conditions['Product.is_fake'] = intval($this->params['is_fake']);
 
         $total = $this->Product->find('count', compact('conditions'));
         $this->Task->setProgress($this->id, 0, $total);
@@ -65,15 +66,22 @@ class ProductDescrTask extends AppShell {
                     $row['Product'][$field] = $this->Tpl->format($tpl, $row);
                     $this->Product->clear();
                     $this->Product->save($row); // нужно сохранять все данные чтобы переформировать данные для Search
+                    fdebug($row, 'product-save.log');
                 }
                 if (in_array('seo', $data_type)) {
-                    $seo_data = array('id' => $row['Seo']['id']);
+                    $seo_data = array();
+                    if (isset($row['Seo']) && $row['Seo'] && isset($row['Seo']['id']) && $row['Seo']['id']) {
+                        $seo_data = array('id' => $row['Seo']['id']);
+                    } else {
+                        $seo_data = array('object_type' => 'Product', 'object_id' => $id);
+                    }
                     foreach(array('title', 'keywords', 'descr') as $_field) {
                         $seo_tpl = Configure::read('Settings.tpl_product_seo_'.$_field.'_'.$this->params['zone']);
                         $seo_data[$_field.'_'.$this->params['zone']] = $this->Tpl->format($seo_tpl, $row);
                     }
                     $this->Seo->clear();
                     $this->Seo->save($seo_data);
+                    fdebug($seo_data, 'seo-save.log');
                 }
                 $i++;
                 $this->Task->setProgress($this->id, $i);

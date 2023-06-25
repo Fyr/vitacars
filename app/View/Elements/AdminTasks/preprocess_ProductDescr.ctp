@@ -26,6 +26,10 @@
 		'multiple' => true,
 		'label' => array('text' => 'Категория', 'class' => 'control-label')
 	));
+	echo $this->PHForm->input('is_fake', array(
+		'type' => 'checkbox',
+		'label' => array('text' => 'Только вирт.продукты', 'class' => 'control-label')
+	));
 	echo $this->element('admin_content_end');
 	echo $this->PHForm->submit(__('Apply').' <i class="icon-white icon-chevron-right"></i>', array('class' => 'btn btn-success pull-right', 'name' => 'apply', 'value' => 'apply'));
 	echo $this->PHForm->end();
