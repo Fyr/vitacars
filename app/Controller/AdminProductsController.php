@@ -142,7 +142,7 @@ class AdminProductsController extends AdminController {
 				unset($this->request->params['named']['Product.id']);
 			}
         }
-
+		$this->paginate['conditions']['Product.is_fake'] = 0; // do not show fake products
     }
 
 	public function printXls() {
