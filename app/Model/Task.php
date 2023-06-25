@@ -21,7 +21,8 @@ class Task extends AppModel {
 				'UploadCheckProducts' => __('Check products by CSV'),
 				'RecalcFormula' => __('Recalc formula'),
 				'VelesParser' => 'Veles-Torg.by Parser',
-				'CrossnumParser' => 'Cross numbers parser'
+				'CrossnumParser' => 'Cross numbers parser',
+				'CreateFakeProducts' => 'Create fake products'
 			);
 		} else {
 			$aTitle = array(
@@ -38,7 +39,8 @@ class Task extends AppModel {
 				'ProductDescr' => __('Update products'),
 				'Import1C' => __('1C Import'),
 				'VelesParser' => 'Veles-Torg.by Parser',
-				'CrossnumParser' => 'Cross numbers parser'
+				'CrossnumParser' => 'Cross numbers parser',
+				'CreateFakeProducts' => 'Create fake products'
 			);
 		}
 		return $aTitle;
@@ -154,7 +156,7 @@ class Task extends AppModel {
 
 		$exec_time = time() - Hash::get($task, 'created');
 		$avg_speed = ($exec_time > 0) ? $progress / $exec_time : 0;
-		$time_finish = ($progress > 0) ? ($total - $progress) * $exec_time / $progress : 0;
+		$time_finish = ($progress > 0 && $avg_speed > 0) ? ($total - $progress) / $avg_speed : 0;
 
 		$progress = floor($progress);
 		$avg_speed = round($avg_speed, 2);

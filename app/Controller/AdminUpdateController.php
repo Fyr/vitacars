@@ -570,4 +570,27 @@ class AdminUpdateController extends AdminController {
 		}
 	}
 
+	public function update17() {
+		$this->layout = 'admin';
+		$this->autoRender = true;
+		$process_brand_id = 2166;
+		$aAllowedBrands = array('CLAAS', 'FENDT', 'O & K', 'TEREX FUCHS', 'DEUTZ', 'VOLVO', 'ATLAS COPCO', 'BOMAG');
+
+		$this->loadModel('Task');
+
+		$task = $this->Task->getActiveTask('CreateFakeProducts', 0);
+		if ($task) {
+			$id = Hash::get($task, 'Task.id');
+			$task = $this->Task->getFullData($id);
+			$this->set(compact('task'));
+		} else {
+			$id = $this->Task->add(0, 'CreateFakeProducts', array(
+				'parse_brand_id' => $process_brand_id, 
+				'allow_brands' => $aAllowedBrands
+			));
+			$this->Task->runBkg($id);
+			sleep(1);
+			$this->redirect(array('action' => 'update17')); 
+		}
+	}
 }

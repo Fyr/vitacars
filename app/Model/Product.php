@@ -62,6 +62,9 @@ class Product extends Article {
 		if (isset($this->data['Product']['cat_id']) && $this->data['Product']['cat_id']) {
 			$category = $this->Category->findById($this->data['Product']['cat_id']);
 		}
+		$this->Brand->unbindModel(array(
+            'hasOne' => array('Media', 'Seo')
+        ));
 		$brand = $this->Brand->findById($this->data['Product']['brand_id']);
 
 		$aForm = array('fk_9', 'fk_33', 'fk_34', 'fk_60');

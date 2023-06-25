@@ -86,6 +86,6 @@ class DetailNum extends AppModel {
 	}
 
 	public function parseCrossNumbers($crossNumbers) {
-		$crossNumbers = explode("\n", str_replace(array("\r\n", "\r"), "\n", $crossNumbers));
+		// см. CreateFakeProductsTask & CrossNumParserTask	
 	}
 }
