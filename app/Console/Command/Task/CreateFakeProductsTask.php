@@ -80,7 +80,7 @@ class CreateFakeProductsTask extends AppShell {
                         $this->Product->trxRollback(); 
                         throw new Exception(__('Processing was aborted by user'));
                     }
-
+                    
                     list($brands, $detail_nums) = $this->_parseCrossNumber($_row);
                     if ($brands && $detail_nums) {
                         foreach($brands as $brand) {
@@ -89,81 +89,89 @@ class CreateFakeProductsTask extends AppShell {
                             $char1st = strtoupper(substr($brand, 0, 1));
 
                             // if brand more then 2 chars and starts with A-Z (avoid badly parsed brands)
-                            if (strlen($brand) > 2 && (ord('A') <= ord($char1st) && ord($char1st) <= ord('Z')) && in_array($brand, $allow_brands)) {
-                                // save fake brand & categories anyway
-                                $title = $brand;
-                                $brand_id = $cat_id = $subcat_id = 0;
-                                if (isset($aBrands[$brand])) { // no need to save it again
-                                    list($brand_id, $cat_id, $subcat_id) = $aBrands[$brand];
-                                } else {
-                                    $object_type = 'Brand'; // should not need object_type - why so ???
-                                    if (!$this->Brand->save(compact('object_type', 'is_fake', 'title'))) {
-                                        $this->Product->trxRollback(); 
-                                        throw new Exception('Cannot save Brand');    
+                            if (strlen($brand) > 2 && (ord('A') <= ord($char1st) && ord($char1st) <= ord('Z'))) {
+                                if (in_array($brand, $allow_brands)) {
+                                    // save fake brand & categories anyway
+                                    $title = $brand;
+                                    $brand_id = $cat_id = $subcat_id = 0;
+                                    if (isset($aBrands[$brand])) { // no need to save it again
+                                        list($brand_id, $cat_id, $subcat_id) = $aBrands[$brand];
+                                    } else {
+                                        $object_type = 'Brand'; // should not need object_type - why so ???
+                                        if (!$this->Brand->save(compact('object_type', 'is_fake', 'title'))) {
+                                            $this->Product->trxRollback(); 
+                                            throw new Exception('Cannot save Brand');    
+                                        }
+                                        $brand_id = $this->Brand->id;
+                                        $this->Brand->clear();
+
+                                        $object_type = 'Category';
+                                        if (!$this->Category->save(compact('object_type', 'is_fake', 'title'))) {
+                                            $this->Product->trxRollback(); 
+                                            throw new Exception('Cannot save Category');  
+                                        }
+                                        $cat_id = $this->Category->id;
+                                        $this->Category->clear();
+
+                                        $object_type = 'Subcategory';
+                                        if (!$this->Subcategory->save(compact('object_type', 'is_fake', 'title', 'cat_id'))) {
+                                            $this->Product->trxRollback(); 
+                                            throw new Exception('Cannot save Subcategory');  
+                                        }
+                                        $subcat_id = $this->Subcategory->id;
+                                        $this->Subcategory->clear();
+
+                                        $aBrands[$brand] = array($brand_id, $cat_id, $subcat_id);
                                     }
-                                    $brand_id = $this->Brand->id;
 
-                                    $object_type = 'Category';
-                                    if (!$this->Category->save(compact('object_type', 'is_fake', 'title'))) {
-                                        $this->Product->trxRollback(); 
-                                        throw new Exception('Cannot save Category');  
-                                    }
-                                    $cat_id = $this->Category->id;
-
-                                    $object_type = 'Subcategory';
-                                    if (!$this->Subcategory->save(compact('object_type', 'is_fake', 'title', 'cat_id'))) {
-                                        $this->Product->trxRollback(); 
-                                        throw new Exception('Cannot save Subcategory');  
-                                    }
-                                    $subcat_id = $this->Subcategory->id;
-
-                                    $aBrands[$brand] = array($brand_id, $cat_id, $subcat_id);
-                                }
-
-                                foreach($detail_nums as $dn) {
-                                    // calculate unique hash to avoid adding the same product
-                                    $hash = $this->_calcHash(array(
-                                        'brand' => $brand,
-                                        'title' => $product['Product']['title'],
-                                        'title_rus' => $product['Product']['title_rus'],
-                                        'code' => $dn
-                                    ));
-                                    if (!isset($aUnique[$hash])) {
-                                        $aUnique[$hash] = $id; 
-
-                                        // add created product to CSV report
-                                        $csvPproduct = array(
-                                            'orig_id' => ''.$id,
-                                            'code' => ' '.$dn,
+                                    foreach($detail_nums as $dn) {
+                                        // calculate unique hash to avoid adding the same product
+                                        $hash = $this->_calcHash(array(
                                             'brand' => $brand,
                                             'title' => $product['Product']['title'],
-                                            'title_rus' => $product['Product']['title_rus']
-                                        );
-                                        $csv->writeData($csvPproduct);
+                                            'title_rus' => $product['Product']['title_rus'],
+                                            'code' => $dn
+                                        ));
+                                        if (!isset($aUnique[$hash])) {
+                                            $aUnique[$hash] = $id; 
 
-                                        unset($product['Product']['id']);
-                                        unset($product['PMFormData']['id']);
-                                        unset($product['PMFormData']['object_id']);
-                                        unset($product['Seo']['id']);
-                                        unset($product['Seo']['object_id']);
+                                            // add created product to CSV report
+                                            $csvPproduct = array(
+                                                'orig_id' => ''.$id,
+                                                'code' => ' '.$dn,
+                                                'brand' => $brand,
+                                                'title' => $product['Product']['title'],
+                                                'title_rus' => $product['Product']['title_rus']
+                                            );
+                                            $csv->writeData($csvPproduct);
 
-                                        $code = $dn;
-                                        $detail_num = $dn; // dont know why this field is filled ???
-                                        $slug = Translit::convert($product['Product']['title_rus'].' '.$dn, true);
-                                        $page_id = $slug;
-                                        $product['Product'] = array_merge(
-                                            $product['Product'], 
-                                            compact('code', 'detail_num', 'slug', 'page_id', 'is_fake', 'brand_id', 'cat_id', 'subcat_id', 'orig_id')
-                                        );
+                                            unset($product['Product']['id']);
+                                            unset($product['PMFormData']['id']);
+                                            unset($product['PMFormData']['object_id']);
+                                            unset($product['Seo']['id']);
+                                            unset($product['Seo']['object_id']);
 
-                                        fdebug($product, 'products.log');
-                                        $this->Product->save($product);
-                                        $this->Product->clear();
-                                        $products_count++;
+                                            $code = $dn;
+                                            $detail_num = $dn; // dont know why this field is filled ???
+                                            $slug = Translit::convert($product['Product']['title_rus'].' '.$dn, true);
+                                            $page_id = $slug;
+                                            $product['Product'] = array_merge(
+                                                $product['Product'], 
+                                                compact('code', 'detail_num', 'slug', 'page_id', 'is_fake', 'brand_id', 'cat_id', 'subcat_id', 'orig_id')
+                                            );
 
-                                        if ($products_count > 10) {
-                                            $this->Product->trxCommit();
-                                            throw new Exception('Enough for test'); 
+                                            fdebug($product, 'products.log');
+                                            if (!$this->Product->saveAll($product)) {
+                                                $this->Product->trxRollback(); 
+                                                throw new Exception('Cannot save Product');
+                                            }
+                                            $this->Product->clear();
+                                            $products_count++;
+                                            
+                                            if ($products_count > 10) {
+                                                $this->Product->trxCommit();
+                                                throw new Exception('Enough for test'); 
+                                            }
                                         }
                                     }
                                 }
@@ -183,16 +191,6 @@ class CreateFakeProductsTask extends AppShell {
         $this->Product->trxCommit();
 
         return array('products' => $products_count);
-    }
-
-    private function _logCategories($aCat, $fName) {
-        $aKeys = array_keys($aCat);
-        sort($aKeys);
-        $aNew = array();
-        foreach($aKeys as $id) {
-            $aNew[$id] = $aCat[$id];
-        }
-        fdebug($aNew, $fName);
     }
 
     private function _preprocess($crossNumbers) {
