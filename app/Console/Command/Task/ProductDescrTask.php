@@ -66,7 +66,6 @@ class ProductDescrTask extends AppShell {
                     $row['Product'][$field] = $this->Tpl->format($tpl, $row);
                     $this->Product->clear();
                     $this->Product->save($row); // нужно сохранять все данные чтобы переформировать данные для Search
-                    fdebug($row, 'product-save.log');
                 }
                 if (in_array('seo', $data_type)) {
                     $seo_data = array();
@@ -81,7 +80,6 @@ class ProductDescrTask extends AppShell {
                     }
                     $this->Seo->clear();
                     $this->Seo->save($seo_data);
-                    fdebug($seo_data, 'seo-save.log');
                 }
                 $i++;
                 $this->Task->setProgress($this->id, $i);
