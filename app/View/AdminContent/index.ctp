@@ -11,7 +11,7 @@
 
     $columns = $this->PHTableGrid->getDefaultColumns($objectType);
     if ($objectType == 'Category') {
-        $columns['Category.export_bg']['label'] = 'Экспорт для .BG';
+        $columns['Category.export_ru']['label'] = 'Экспорт для .RU';
         $columns['Category.export_by']['label'] = 'Экспорт для .BY';
     	$actions['row'][] = array(
     		'label' => $this->ObjectType->getTitle('index', 'Subcategory'), 
