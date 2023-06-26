@@ -94,6 +94,7 @@ class CreateFakeProductsTask extends AppShell {
                                     // save fake brand & categories anyway
                                     $title = $brand;
                                     $brand_id = $cat_id = $subcat_id = 0;
+                                    $slug = Translit::convert($brand, true);
                                     if (isset($aBrands[$brand])) { // no need to save it again
                                         list($brand_id, $cat_id, $subcat_id) = $aBrands[$brand];
                                     } else {
@@ -106,7 +107,8 @@ class CreateFakeProductsTask extends AppShell {
                                         $this->Brand->clear();
 
                                         $object_type = 'Category';
-                                        if (!$this->Category->save(compact('object_type', 'is_fake', 'title'))) {
+                                        $is_subdomain = 1;
+                                        if (!$this->Category->save(compact('object_type', 'is_fake', 'title', 'slug', 'is_subdomain'))) {
                                             $this->Product->trxRollback(); 
                                             throw new Exception('Cannot save Category');  
                                         }
@@ -114,7 +116,7 @@ class CreateFakeProductsTask extends AppShell {
                                         $this->Category->clear();
 
                                         $object_type = 'Subcategory';
-                                        if (!$this->Subcategory->save(compact('object_type', 'is_fake', 'title', 'cat_id'))) {
+                                        if (!$this->Subcategory->save(compact('object_type', 'is_fake', 'title', 'slug', 'cat_id'))) {
                                             $this->Product->trxRollback(); 
                                             throw new Exception('Cannot save Subcategory');  
                                         }
@@ -167,11 +169,12 @@ class CreateFakeProductsTask extends AppShell {
                                             }
                                             $this->Product->clear();
                                             $products_count++;
-                                            
+                                            /*
                                             if ($products_count > 10) {
                                                 $this->Product->trxCommit();
                                                 throw new Exception('Enough for test'); 
                                             }
+                                            */
                                         }
                                     }
                                 }
