@@ -39,6 +39,13 @@ class CreateFakeProductsTask extends AppShell {
         return array('Product.brand_id' => $brand_id, 'Product.published' => 1, "($xQuery)");
     }
 
+    private function _unbindProduct() {
+        $this->Product->unbindModel(array(
+            'belongsTo' => array('Brand', 'Category', 'Subcategory'),
+            'hasOne' => array('Media', 'Search')
+        ));
+    }
+
     private function run() {
         $allow_brands = $this->params['allow_brands'];
 
@@ -53,25 +60,29 @@ class CreateFakeProductsTask extends AppShell {
         $products_count = 0;
         $is_fake = true;
 
-        // remove useless data that slows down processing
-        $this->Product->unbindModel(array(
-            'belongsTo' => array('Brand', 'Category', 'Subcategory'),
-            'hasOne' => array('Media', 'Search')
-        ), true);  // permanently
-        $this->Brand->unbindModel(array(
-            'hasOne' => array('Media', 'Seo')
-        ), true);  // permanently
-
         $page = 1;
         $limit = 1000;
         $conditions = $this->_getProductConditions();
+        $order = array('Product.id' => 'ASC');
 
         $i = 0;
-        $this->Product->trxBegin();
-        while ($rowset = $this->Product->find('all', compact('page', 'limit', 'conditions'))) {
+        $this->_unbindProduct();
+        while ($rowset = $this->Product->find('all', compact('page', 'limit', 'conditions', 'order'))) {
+            $this->Product->trxBegin();
             $page++;
+            
             foreach ($rowset as $product) {
                 $id = $product['Product']['id'];
+                /*
+                fdebug(array($id, 347578, $id <= 347578), 'debug.log');
+                if ($id <= 347578) {
+                    $i++;
+                    $this->Task->setProgress($this->id, $i);
+                    continue;
+                }
+                */
+                fdebug($id."\r\n", 'product-id.log');
+                
                 $orig_id = $id;
                 $aDetailRows = $this->_preprocess($product['PMFormData'][$fk_cross]);
                 foreach($aDetailRows as $_row) {
@@ -98,6 +109,11 @@ class CreateFakeProductsTask extends AppShell {
                                     if (isset($aBrands[$brand])) { // no need to save it again
                                         list($brand_id, $cat_id, $subcat_id) = $aBrands[$brand];
                                     } else {
+                                        // remove useless data that slows down processing
+                                        $this->Brand->unbindModel(array(
+                                            'hasOne' => array('Media', 'Seo')
+                                        ));
+
                                         $object_type = 'Brand'; // should not need object_type - why so ???
                                         if (!$this->Brand->save(compact('object_type', 'is_fake', 'title'))) {
                                             $this->Product->trxRollback(); 
@@ -162,8 +178,13 @@ class CreateFakeProductsTask extends AppShell {
                                                 compact('code', 'detail_num', 'slug', 'page_id', 'is_fake', 'brand_id', 'cat_id', 'subcat_id', 'orig_id')
                                             );
 
-                                            fdebug($product, 'products.log');
-                                            if (!$this->Product->saveAll($product)) {
+                                            $productData = array(
+                                                'Product' => $product['Product'],
+                                                'PMFormData' => $product['PMFormData'],
+                                                'Seo' => $product['Seo']
+                                            );
+                                            fdebug($productData, 'products.log');
+                                            if (!$this->Product->saveAll($productData)) {
                                                 $this->Product->trxRollback(); 
                                                 throw new Exception('Cannot save Product');
                                             }
@@ -190,9 +211,9 @@ class CreateFakeProductsTask extends AppShell {
                 $i++;
                 $this->Task->setProgress($this->id, $i);
             }
+            $this->_unbindProduct();
+            $this->Product->trxCommit();
         }
-        $this->Product->trxCommit();
-
         return array('products' => $products_count);
     }
 
