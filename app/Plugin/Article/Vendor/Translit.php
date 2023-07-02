@@ -15,10 +15,20 @@ class Translit {
 		));
 		
 		if ($lUrlMode) {
-			$st = strtolower(strtr($st, array(
-				"'" => "", '"' => '', ' ' => '-', '.' => '-', ',' => '-', '/' => '-'
-			)));
+			$st = strtolower($st);
+			$st = strtr($st, array(
+				"'" => "", '"' => '', ' ' => '-'
+			));
+			$latin = 'abcdefghijklmnopqrstuvqxwz-';
+			for($i = 0; $i < strlen($st); $i++) {
+				if (strpos($latin, $st[$i]) === false) {
+					$st[$i] = '-';
+				}
+			}
 			$st = str_replace(array('----', '---', '--'), '-', $st);
+			while ($st[strlen($st) - 1] === '-') {
+				$st = substr($st, 0, -1);
+			}
 		}
 		
 		return $st;
