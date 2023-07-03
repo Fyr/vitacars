@@ -19,9 +19,9 @@ class Translit {
 			$st = strtr($st, array(
 				"'" => "", '"' => '', ' ' => '-'
 			));
-			$latin = 'abcdefghijklmnopqrstuvqxwz-';
+			$allowed = 'abcdefghijklmnopqrstuvqxwz1234567890-';
 			for($i = 0; $i < strlen($st); $i++) {
-				if (strpos($latin, $st[$i]) === false) {
+				if (strpos($allowed, $st[$i]) === false) {
 					$st[$i] = '-';
 				}
 			}
