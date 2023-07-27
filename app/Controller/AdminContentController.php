@@ -26,6 +26,7 @@ class AdminContentController extends AdminController {
         		'fields' => array('id', 'created', 'title', 'teaser', 'featured', 'published')
         	),
         	'Category' => array(
+				'conditions' => array('is_fake' => 0),
         		'fields' => array('id', 'title', 'sorting', 'export_ru', 'export_by'),
         		'order' => array('Category.sorting' => 'ASC')
         	),
@@ -35,6 +36,7 @@ class AdminContentController extends AdminController {
         		'order' => array('Subcategory.sorting' => 'ASC')
         	),
         	'Brand' => array(
+				'conditions' => array('is_fake' => 0),
         		'fields' => array('id', 'title')
         	),
         );

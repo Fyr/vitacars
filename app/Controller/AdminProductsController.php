@@ -13,7 +13,7 @@ class AdminProductsController extends AdminController {
 
 	public function beforeFilter() {
 		parent::beforeFilter();
-		$conditions = array('Brand.object_type' => 'Brand');
+		$conditions = array('Brand.object_type' => 'Brand', 'Brand.is_fake' => 0);
 		$order = 'Brand.title';
 		$this->aBrandOptions = $this->Brand->find('list', compact('conditions', 'order'));
 	}
@@ -154,7 +154,7 @@ class AdminProductsController extends AdminController {
 			$this->_processParams();
 
 			if ($brands = $this->request->data('brandID')) {
-				$conditions = array('brand_id' => explode(',', $brands));
+				$conditions = array('brand_id' => explode(',', $brands), 'is_fake' => 0);
 				if ($this->request->data('nonZeroAmount')) {
 					$conditions['AND'] = array('OR' => $this->skladOstatki);
 				}
