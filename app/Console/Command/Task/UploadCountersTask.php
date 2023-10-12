@@ -7,7 +7,8 @@ class UploadCountersTask extends AppShell {
     public $uses = array('Product', 'Form.PMFormConst', 'Form.PMFormData', 'Form.PMFormField', 'DetailNum', 'ProductRemain');
 
     public function execute() {
-        $this->Task->setProgress($this->id, 0, $this->params['set_zero'] ? 4 : 3); // 4 subtasks
+        $subtasks = $this->params['set_zero'] ? 4 : 3; // 4 subtasks
+        $this->Task->setProgress($this->id, 0, $subtasks); 
         $this->Task->setStatus($this->id, Task::RUN);
 
         // Предварительная проверка на права доступа к полям
@@ -36,6 +37,7 @@ class UploadCountersTask extends AppShell {
         }
 
         $this->Task->setData($this->id, 'xdata', $aID);
+        $this->Task->setProgress($this->id, $subtasks);
         $this->Task->setStatus($this->id, Task::DONE);
     }
 
@@ -203,7 +205,7 @@ class UploadCountersTask extends AppShell {
 
         $outcomeY = 'fk_'.Configure::read('Params.outcomeY');
 
-        $conditions = array('object_type' => 'ProductParam', 'NOT' => array('object_id' => array_keys($aParams), 'OR' => $aKeys));
+        $conditions = array('object_type' => 'ProductParam', 'NOT' => array('object_id' => array_keys($aParams), 'AND' => $aKeys));
         $total = $this->PMFormData->find('count', compact('conditions'));
 
         $subtask_id = $this->Task->add(0, 'UploadCounters_updateRest', null, $this->id);
