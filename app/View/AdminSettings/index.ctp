@@ -10,11 +10,7 @@
 	$aTabs = array(
 		'General' => $this->PHForm->input('admin_email', array('class' => 'input-large'))
 			.$this->PHForm->input('manager_emails')
-			.$this->PHForm->input('gpz_brands', array(
-				'class' => 'multiselect', 'type' => 'select', 'multiple' => true,
-				'options' => $aBrandOptions, 'value' => explode(',', $this->request->data('Settings.gpz_brands')),
-				'label' => array('text' => 'Брэнды для поиска Gpz', 'class' => 'control-label')
-			)),
+			.$this->PHForm->input('show_fake', array('label' => array('class' => 'control-label', 'text' => __('Show fake products')))),
 		'Tpl_Orders' => $this->element('AdminSettings/orders'),
 		'Tpl_ProductDescr' => $this->element('AdminSettings/products'),
 	);

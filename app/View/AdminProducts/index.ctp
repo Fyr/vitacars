@@ -85,6 +85,9 @@
     $aColors = array();
 
 foreach($aRowset as &$row) {
+		// if (Configure::read('Settings.show_fake') && isset($row['Product']['is_fake']) && !$row['Product']['is_fake']) {
+			// $row['Product']['is_fake'] = '&nbsp;'; // show column anyway
+		// }
 		$row['Category']['title'] = $aCategories[$row['Product']['cat_id']]['title'];
     	$img = (isset($aProductMedia[$row['Product']['id']])) ? $this->Media->imageUrl($aProductMedia[$row['Product']['id']], '100x') : array();
     	if ($img) {
@@ -187,6 +190,20 @@ foreach($aRowset as &$row) {
 	<div style="margin-top: 10px;">
 		Фильтр:
 <?
+	if ($isAdmin && Configure::read('Settings.show_fake')) {
+		/*
+		$options = array(
+			'label' => false, 'class' => 'select', 'type' => 'select', 'multiple' => true, 'div' => array('class' => 'inline multiMotors'), 
+			'options' => $motorOptions, 'value' => (isset($motorFilterValue)) ? $motorFilterValue : null
+		);
+		*/
+		$options = array(
+			'label' => false, 'type' => 'select', 'div' => array('class' => 'inline multiMotors'), 'style' => 'width: 170px; position: relative; top: 5px;',
+			'options' => array('' => '- выберите признак -', '0' => 'реальный продукт', '1' => 'вирт.продукт'),
+			'value' => isset($isFakeFilterValue) ? $isFakeFilterValue : null
+		);
+		echo $this->PHForm->input('is_fake', $options);
+	}
 	if ($isAdmin) {
 		$motorOptions = $this->PHFormFields->getSelectOptions(Hash::get($motorOptions, 'PMFormField.options'));
 		$options = array(
@@ -220,7 +237,6 @@ foreach($aRowset as &$row) {
         'actions' => $actions,
         'data' => $aRowset
     ));
-
 ?>
 <br />
 
@@ -375,8 +391,10 @@ $(document).ready(function(){
 
 function submitFilter() {
 	var filterMotor = $('#motor').val();
+	var filterIsFake = $('#is_fake').val();
 	$('#grid-filter-PMFormData-fk_6').val((filterMotor) ? '*' + filterMotor.join(' ') : '');
-	
+	$('#grid-filter-Product-is_fake option').attr('selected', false);
+	$('#grid-filter-Product-is_fake option[value="' + filterIsFake + '"]').attr('selected', 'selected');
 	grid_Product.submitFilter();
 }
 

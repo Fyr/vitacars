@@ -13,7 +13,10 @@ class AdminProductsController extends AdminController {
 
 	public function beforeFilter() {
 		parent::beforeFilter();
-		$conditions = array('Brand.object_type' => 'Brand', 'Brand.is_fake' => 0);
+		$conditions = array('Brand.object_type' => 'Brand');
+		if (!Configure::read('Settings.show_fake')) {
+			$conditions['Brand.is_fake'] = 0;
+		}
 		$order = 'Brand.title';
 		$this->aBrandOptions = $this->Brand->find('list', compact('conditions', 'order'));
 	}
@@ -85,6 +88,9 @@ class AdminProductsController extends AdminController {
         $this->paginate = array(
            	'fields' => array_merge(array('title', 'title_rus', 'detail_num', 'code', 'brand_id', 'cat_id'), $aFields)
         );
+		if (Configure::read('Settings.show_fake')) {
+			array_unshift($this->paginate['fields'], 'is_fake');
+		}
 
         $detail_num = '';
         if (isset($this->request->named['Product.detail_num']) && ($detail_num = $this->request->named['Product.detail_num'])) {
@@ -142,7 +148,14 @@ class AdminProductsController extends AdminController {
 				unset($this->request->params['named']['Product.id']);
 			}
         }
-		$this->paginate['conditions']['Product.is_fake'] = 0; // do not show fake products
+
+		if (!Configure::read('Settings.show_fake')) {
+			$this->paginate['conditions']['Product.is_fake'] = 0;
+		} else if (isset($this->request->named['Product.is_fake'])) {
+			$this->paginate['conditions']['Product.is_fake'] = $this->request->named['Product.is_fake'];
+			$this->set('isFakeFilterValue', $this->request->named['Product.is_fake']);
+			unset($this->request->params['named']['Product.is_fake']);
+		}
     }
 
 	public function printXls() {
@@ -392,7 +405,7 @@ class AdminProductsController extends AdminController {
 			'order' => 'object_id'
 		)));
 
-		$this->set('aBrandOptions', $this->Brand->getOptions());
+		$this->set('aBrandOptions', $this->aBrandOptions);
 
 		$this->loadModel('Currency');
 		$this->set('aCurrency', $this->Currency->getOptions());

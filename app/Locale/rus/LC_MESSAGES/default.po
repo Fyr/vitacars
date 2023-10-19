@@ -55,8 +55,8 @@ msgstr "Главная"
 msgid "Products catalogue"
 msgstr "Каталог продукции"
 
-msgid "About us"
-msgstr "О нас"
+msgid "Photo"
+msgstr "Фото"
 
 msgid "Contacts"
 msgstr "Контакты"
@@ -789,3 +789,9 @@ msgstr "Отсутствуют данные в CSV файле"
 
 msgid "Incorrect header keys: %s"
 msgstr "Некорректные ключи заголовка CSV файла (должен быть code и счетчик с признаком склада): %s"
+
+msgid "Show fake products"
+msgstr "Показывать вирт. продукты"
+
+msgid "Is fake"
+msgstr "Вирт."

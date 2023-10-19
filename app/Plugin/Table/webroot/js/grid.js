@@ -79,7 +79,8 @@ Grid = function(config) {
 			if (typeof(col.format) != 'undefined') {
 				if (col.format == 'boolean' || col.format == 'date' || col.format == 'datetime') {
 					self.columns[i].align = 'center';
-				} else if (col.format == 'integer' || col.format == 'filesize' || col.format == 'float')  {
+					self.columns[i].nowrap = true;
+				} else if (col.format == 'integer' || col.format == 'filesize' || col.format == 'float') {
 					self.columns[i].align = 'right';
 				}
 			} else {
@@ -363,10 +364,13 @@ Grid = function(config) {
 	}
 
 	this.renderFilterSelect = function(col, options, val) {
-		var html = '<select class="input-small grid-filter-input grid-filter-select" name="' + self.getFilterName(col) + '">';
+		var html = '<select class="input-small grid-filter-input grid-filter-select" id="grid-filter-' + self.getFilterID(col) + '" name="' + self.getFilterName(col) + '">';
 		var selected;
-		html+= '<option value=""> - any - </option>';
+		if (col.format == 'boolean') {
+			html+= '<option value=""> - any - </option>';
+		}
 		for (var i in options) {
+
 			selected = (val == i) ? ' selected="selected"' : ''
 			html+= '<option value="' + i + '"' + selected + '>' + options[i] + '</option>';
 		}
@@ -457,11 +461,11 @@ Grid = function(config) {
 
 	this.getRowURL = function(rowData, href) {
 		var id = self.getID(rowData);
-		return href.replace(/\{\$id\}/ig, id);
+		return href.replace(/\{\$id\}/ig, id).replace(/~id/ig, id).replace(/\%7Eid/ig, id);
 	}
 
 	this.renderTableCell = function(value, col, rowData) {
-		var _class = new Array();
+		var _class = [];
 		_class.push('text-' + col.align);
 		if (typeof(col.nowrap) != 'undefined' && col.nowrap) {
 			_class.push('nowrap');
@@ -742,7 +746,7 @@ Grid = function(config) {
 			params.direction = self.settings.direction;
 		}
 		// handle filter
-		$('.grid-filter-input', $self).each(function(){
+		$('.grid-filter-input', $self).each(function() {
 			if (this.value) {
 				params[self.cleanFilterName(this.name)] = self.getFilterValue(this);
 			}

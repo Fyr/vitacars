@@ -167,4 +167,11 @@ class AppModel extends Model {
 		return $domain;
 	}
 
+	public function getLastQuery() {
+		Configure::write('debug', '2');
+		$dbo = $this->getDatasource();
+		$logs = $dbo->getLog();
+		$lastLog = end($logs['log']);
+		return $lastLog['query'];
+  }
 }
