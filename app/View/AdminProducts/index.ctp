@@ -85,17 +85,23 @@
     $aColors = array();
 
 foreach($aRowset as &$row) {
-		// if (Configure::read('Settings.show_fake') && isset($row['Product']['is_fake']) && !$row['Product']['is_fake']) {
-			// $row['Product']['is_fake'] = '&nbsp;'; // show column anyway
-		// }
 		$row['Category']['title'] = $aCategories[$row['Product']['cat_id']]['title'];
-    	$img = (isset($aProductMedia[$row['Product']['id']])) ? $this->Media->imageUrl($aProductMedia[$row['Product']['id']], '100x') : array();
+		$productMedia = (isset($aProductMedia[$row['Product']['id']])) ? array_values($aProductMedia[$row['Product']['id']]) : array();
+		$mainImg = array_shift($productMedia);
+    	$img = ($mainImg) ? $this->Media->imageUrl($mainImg, '100x') : array();
     	if ($img) {
 	    	$row['Product']['image'] = $this->Html->link(
 	    		$this->Html->image($img),
-	    		$this->Media->imageUrl($aProductMedia[$row['Product']['id']], 'noresize'),
-	    		array('escape' => false, 'class' => 'fancybox', 'rel' => 'gallery')
+	    		$this->Media->imageUrl($mainImg, 'noresize'),
+	    		array('escape' => false, 'class' => 'fancybox', 'rel' => 'gallery-'.$row['Product']['id'])
 	    	);
+			foreach($productMedia as $mainImg) {
+				$row['Product']['image'].= $this->Html->link(
+					$this->Html->image($this->Media->imageUrl($mainImg, '100x')),
+					$this->Media->imageUrl($mainImg, 'noresize'),
+					array('escape' => false, 'class' => 'fancybox hide', 'rel' => 'gallery-'.$row['Product']['id'])
+				);
+			}
     	} else {
     		$brand_id = $row['Product']['brand_id'];
     		if (isset($aBrandMedia[$brand_id])) {

@@ -295,8 +295,11 @@ class AdminProductsController extends AdminController {
 		$this->set('aCategories', $aCategories);
 
 		$product_ids = Hash::extract($aRowset, '{n}.Product.id');
-		$aProductMedia = $this->Media->getList(array('media_type' => 'image', 'object_type' => 'Product', 'object_id' => $product_ids, 'main_by' => 1));
-		$aProductMedia = Hash::combine($aProductMedia, '{n}.Media.object_id', '{n}');
+		$aProductMedia = $this->Media->getList(
+			array('media_type' => 'image', 'object_type' => 'Product', 'object_id' => $product_ids, '(show_ru + show_by) > 0'),
+			array('main_ru + main_by' =>  'DESC', 'main_by' => 'DESC', 'main_ru' => 'DESC', 'id' => 'DESC')
+		);
+		$aProductMedia = Hash::combine($aProductMedia, '{n}.Media.id', '{n}', '{n}.Media.object_id');
 		$this->set('aProductMedia', $aProductMedia);
 
         $brand_ids = array_unique(Hash::extract($aRowset, '{n}.Product.brand_id'));
