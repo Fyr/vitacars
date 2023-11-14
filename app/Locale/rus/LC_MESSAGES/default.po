@@ -610,6 +610,9 @@ msgstr "Обновление курсов"
 msgid "%s products have been deleted"
 msgstr "%s позиций было удалено"
 
+msgid "%s records have been deleted"
+msgstr "%s записей было удалено"
+
 msgid "Bank"
 msgstr "Банк"
 

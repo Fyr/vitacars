@@ -84,6 +84,20 @@ Cache::config('tasks', array(
 	'mask' => 0664,
 ));
 
+Configure::write('sitemap', array(
+	'by' => array(
+		'cache' => true,
+		'dir' => 'C:\OpenServer\domains\agromotors.loc\public_html'.DS.APP_DIR.DS.'tmp'.DS.'cache'.DS,
+		'prefix' => 'sitemap_',
+		'per_page' => 5000
+	),
+	'ru' => array(
+		'cache' => true,
+		'dir' => 'C:\OpenServer\domains\agromotors.loc\public_html'.DS.APP_DIR.DS.'tmp'.DS.'cache'.DS,
+		'prefix' => 'sitemap_',
+		'per_page' => 5000
+	)
+));
 
 require_once('api.php');
 require_once('assert.php');

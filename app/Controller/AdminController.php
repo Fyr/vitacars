@@ -190,8 +190,23 @@ class AdminController extends AppController {
 			if (strpos($model, '.') !== false) {
 				list($plugin, $model) = explode('.',$model);
 			}
+
 			$ids = explode(',', $id);
-			$this->{$model}->deleteAll(array($model.'.id' => $ids), true, true);
+			$conditions = array($model.'.id' => $ids);
+			
+			if ($model == 'Brand') {
+				$this->_cleanCache('articles_Brand.xml');
+			} else if ($model == 'Category') {
+				$this->_cleanCache('product_Categories.xml');
+				$aCategories = $this->Category->find('all', compact('conditions', 'order'));
+				foreach($aCategories as $category) {
+					$this->_cleanProductsCache($category);
+				}
+			}
+
+			$total = $this->{$model}->find('count', compact('conditions'));
+			// $this->{$model}->deleteAll($conditions, true, true);
+			$this->setFlash(__('%s records have been deleted', $total), 'success');
 		}
 		if ($backURL = $this->request->query('backURL')) {
 			$this->redirect($backURL);

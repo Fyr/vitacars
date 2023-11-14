@@ -359,6 +359,7 @@ class AdminProductsController extends AdminController {
 			}
 		}
 
+		$old_id = $id;
 		$this->PCArticle->setModel('Product')->edit(&$id, &$lSaved);
 		if ($lSaved) {
 			$product_id = $id;
@@ -377,6 +378,12 @@ class AdminProductsController extends AdminController {
 				$this->FormPrice->save($row);
 			}
 			$this->PMFormData->recalcFormula($this->PMFormData->id, $fields);
+
+			if (!$old_id) {
+				$category = $this->Category->findById($this->request->data('Product.cat_id'));
+				$this->_cleanCache('product_Categories.xml');
+				$this->_cleanProductsCache($category);
+			}
 
 			$baseRoute = array('action' => 'index');
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
@@ -453,8 +460,20 @@ class AdminProductsController extends AdminController {
 			try {
 				$this->Product->trxBegin();
 				$this->Product->deleteAll($conditions, true, true);
-				$this->Product->trxCommit();
 
+				// clean up cache for categories fof removed products
+				$group = array('Product.cat_id');
+				$fields = array('Product.cat_id');
+				$order = array('Product.cat_id' => 'ASC');
+				$products = $this->Product->find('all', compact('fields', 'conditions', 'group', 'order'));
+				$cat_ids = Hash::extract($products, '{n}.Product.cat_id');
+				$aCategories = $this->Category->findAllById($cat_ids);
+				// $this->_cleanCache('product_Categories.xml');
+				foreach($aCategories as $category) {
+					$this->_cleanProductsCache($category);
+				}
+
+				$this->Product->trxCommit();
 				$this->setFlash(__('%s products have been deleted', $total), 'success');
 			} catch (Exception $e) {
 				$this->setFlash(__('Process execution error! %s', $e->getMessage()), 'error');

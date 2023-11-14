@@ -19,12 +19,14 @@ class AdminContentController extends AdminController {
     	
     	// $this->loadModel($objectType);
         $this->paginate = array(
+			/*
             'Page' => array(
             	'fields' => array('title', 'slug')
             ),
         	'News' => array(
         		'fields' => array('id', 'created', 'title', 'teaser', 'featured', 'published')
         	),
+			*/
         	'Category' => array(
 				'conditions' => array('is_fake' => 0),
         		'fields' => array('id', 'title', 'sorting', 'export_ru', 'export_by'),
@@ -37,7 +39,7 @@ class AdminContentController extends AdminController {
         	),
         	'Brand' => array(
 				'conditions' => array('is_fake' => 0),
-        		'fields' => array('id', 'title')
+        		'fields' => array('id', 'title', 'published')
         	),
         );
         
@@ -97,6 +99,13 @@ class AdminContentController extends AdminController {
 					$this->request->data('Seo.id', $seo['Seo']['id']);
 				}
 				$this->Seo->save($this->request->data);
+			}
+			if ($objectType == 'Brand') {
+				$this->_cleanCache('articles_Brand.xml');
+			} else if ($objectType == 'Category') {
+				$category = $this->Category->findById($id);
+				$this->_cleanCache('product_Categories.xml');
+				$this->_cleanProductsCache($category);
 			}
 			$baseRoute = array('action' => 'index', $objectType, $objectID);
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
