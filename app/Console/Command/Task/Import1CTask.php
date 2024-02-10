@@ -47,7 +47,7 @@ class Import1CTask extends AppShell {
         try {
             $this->PMFormData->trxBegin();
 
-            // $this->PMFormData->updateAll(array($data['keys'][1] => 0), true); // чистим остальные остатки
+            // $this->PMFormData->updateAll(array($data['keys'][1] => 0), true); // отстатки можно почистать с самого начала, но это занимает больше времени
 
             foreach ($aData as $code => $val) {
                 $i++;
@@ -57,7 +57,7 @@ class Import1CTask extends AppShell {
                 }
 
                 $fields = array('Product.id');
-                $product = $this->Product->findByCode($code, $fields);
+                $product = $this->Product->findByCodeAndIsFake($code, 0, $fields);
                 $key = $data['keys'][1];
                 $logData = array(
                     'code' => $code,
