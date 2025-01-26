@@ -31,6 +31,12 @@ class AdminAjaxController extends PAjaxController {
 				$subtask['progress'] = $this->Task->getProgressInfo($subtask_id);
 				$task['subtask'] = $subtask;
 			}
+		} else { // task is already closed, possibly because of error
+			$task = Hash::get($this->Task->findById($id), 'Task');
+			$task['progress'] = $this->Task->getProgressInfo(null, $task);
+			if ($task['xdata']) {
+				@$task['xdata'] = unserialize($task['xdata']);
+			}
 		}
 		$this->setResponse($task);
 	}

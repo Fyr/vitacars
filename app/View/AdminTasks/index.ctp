@@ -73,7 +73,11 @@
         $status = $row['Task']['status'];
         $row['Task']['status'] = (isset($aStatusMsg[$status])) ? $aStatusMsg[$status] : '???';
         if ($status == Task::ERROR) {
-            $row['Task']['status'].= ($row['Task']['xdata']) ? ' '.unserialize($row['Task']['xdata']) : 'Неизвестная ошибка!';
+            $errMsg = '';
+            if ($row['Task']['xdata']) {
+                @$errMsg = unserialize($row['Task']['xdata']);
+            }
+            $row['Task']['status'].= ($errMsg) ? ' '.$errMsg : " Неизвестная ошибка для задачи ID=$task_id!";
         } elseif ($status == Task::ABORTED && $row['Task']['xdata']) {
             $row['Task']['status'] = unserialize($row['Task']['xdata']);
         }

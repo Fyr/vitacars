@@ -52,7 +52,7 @@ function setProgress(task, context) {
 }
 
 function renderStatus(task) {
-	var ifHangs = (task.progress.hangs) ? ' ' + HANGS : '';
+	var ifHangs = (task.progress && task.progress.hangs) ? ' ' + HANGS : '';
 	setTitle(task.status == '<?=Task::ABORT?>' ? ABORT : task.task_name + ifHangs);
 
 	if (task.subtask) {

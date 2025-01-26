@@ -24,12 +24,14 @@ class UploadNewProductsTask extends AppShell {
 
         $aData = $this->_readCsv($this->params['csv_file']); // subtask 1
 
-        $aErrLog = $this->_checkCreatedProducts($aData); // subtask 2
+        $this->_checkCreatedProducts($aData); // subtask 2
+        /*
         if ($aErrLog) {
-            $this->Task->setData($this->id, 'xdata', compact('errLog'));
+            $this->Task->setData($this->id, 'xdata', compact('aErrLog'));
             $this->Task->setStatus($this->id, Task::DONE);
             return;
         }
+        */
 
         try {
             $this->Product->getDataSource()->begin();
@@ -76,8 +78,6 @@ class UploadNewProductsTask extends AppShell {
         $this->Task->setStatus($subtask_id, Task::RUN);
         $progress = $this->Task->getProgressInfo($this->id);
 
-        $aErrLog = '';
-
         foreach($aData['data'] as $line => $row) {
             $status = $this->Task->getStatus($this->id);
             if ($status == Task::ABORT) {
@@ -87,24 +87,24 @@ class UploadNewProductsTask extends AppShell {
 
             // Проверить обязательные поля
             if ( !(isset($row['title']) && trim($row['title'])) ) {
-                $aErrLog[] = __('Field `title` cannot be blank (Line %s)', $line + 2);
+                throw new Exception(__('Field `title` cannot be blank (Line %s)', $line + 2));
             }
             if ( !(isset($row['title_rus']) && trim($row['title_rus'])) ) {
-                $aErrLog[] = __('Field `title_rus` cannot be blank (Line %s)', $line + 2);
+                throw new Exception(__('Field `title_rus` cannot be blank (Line %s)', $line + 2));
             }
             if ( !(isset($row['code']) && trim($row['code'])) ) {
-                $aErrLog[] = __('Field `code` cannot be blank (Line %s)', $line + 2);
+                throw new Exception(__('Field `code` cannot be blank (Line %s)', $line + 2));
             }
 
             // Проверить необязательные поля
             if (isset($row['brand_id']) && !in_array($row['brand_id'], $this->aBrands)) {
-                $aErrLog[] = __('Incorrect brand ID (Line %s)', $line + 2);
+                throw new Exception(__('Incorrect brand ID (Line %s)', $line + 2));
             }
             if (isset($row['cat_id']) && !in_array($row['cat_id'], $this->aCategories)) {
-                $aErrLog[] = __('Incorrect category ID (Line %s)', $line + 2);
+                throw new Exception(__('Incorrect category ID (Line %s)', $line + 2));
             }
             if (isset($row['subcat_id']) && !in_array($row['subcat_id'], $this->aSubcategories)) {
-                $aErrLog[] = __('Incorrect subcategory ID (Line %s)', $line + 2);
+                throw new Exception(__('Incorrect subcategory ID (Line %s)', $line + 2));
             }
 
             $this->Task->setProgress($subtask_id, $line + 1);
@@ -115,7 +115,6 @@ class UploadNewProductsTask extends AppShell {
         $this->Task->setStatus($subtask_id, Task::DONE);
         $this->Task->setProgress($this->id, $progress['progress'] + 1);
         $this->Task->saveStatus($this->id);
-        return $aErrLog;
     }
 
     /**
@@ -198,6 +197,7 @@ class UploadNewProductsTask extends AppShell {
                 'Seo' => $seo
             );
             $this->Product->clear();
+            /*
             if (!$this->Product->saveAll($data)) {
                 throw new Exception('Cannot create product (Line %s)', $line + 2);
             }
@@ -205,6 +205,7 @@ class UploadNewProductsTask extends AppShell {
             if ($this->params['recalc_formula']) {
                 $this->PMFormData->recalcFormula($this->Product->PMFormData->id, $this->aFormFields, $aConst);
             }
+                */
 
             $aID[] = $this->Product->id;
 

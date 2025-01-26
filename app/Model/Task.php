@@ -148,8 +148,8 @@ class Task extends AppModel {
 		return $this->getData($id, 'progress');
 	}
 
-	public function getProgressInfo($id) {
-		$task = $this->getData($id);
+	public function getProgressInfo($id, $taskData = array()) {
+		$task = ($taskData) ? $taskData : $this->getData($id);
 		$progress = Hash::get($task, 'progress');
 		$total = Hash::get($task, 'total');
 		$percent = ($total > 0) ? round($progress * 100 / $total) : 0;

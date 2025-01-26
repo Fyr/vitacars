@@ -136,7 +136,10 @@ msgstr "Редактировать запись"
 msgid "Delete record"
 msgstr "Удалить запись"
 
-msgid "Delete checked records"
+msgid "Delete records"
+msgstr "Удалить записи"
+
+msgid "Delete checked records?"
 msgstr "Удалить помеченные записи"
 
 msgid "Dashboard"
