@@ -24,6 +24,8 @@ class UploadNewProductsTask extends AppShell {
 
         $aData = $this->_readCsv($this->params['csv_file']); // subtask 1
 
+        // file_put_contents('csv.data', serialize($aData));
+
         $this->_checkCreatedProducts($aData); // subtask 2
         /*
         if ($aErrLog) {
@@ -60,6 +62,7 @@ class UploadNewProductsTask extends AppShell {
             'task_id' => $this->id,
             'subtask_id' => $subtask_id
         ));
+        // $aData = unserialize(file_get_contents('csv.data');
 
         $this->Task->setProgress($this->id, $progress['progress'] + 1);
         $this->Task->saveStatus($this->id);
@@ -164,12 +167,7 @@ class UploadNewProductsTask extends AppShell {
                     $formData[$id] = $row[$id];
                 }
             }
-            /*
-            $this->PMFormData->clear();
-            if (!$this->PMFormData->save($formData)) {
-                throw new Exception('Cannot save parameters (Line %s)', $line + 2);
-            }
-*/
+            
             $seo = array();
             // Создать SEO блок для продукта
             if (isset($row['title_rus']) && $row['code']) {
@@ -197,7 +195,7 @@ class UploadNewProductsTask extends AppShell {
                 'Seo' => $seo
             );
             $this->Product->clear();
-            /*
+            
             if (!$this->Product->saveAll($data)) {
                 throw new Exception('Cannot create product (Line %s)', $line + 2);
             }
@@ -205,7 +203,6 @@ class UploadNewProductsTask extends AppShell {
             if ($this->params['recalc_formula']) {
                 $this->PMFormData->recalcFormula($this->Product->PMFormData->id, $this->aFormFields, $aConst);
             }
-                */
 
             $aID[] = $this->Product->id;
 
