@@ -409,6 +409,9 @@ msgstr "%s продуктов было успешно создано"
 msgid "%s products have been successfully updated"
 msgstr "%s продуктов было успешно обновлено"
 
+msgid "Found: %s products with errors"
+msgstr "Найдено: %s продуктов с ошибками"
+
 msgid "Field `title` cannot be blank (Line %s)"
 msgstr "Поле `title` не может быть пустым (стр. %s)"
 
@@ -486,6 +489,9 @@ msgstr "Продано"
 
 msgid "Reports"
 msgstr "Отчеты"
+
+msgid "Error report"
+msgstr "Отчет об ошибках"
 
 msgid "CSV file must contain `%s` field"
 msgstr "CSV-файл должен содержать поле `%s`"

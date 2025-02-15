@@ -2,11 +2,13 @@
 App::uses('Shell', 'Console');
 App::uses('AppShell', 'Console/Command');
 App::uses('CsvReader', 'Vendor');
+App::uses('CsvWriter', 'Vendor');
 
 class UploadNewProductsTask extends AppShell {
     public $uses = array('Product', 'Form.PMFormConst', 'Form.PMFormData', 'Form.PMFormField', 'DetailNum', 'Brand', 'Category', 'Subcategory');
 
-    private $aFormFields, $aBrands, $aCategories, $aSubcategories;
+    const ERR_REPORT_FNAME = 'upload-new-products-err-report.csv';
+    private $aFormFields, $aBrands, $aCategories, $aSubcategories, $errReport = array();
 
     public function execute() {
         $this->Task->setProgress($this->id, 0, 3); // 3 subtasks
@@ -24,16 +26,7 @@ class UploadNewProductsTask extends AppShell {
 
         $aData = $this->_readCsv($this->params['csv_file']); // subtask 1
 
-        // file_put_contents('csv.data', serialize($aData));
-
         $this->_checkCreatedProducts($aData); // subtask 2
-        /*
-        if ($aErrLog) {
-            $this->Task->setData($this->id, 'xdata', compact('aErrLog'));
-            $this->Task->setStatus($this->id, Task::DONE);
-            return;
-        }
-        */
 
         try {
             $this->Product->getDataSource()->begin();
@@ -44,12 +37,31 @@ class UploadNewProductsTask extends AppShell {
             throw new Exception($e->getMessage());
         }
 
-        $this->Task->setData($this->id, 'xdata', $aID);
+        $this->Task->setData($this->id, 'xdata', array(
+            'product_ids' => $aID, 
+            'total' => count($aData['data']), 
+            'errors' => count($this->errReport),
+            'error_report' => self::ERR_REPORT_FNAME
+        ));
         $this->Task->setStatus($this->id, Task::DONE);
+
+        if ($this->errReport) {
+            $this->writeErrCsvReport($aData['keys']);
+        }
     }
 
     public function cleanup() {
         unlink($this->params['csv_file']);
+    }
+
+    private function writeErrCsvReport($keys) {
+        $keys[] = 'status';
+        $csvWriter = new CsvWriter(WWW_ROOT.DS.self::ERR_REPORT_FNAME, $keys);
+        $csvWriter->writeHeaders();
+        foreach($this->errReport as $line => $row) {
+            $row['status'] = implode("\r\n", $row['status']);
+            $csvWriter->writeData($row);
+        }
     }
 
     private function _readCsv($file) {
@@ -62,7 +74,6 @@ class UploadNewProductsTask extends AppShell {
             'task_id' => $this->id,
             'subtask_id' => $subtask_id
         ));
-        // $aData = unserialize(file_get_contents('csv.data');
 
         $this->Task->setProgress($this->id, $progress['progress'] + 1);
         $this->Task->saveStatus($this->id);
@@ -88,26 +99,33 @@ class UploadNewProductsTask extends AppShell {
                 throw new Exception(__('Processing was aborted by user'));
             }
 
-            // Проверить обязательные поля
+            $rowStatus = array();
+
+            // Check mandatory fields
             if ( !(isset($row['title']) && trim($row['title'])) ) {
-                throw new Exception(__('Field `title` cannot be blank (Line %s)', $line + 2));
+                $rowStatus[] = __('Field `title` cannot be blank (Line %s)', $line + 2);
             }
             if ( !(isset($row['title_rus']) && trim($row['title_rus'])) ) {
-                throw new Exception(__('Field `title_rus` cannot be blank (Line %s)', $line + 2));
+                $rowStatus[] = __('Field `title_rus` cannot be blank (Line %s)', $line + 2);
             }
             if ( !(isset($row['code']) && trim($row['code'])) ) {
-                throw new Exception(__('Field `code` cannot be blank (Line %s)', $line + 2));
+                $rowStatus[] = __('Field `code` cannot be blank (Line %s)', $line + 2);
             }
 
-            // Проверить необязательные поля
+            // Check non-mandatory fields
             if (isset($row['brand_id']) && !in_array($row['brand_id'], $this->aBrands)) {
-                throw new Exception(__('Incorrect brand ID (Line %s)', $line + 2));
+                $rowStatus[] = __('Incorrect brand ID (Line %s)', $line + 2);
             }
             if (isset($row['cat_id']) && !in_array($row['cat_id'], $this->aCategories)) {
-                throw new Exception(__('Incorrect category ID (Line %s)', $line + 2));
+                $rowStatus[] = __('Incorrect category ID (Line %s)', $line + 2);
             }
             if (isset($row['subcat_id']) && !in_array($row['subcat_id'], $this->aSubcategories)) {
-                throw new Exception(__('Incorrect subcategory ID (Line %s)', $line + 2));
+                $rowStatus[] = __('Incorrect subcategory ID (Line %s)', $line + 2);
+            }
+
+            if ($rowStatus) {
+                $row['status'] = $rowStatus;
+                $this->errReport['line'.$line] = $row;
             }
 
             $this->Task->setProgress($subtask_id, $line + 1);
@@ -144,67 +162,66 @@ class UploadNewProductsTask extends AppShell {
                 throw new Exception(__('Processing was aborted by user'));
             }
 
-            $row['object_type'] = 'Product';
-            if (!isset($row['slug'])) {
-                if (isset($row['title_rus']) && $row['detail_num']) {
+            $origRow = $row;
+
+            // skip already failed line
+            if (!isset($this->errReport['line'.$line])) {
+                $row['object_type'] = 'Product';
+                if (!isset($row['slug'])) {
                     $row['slug'] = Translit::convert(trim($row['title_rus']).'-'.trim($row['code']), true);
                     $row['slug'] = preg_replace('![^'.preg_quote('-').'a-z0-9_\s]+!', '', $row['slug']);
                 }
-            }
-            if (!isset($row['published'])) {
-                $row['published'] = 1;
-            }
-            if (!isset($row['active'])) {
-                $row['active'] = 1;
-            }
-            if (!isset($row['show_detailnum'])) {
-                $row['show_detailnum'] = 1;
-            }
-
-            $formData = array('object_type' => 'ProductParam');
-            foreach ($row as $id => $val) {
-                if (strpos($id, 'fk_') !== false) {
-                    $formData[$id] = $row[$id];
+                if (!isset($row['published'])) {
+                    $row['published'] = 1;
                 }
-            }
-            
-            $seo = array();
-            // Создать SEO блок для продукта
-            if (isset($row['title_rus']) && $row['code']) {
+                if (!isset($row['active'])) {
+                    $row['active'] = 1;
+                }
+                if (!isset($row['show_detailnum'])) {
+                    $row['show_detailnum'] = 1;
+                }
+
+                $formData = array('object_type' => 'ProductParam');
+                foreach ($row as $id => $val) {
+                    if (strpos($id, 'fk_') !== false) {
+                        $formData[$id] = $row[$id];
+                    }
+                }
+                
+                $detail_nums = (isset($row['detail_num'])) ? $row['detail_num'] : $row['code'];
+
+                $seo = array('object_type' => 'Product');
+
+                // Создать SEO блок для продукта
                 $seo['title_by'] = $row['title_rus'].' '.$row['code'];
                 $seo['title_ru'] = $row['code'].' '.$row['title_rus'];
-            }
-            if (isset($row['title']) && $row['code']) {
                 $seo['title_ua'] = $row['code'].' '.$row['title'];
-            }
-            if (isset($row['title']) && $row['detail_num']) {
-                $seo['keywords_by'] = $row['title_by'].' '.$row['detail_num'];
-                $seo['keywords_ru'] = $row['detail_num'].' '.$row['title_ru'];
-                $seo['keywords_ua'] = $row['detail_num'].' '.$row['title_ua'];
+                $seo['keywords_by'] = $seo['title_by'].' '.$detail_nums;
+                $seo['keywords_ru'] = $detail_nums.' '.$seo['title_ru'];
+                $seo['keywords_ua'] = $detail_nums.' '.$seo['title_ua'];
                 $seo['descr_by'] = $seo['keywords_by'];
                 $seo['descr_ru'] = $seo['keywords_ru'];
                 $seo['descr_ua'] = $seo['keywords_ua'];
-            }
-            if ($seo) {
-                $seo['object_type'] = 'Product';
-            }
 
-            $data = array(
-                'Product' => $row,
-                'PMFormData' => $formData,
-                'Seo' => $seo
-            );
-            $this->Product->clear();
-            
-            if (!$this->Product->saveAll($data)) {
-                throw new Exception('Cannot create product (Line %s)', $line + 2);
+                $data = array(
+                    'Product' => $row,
+                    'PMFormData' => $formData,
+                    'Seo' => $seo
+                );
+                $this->Product->clear();
+                if ($this->Product->saveAll($data)) {
+                    if ($this->params['recalc_formula']) {
+                        $this->PMFormData->recalcFormula($this->Product->PMFormData->id, $this->aFormFields, $aConst);
+                    }
+        
+                    $aID[] = $this->Product->id;
+                } else {
+                    $origRow['status'] = array(
+                        __('Cannot create product (Line %s)', $line + 2)
+                    );
+                    $this->errReport['line'.$line] = $origRow;
+                }
             }
-
-            if ($this->params['recalc_formula']) {
-                $this->PMFormData->recalcFormula($this->Product->PMFormData->id, $this->aFormFields, $aConst);
-            }
-
-            $aID[] = $this->Product->id;
 
             $this->Task->setProgress($subtask_id, $line + 1);
             $_progress = $this->Task->getProgressInfo($subtask_id);

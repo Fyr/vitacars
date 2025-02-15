@@ -1,12 +1,15 @@
 <?php
 App::uses('Component', 'Controller');
+App::uses('HtmlHelper', 'View/Helper');
 
 class TaskUploadNewProductsComponent extends Component {
 
 	protected $_;
+	private $Html;
 
 	public function initialize(Controller $controller) {
 		$this->_ = $controller;
+		$this->Html = new HtmlHelper(new View());
 	}
 
 	public function preProcess() {
@@ -26,22 +29,38 @@ class TaskUploadNewProductsComponent extends Component {
 		return false;
 	}
 
-	public function postProcess($aID) {
+	private function getReportLink($msg, $xdata) {
+		return $this->Html->link($msg, '/'.$xdata['error_report']);
+	}
+
+	public function postProcess($xdata) {
 		$user_id = AuthComponent::user('id');
-		$this->_->setFlash(__('%s products have been successfully updated', count($aID)), 'success');
+		$aID = $xdata['product_ids'];
+		if ($xdata['errors']) {
+			$aMsgs = array(
+				__('%s products have been successfully updated', count($aID).'/'.$xdata['total']),
+				__('Found: %s products with errors', $this->getReportLink($xdata['errors'], $xdata))
+					.'. '.__('Download %s', $this->getReportLink(__('Error report'), $xdata))
+			);
+			$this->_->setFlash(implode('<br />', $aMsgs), 'error');
+		} else {
+			$this->_->setFlash(__('%s products have been successfully updated', count($aID)), 'success');
+		}
 		$route = array(
 			'controller' => 'AdminProducts',
 			'action' => 'index',
 			'sort' => 'Product.id',
 			'direction' => 'asc',
-			'limit' => (count($aID) > 1000) ? 1000 : count($aID)
 		);
-		if (count($aID) > 50) {
-			$file = Configure::read('tmp_dir').'user_products_'.$user_id.'.tmp';
-			file_put_contents($file, implode("\r\n", $aID));
-			$route['Product.id'] = 'list';
-		} else {
-			$route['Product.id'] = implode(',', $aID);
+		if (count($aID)) {
+			$route['limit'] = (count($aID) > 1000) ? 1000 : count($aID);
+			if (count($aID) > 50) {
+				$file = Configure::read('tmp_dir').'user_products_'.$user_id.'.tmp';
+				file_put_contents($file, implode("\r\n", $aID));
+				$route['Product.id'] = 'list';
+			} else {
+				$route['Product.id'] = implode(',', $aID);
+			}
 		}
 		$this->_->redirect($route);
 	}
