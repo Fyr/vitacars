@@ -162,7 +162,7 @@ class UploadNewProductsTask extends AppShell {
                 throw new Exception(__('Processing was aborted by user'));
             }
 
-            $origRow = $row;
+            $origRow = $row; // row is copied
 
             // skip already failed line
             if (!isset($this->errReport['line'.$line])) {

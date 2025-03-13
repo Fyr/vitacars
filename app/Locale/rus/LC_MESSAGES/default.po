@@ -400,6 +400,15 @@ msgstr "Загрузка новой продукции"
 msgid "Cannot create product (Line %s)"
 msgstr "Невозможно создать продукт (стр. %s)"
 
+msgid "Cannot find product for counter by `%s`=`%s`  (Line %s)"
+msgstr "Невозможно найти продукт для счетчика по `%s`=`%s` (стр. %s)"
+
+msgid "Inconsistency DB error! Cannot find product for counter by ID=`%s` (Line %s)"
+msgstr "Ошибка целостности БД! Невозможно найти продукт для счетчика по ID=`%s` (стр. %s)"
+
+msgid "DB error! Cannot save counters for product with ID=`%s` (Line %s)"
+msgstr "Ошибка БД! Невозможно сохранить счетчики для продукта с ID=`%s` (стр. %s)"
+
 msgid "Cannot create form field (Line %s)"
 msgstr "Невозможно создать тех.параметр (стр. %s)"
 
@@ -429,6 +438,9 @@ msgstr "Некорректный ID категории (стр. %s)"
 
 msgid "Incorrect subcategory ID (Line %s)"
 msgstr "Некорректный ID подкатегории (стр. %s)"
+
+msgid "First field in CSV file must be `detail_num` or `code`"
+msgstr "Первое поле в CSV-файле должно быть `detail_num` или `code`"
 
 msgid "Options"
 msgstr "Опции"
