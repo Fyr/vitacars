@@ -511,6 +511,9 @@ msgstr "CSV-файл должен содержать поле `%s`"
 msgid "Created"
 msgstr "Создано"
 
+msgid "Modified"
+msgstr "Изменено"
+
 msgid "Rights"
 msgstr "Права (поля)"
 
@@ -819,3 +822,60 @@ msgstr "Показывать вирт. продукты"
 
 msgid "Is fake"
 msgstr "Вирт."
+
+msgid "Registration"
+msgstr "Регистрация"
+
+msgid "Client Orders"
+msgstr "Заказы"
+
+msgid "Clients"
+msgstr "Клиенты"
+
+msgid "Create Client"
+msgstr "Создать клиента"
+
+msgid "Edit Client"
+msgstr "Редактировать клиента"
+
+msgid "Zone"
+msgstr "Сайт"
+
+msgid "Fio"
+msgstr "Ф.И.О."
+
+msgid "Company"
+msgstr "Компания"
+
+msgid "Client type"
+msgstr "Тип клиента"
+
+msgid "Regular user"
+msgstr "Физ.лицо"
+
+msgid "Legal entity"
+msgstr "Компания"
+
+msgid "Company Name"
+msgstr "Название юр.лица"
+
+msgid "Company Uuid"
+msgstr "ИНН"
+
+msgid "Contact Person"
+msgstr "Контакт.лицо (Ф.И.О.)"
+
+msgid "Contact Phone"
+msgstr "Телефон для связи"
+
+msgid "This email is already in use"
+msgstr "Такой email уже существует"
+
+msgid "This phone is already in use"
+msgstr "Такой номер телефона уже существует"
+
+msgid "The password must be minimum 10 characters"
+msgstr "Пароль должен быть от 10 или больше символов"
+
+msgid "Your password and its confirmation do not match"
+msgstr "Пароль и подтверждение пароля не совпадают"

@@ -10,7 +10,7 @@ class AdminController extends AppController {
 	    // auto-add included modules - did not included if child controller extends AdminController
 	    $this->components = array_merge(array('Auth', 'Core.PCAuth', 'Table.PCTableGrid'), $this->components);
 	    $this->helpers = array_merge(array('Html', 'Table.PHTableGrid', 'Form.PHForm'), $this->helpers);
-	    
+
 		$this->aNavBar = array(
 			// 'Page' => array('label' => __('Static Pages'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Page')),
 			// 'News' => array('label' => __('News'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'News')),
@@ -36,8 +36,10 @@ class AdminController extends AppController {
 				array('label' => __('Sales by period'), 'href' => array('controller' => 'AdminReports', 'action' => 'sales')),
 				array('label' => __('Search by period'), 'href' => array('controller' => 'AdminReports', 'action' => 'search')),
 			)),
-			// 'slider' => array('label' => __('Slider'), 'href' => array('controller' => 'AdminSlider', 'action' => 'index')),
-			// 'settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index'))
+			'Clients' => array('label' => __('Clients'), 'href' => '', 'submenu' => array(
+                array('label' => __('Registration'), 'href' => array('controller' => 'AdminClients', 'action' => 'index')),
+                array('label' => __('Client Orders'), 'href' => array('controller' => 'AdminReports', 'action' => 'search')),
+            )),
 			'System' => array('label' => __('System'), 'href' => '', 'submenu' => array(
 				'Settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index')),
 				'Users' => array('label' => __('Users'), 'href' => array('controller' => 'AdminUsers', 'action' => 'index')),
@@ -48,7 +50,7 @@ class AdminController extends AppController {
 		);
 		$this->aBottomLinks = $this->aNavBar;
 	}
-	
+
 	public function beforeFilter() {
 		if (!$this->isAdmin()) {
 			$this->aNavBar = array(
@@ -56,7 +58,7 @@ class AdminController extends AppController {
 					'Products' => array('label' => __('Products'), 'href' => array('controller' => 'AdminProducts', 'action' => 'index')),
 				)),
 			);
-			
+
 			if (AuthComponent::user('view_brands')) {
 				$this->aNavBar['Products']['submenu']['Brands'] = array('label' => __('Brands'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Brand'));
 			}
@@ -69,8 +71,8 @@ class AdminController extends AppController {
 				array('label' => __('Agents'), 'href' => array('controller' => 'AdminAgents', 'action' => 'index')),
 			));
 		}
-		
-		
+
+
 	    $this->currMenu = $this->_getCurrMenu();
 	    $this->currLink = $this->currMenu;
 
@@ -80,7 +82,7 @@ class AdminController extends AppController {
 			$this->User->save(array('id' => $id, 'last_action' => date('Y-m-d H:i:s')));
 		}
 	}
-	
+
 	public function beforeRender() {
 		parent::beforeRender();
 		$this->set('isAdmin', $this->isAdmin());
@@ -101,7 +103,7 @@ class AdminController extends AppController {
 			$this->set(compact('messages', 'recentMsgs'));
 		}
 	}
-	
+
 	public function isAdmin() {
 		return AuthComponent::user('id') == 1;
 	}
@@ -112,12 +114,12 @@ class AdminController extends AppController {
 		}
 		return AuthComponent::user();
 	}
-	
+
 	public function _getRights($field = 'field') {
 		$field_rights = $this->currUser($field.'_rights');
 		return ($field_rights) ? explode(',', $field_rights) : array();
 	}
-	
+
 	public function index() {
 		if (!$this->isAdmin()) {
 			$this->redirect(array('controller' => 'AdminProducts'));
@@ -167,7 +169,7 @@ class AdminController extends AppController {
 		));
 		$this->set(compact('aCount', 'aTasks', 'aMainTaskOptions', 'todayTasks', 'aCached', 'aHangs', 'aUsersOnline'));
 	}
-	
+
 	protected function _getCurrMenu() {
 		$curr_menu = strtolower(str_ireplace('Admin', '', $this->request->controller)); // By default curr.menu is the same as controller name
 		foreach($this->aNavBar as $currMenu => $item) {
@@ -193,7 +195,7 @@ class AdminController extends AppController {
 
 			$ids = explode(',', $id);
 			$conditions = array($model.'.id' => $ids);
-			
+
 			if ($model == 'Brand') {
 				$this->_cleanCache('articles_Brand.xml');
 			} else if ($model == 'Category') {
@@ -205,6 +207,7 @@ class AdminController extends AppController {
 			}
 
 			$total = $this->{$model}->find('count', compact('conditions'));
+			fdebug($conditions);
 			$this->{$model}->deleteAll($conditions, true, true);
 			$this->setFlash(__('%s records have been deleted', $total), 'success');
 		}
@@ -214,5 +217,5 @@ class AdminController extends AppController {
 		}
 		$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
 	}
-	
+
 }
