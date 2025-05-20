@@ -826,9 +826,6 @@ msgstr "Вирт."
 msgid "Registration"
 msgstr "Регистрация"
 
-msgid "Client Orders"
-msgstr "Заказы"
-
 msgid "Clients"
 msgstr "Клиенты"
 
@@ -843,6 +840,9 @@ msgstr "Сайт"
 
 msgid "Fio"
 msgstr "Ф.И.О."
+
+msgid "Delivery Address"
+msgstr "Адрес доставки"
 
 msgid "Company"
 msgstr "Компания"
@@ -879,3 +879,9 @@ msgstr "Пароль должен быть от 10 или больше симв�
 
 msgid "Your password and its confirmation do not match"
 msgstr "Пароль и подтверждение пароля не совпадают"
+
+msgid "Site Orders"
+msgstr "Заказы"
+
+msgid "Create Site Order"
+msgstr "Создать заказ"
