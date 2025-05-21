@@ -3,7 +3,7 @@
 
     echo $this->PHForm->input('Client.zone', array('options' => array('by' => 'BY', 'ru' => 'RU')));
     echo $this->PHForm->input('Client.group_id', array(
-        'label' => array('text' => __('Client type'), 'class' => 'control-label'),
+        'label' => array('text' => __('Client Type'), 'class' => 'control-label'),
         'options' => Client::getOptions(),
         'readonly' => !!$id
     ));

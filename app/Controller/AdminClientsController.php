@@ -14,7 +14,7 @@ class AdminClientsController extends AdminController {
 
     public function index() {
     	$this->paginate = array(
-    		'fields' => array('id', 'created', 'modified', 'zone', 'group_id', 'email', 'fio', 'phone', 'ClientCompany.*', 'active'),
+    		'fields' => array('id', 'created', 'modified', 'zone', 'group_id', 'ClientCompany.*', 'fio', 'email', 'phone', 'active'),
     		'conditions' => array('Client.group_id <> ' => Client::GROUP_ADMIN),
     		'order' => array('Client.created' => 'DESC')
     	);

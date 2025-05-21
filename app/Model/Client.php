@@ -3,6 +3,7 @@ App::uses('AppModel', 'Model');
 App::uses('ClientCompany', 'Model');
 class Client extends AppModel {
 
+    const GROUP_GUEST = 0;
 	const GROUP_USER = 1;
 	const GROUP_COMPANY = 2;
 	const GROUP_ADMIN = 10;
@@ -106,10 +107,11 @@ class Client extends AppModel {
 
 	public function getOptions($key = null) {
 		$options = array(
+		    self::GROUP_GUEST => __('Guest'),
 			self::GROUP_USER => __('Regular user'),
 			self::GROUP_COMPANY => __('Legal entity'),
 		);
-		return ($key) ? $options[$key] : $options;
+		return ($key || $key === 0) ? $options[$key] : $options;
 	}
 
 }

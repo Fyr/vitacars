@@ -11,13 +11,12 @@
     $actions['row']['delete'] = $this->Html->link('', $deleteURL, array('class' => 'icon-color icon-delete', 'title' => __('Delete record')), __('Are you sure to delete this record?'));
 
     foreach($aRows as &$row) {
-        $row['Client']['zone'] = strtoupper(Hash::get($row, 'Client.zone'));
+        $row['Client']['zone'] = strtoupper($row['Client']['zone']);
 
-        $active = Hash::get($row, 'Client.active');
-        $class = 'icon-color icon-check'.(($active) ? '' : ' inactive');
-        $row['Client']['active'] = $this->Html->link('', 'javascript:void(0)', array('class' => $class, 'title' => __('Activate')));
+        $class = 'icon-color icon-check'.(($row['Client']['active']) ? '' : ' inactive');
+        $row['Client']['active'] = $this->Html->link('', 'javascript:void(0)', array('class' => $class, /* 'title' => __('Activate') */));
 
-        if (Hash::get($row, 'Client.group_id') == Client::GROUP_COMPANY) {
+        if ($row['Client']['group_id'] == Client::GROUP_COMPANY) {
             $row['Client']['fio'] = Hash::get($row, 'ClientCompany.contact_person');
             $row['Client']['phone'] = Hash::get($row, 'ClientCompany.contact_phone');
 
@@ -34,7 +33,7 @@
     $columns['Client.zone']['align'] = 'center';
     $columns['Client.active']['align'] = 'center';
     $columns['Client.active']['format'] = 'string';
-    $columns['Client.group_id']['label'] = __('Client type');
+    $columns['Client.group_id']['label'] = __('Client Type');
     $columns['Client.group_id']['format'] = 'string';
     $columns['Client.group_id']['align'] = 'center';
     $columns['ClientCompany.*'] = array(
