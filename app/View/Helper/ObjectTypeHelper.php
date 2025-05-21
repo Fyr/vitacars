@@ -20,6 +20,7 @@ class ObjectTypeHelper extends AppHelper {
                 'Agent' => __('Agents'),
                 'Notify' => __('Messages'),
                 'Client' => __('Clients'),
+                'SiteOrder' => __('Site Orders'),
             ),
             'create' => array(
                 'Article' => __('Create Article'),
@@ -36,6 +37,7 @@ class ObjectTypeHelper extends AppHelper {
                 'Agent' => __('Create Agent'),
                 'Notify' => __('Create message'),
                 'Client' => __('Create Client'),
+                'SiteOrder' => __('Create Site Order'),
             ),
             'edit' => array(
                 'Article' => __('Edit Article'),

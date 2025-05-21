@@ -38,7 +38,7 @@ class AdminController extends AppController {
 			)),
 			'Clients' => array('label' => __('Clients'), 'href' => '', 'submenu' => array(
                 array('label' => __('Registration'), 'href' => array('controller' => 'AdminClients', 'action' => 'index')),
-                array('label' => __('Client Orders'), 'href' => array('controller' => 'AdminReports', 'action' => 'search')),
+                array('label' => __('Site Orders'), 'href' => array('controller' => 'AdminSiteOrders', 'action' => 'index')),
             )),
 			'System' => array('label' => __('System'), 'href' => '', 'submenu' => array(
 				'Settings' => array('label' => __('Settings'), 'href' => array('controller' => 'AdminSettings', 'action' => 'index')),

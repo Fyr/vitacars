@@ -841,14 +841,20 @@ msgstr "Сайт"
 msgid "Fio"
 msgstr "Ф.И.О."
 
+msgid "Delivery"
+msgstr "Доставка"
+
 msgid "Delivery Address"
 msgstr "Адрес доставки"
 
 msgid "Company"
 msgstr "Компания"
 
-msgid "Client type"
+msgid "Client Type"
 msgstr "Тип клиента"
+
+msgid "Guest"
+msgstr "Гость"
 
 msgid "Regular user"
 msgstr "Физ.лицо"
@@ -861,6 +867,9 @@ msgstr "Название юр.лица"
 
 msgid "Company Uuid"
 msgstr "ИНН"
+
+msgid "Legal address"
+msgstr "Юр.адрес"
 
 msgid "Contact Person"
 msgstr "Контакт.лицо (Ф.И.О.)"
@@ -883,5 +892,12 @@ msgstr "Пароль и подтверждение пароля не совпа�
 msgid "Site Orders"
 msgstr "Заказы"
 
+msgid "Comment"
+msgstr "Комментарий"
+
+msgid "Completed"
+msgstr "Завершен"
+
 msgid "Create Site Order"
 msgstr "Создать заказ"
+
