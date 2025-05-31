@@ -10,7 +10,7 @@
 	);
 	if ($id) {
 	    $aTabs[Client::getOptions($clientGroup)] = ($clientGroup == Client::GROUP_COMPANY)
-	        ? $this->element('AdminClients/admin_edit_Company')
+	        ? $this->element('AdminClients/admin_edit_Company', array('objectType' => 'ClientCompany'))
 	        : $this->element('AdminClients/admin_edit_User');
         $aTabs[__('Delivery Address')] = $this->PHForm->input('delivery_address');
 	}

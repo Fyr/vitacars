@@ -1,7 +1,7 @@
 <?php
 App::uses('AppModel', 'Model');
 App::uses('Client', 'Model');
-App::uses('ClientCompany', 'Model');
+App::uses('SiteOrderCompany', 'Model');
 class SiteOrder extends AppModel {
 
     public $belongsTo = array(

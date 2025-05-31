@@ -54,6 +54,7 @@ class ObjectTypeHelper extends AppHelper {
                 'Agent' => __('Edit Agent'),
                 'Notify' => __('Edit message'),
                 'Client' => __('Edit Client'),
+                'SiteOrder' => __('Edit Site Order'),
             )
         );
         return $Titles;

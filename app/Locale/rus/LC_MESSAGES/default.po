@@ -235,6 +235,9 @@ msgstr "Редактировать Подкатегорию"
 msgid "Edit Product"
 msgstr "Редактировать Продукт"
 
+msgid "View Product"
+msgstr "Просмотр Продукта"
+
 msgid "Spam protection"
 msgstr "Защита от спама"
 
@@ -900,4 +903,10 @@ msgstr "Завершен"
 
 msgid "Create Site Order"
 msgstr "Создать заказ"
+
+msgid "Edit Site Order"
+msgstr "Редактировать заказ"
+
+msgid "%s order"
+msgstr "%s заказа"
 

@@ -1,11 +1,16 @@
 <?php
 App::uses('AdminController', 'Controller');
+App::uses('SiteOrderCompany', 'Model');
 App::uses('SiteOrder', 'Model');
+App::uses('SiteOrderDetails', 'Model');
 App::uses('Client', 'Model');
+App::uses('Product', 'Model');
+App::uses('Order', 'Helper/View');
 class AdminSiteOrdersController extends AdminController {
     public $name = 'AdminSiteOrders';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
-	public $uses = array('SiteOrder');
+	public $uses = array('SiteOrderCompany', 'SiteOrder', 'SiteOrderDetails', 'Product');
+	public $helpers = array('Order');
 
     public function beforeRender() {
 		$this->currMenu = 'Clients';
@@ -25,13 +30,29 @@ class AdminSiteOrdersController extends AdminController {
 
     public function edit($id = 0) {
         if ($this->request->is(array('post', 'put'))) {
-            $this->request->data('SiteOrder.username', $this->request->data('SiteOrder.email'));
-        }
-    	$this->PCArticle->setModel('SiteOrder')->edit(&$id, &$lSaved);
-		if ($lSaved) {
-			$id = $this->SiteOrder->id;
-			$baseRoute = array('action' => 'index');
-			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
-		}
+    	    $completed = $this->request->data('SiteOrder.completed');
+    	    if ($this->SiteOrder->save(compact('id', 'completed'))) {
+                $baseRoute = array('action' => 'index');
+                return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
+    	    }
+    	} else {
+    	    $this->request->data = $this->SiteOrder->findById($id);
+    	}
+		// $this->PCArticle->setModel('SiteOrder')->edit(&$id, &$lSaved);
+		$this->paginate = array(
+            'SiteOrderDetails' => array(
+                'fields' => array('id', 'Product.title_rus', 'Product.code', 'qty'),
+                'conditions' => array('site_order_id' => $id)
+            )
+        );
+        $aProducts = $this->PCTableGrid->paginate('SiteOrderDetails');
+        $this->set('aRows', $aProducts);
+    }
+
+    public function viewProduct($siteOrderDetail_id) {
+        $orderRow = $this->SiteOrderDetails->findById($siteOrderDetail_id);
+        $product = $this->Product->findById($orderRow['SiteOrderDetails']['product_id']);
+        $code = $product['Product']['code'];
+        return $this->redirect(array('controller' => 'AdminProducts', 'action' => 'index', 'Product.detail_num' => '~'.$code));
     }
 }
