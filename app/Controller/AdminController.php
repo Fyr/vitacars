@@ -207,7 +207,6 @@ class AdminController extends AppController {
 			}
 
 			$total = $this->{$model}->find('count', compact('conditions'));
-			fdebug($conditions);
 			$this->{$model}->deleteAll($conditions, true, true);
 			$this->setFlash(__('%s records have been deleted', $total), 'success');
 		}

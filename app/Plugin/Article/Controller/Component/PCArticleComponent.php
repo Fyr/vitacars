@@ -9,7 +9,7 @@ class PCArticleComponent extends Component {
 		// $this->_->loadModel('Article.Article');
 		// $this->model = (object) array('name' => 'Article', 'alias' => 'Article');
 	}
-	
+
 	public function setModel($modelName) {
 		$this->model = $modelName;
 		$this->modelName = $modelName;
@@ -18,12 +18,11 @@ class PCArticleComponent extends Component {
 		}
 		return $this;
 	}
-	
+
 	public function model() {
 		if (!isset($this->_->{$this->model})) {
 			$this->_->loadModel($this->modelName);
 		}
-		// fdebug($this->_->{$this->model}->name);
 		return $this->_->{$this->model};
 	}
 
@@ -37,7 +36,7 @@ class PCArticleComponent extends Component {
 		}
 		return $this->PCTableGrid->paginate($this->model()->name);
 	}
-	
+
 	/**
 	 * Returns a model's field named according to model's name
 	 *
@@ -46,9 +45,9 @@ class PCArticleComponent extends Component {
 	private function field($fieldName) {
 		return $this->model()->alias.'.'.$fieldName;
 	}
-	
+
 	public function edit($id = 0, $lSaved = false) {
-		$aFlags = array('published', 'featured', 'active', 'show_detailnum', 'load_counters', 'view_brands', 'gpz_fullinfo', 'orders', 'paid', 'agent', 'agent2'); // можно перечислять любые поля, даже с других моделей
+		$aFlags = array('published', 'featured', 'active', 'show_detailnum', 'load_counters', 'view_brands', 'gpz_fullinfo', 'orders', 'paid', 'agent', 'agent2', 'completed'); // можно перечислять любые поля, даже с других моделей
 		$article = $this->model()->findById($id);
 		if ($this->_->request->is('post') || $this->_->request->is('put')) {
 			if ($id && !$this->_->request->data($this->field('id'))) {

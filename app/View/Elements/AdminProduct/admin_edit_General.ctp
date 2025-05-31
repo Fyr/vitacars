@@ -3,7 +3,7 @@
 	$this->Html->script(array('vendor/bootstrap-multiselect', '/Article/js/translit_utf', '/Article/js/edit_slug'), array('inline' => false));
 
 	echo $this->PHForm->input('Product.cat_id', array(
-		'label' => array('class' => 'control-label', 'text' => __('Category')), 
+		'label' => array('class' => 'control-label', 'text' => __('Category')),
 		'options' => $aCategories,
 		'value' => $this->request->data('Product.cat_id'),
 		'onchange' => 'category_onChange(this)'
@@ -24,7 +24,7 @@
 				</optgroup>
 				<optgroup id="cat-<?=$subcat['Category']['id']?>" label="<?=$subcat['Category']['title']?>">
 					<option value="0">- <?=__('No subcategory')?> -</option>
-<?			
+<?
 		}
 		$selected = ($this->request->data('Product.subcat_id') == $subcat['Subcategory']['id']) ? ' selected="selected"' : '';
 ?>
@@ -41,45 +41,6 @@
 	echo $this->PHForm->input('title');
 	echo $this->PHForm->input('title_rus', array('label' => array('text' => __('Title rus'), 'class' => 'control-label')));
 	echo $this->PHForm->input('detail_num', array('type' => 'text', 'label' => array('text' => __('Detail num'), 'class' => 'control-label')));
-	/*
-	$aMotorOptions = 'BF4M1012
-BF6M1012
-BF4M1013FC
-BF6M1013FC
-BF6M1015
-BF8M1015
-BF4M2012
-BF6M2012
-BF4M2013
-BF6M2013
-TCD2012
-TCD2013
-TCD2015
-SERPIC
-F2L1011
-F3L1011
-F2L2011
-F3L2011
-F2M1011
-F3M1011
-F2M2011
-F3M2011
-3L913
-4L913
-6L913
-МТЗ';
-
-	$aMotorOptions = $this->PHFormFields->getSelectOptions($aMotorOptions);
-	$value = explode(',', $this->request->data('Product.motor'));
-	$options = array(
-		'multiple' => true, // 'class' => 'multiselect', 'type' => 'select', 
-		'value' => $value,// array_combine($value, $value),
-		'options' => array_combine($aMotorOptions, $aMotorOptions), 
-		'label' => array('text' => __('Motor'), 'class' => 'control-label')
-	);
-	fdebug($options);
-	echo $this->PHForm->input('selectmotor', $options);
-	*/
 	echo $this->PHForm->input('code');
 	echo $this->PHForm->input('slug', array(
 		'type' => 'text',
@@ -87,17 +48,17 @@ F3M2011
 	));
 	echo $this->PHForm->input('count');
 	echo $this->PHForm->input('status', array(
-		'label' => false, 
-		'multiple' => 'checkbox', 
+		'label' => false,
+		'multiple' => 'checkbox',
 		'options' => array(
-			'published' => __('Published'), 
-			'featured' => __('Featured'), 
-			'active' => __('On stock'), 
+			'published' => __('Published'),
+			'featured' => __('Featured'),
+			'active' => __('On stock'),
 			'show_detailnum' => __('Show detail number')
-		), 
+		),
 		'class' => 'checkbox inline'
 	));
-	
+
 	$subcat_id = $this->request->data('Product.subcat_id');
 	// echo $this->Form->hidden('Product.motor');
 ?>
@@ -124,7 +85,7 @@ function change_SeoDescr() {
 
 $(document).ready(function(){
 	category_onChange($('#ProductCatId').get(0), <?=($subcat_id) ? $subcat_id : '0'?>);
-	
+
 	$('#ProductTitleRus').change(function(){
 		change_SeoTitle();
 	});
@@ -140,7 +101,7 @@ $(document).ready(function(){
 	$('#ProductTitle, #ProductDetailNum').change(function(){
 		change_SeoDescr();
 	});
-	
+
 	$('#PMFormDataFk6').closest('.controls').addClass('multiMotors fourColomn');
 	$('.multiselect').multiselect({
 		nonSelectedText: 'Выберите опции',

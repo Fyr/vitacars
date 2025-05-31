@@ -4,15 +4,15 @@ class AppController extends Controller {
     public $paginate;
 	// public $components = array('DebugKit.Toolbar');
 	public $aNavBar = array(), $aBottomLinks = array(), $currMenu = '', $currLink = '', $pageTitle = '';
-	
+
 	protected $Settings;
-    
+
     public function __construct($request = null, $response = null) {
 	    $this->_beforeInit();
 	    parent::__construct($request, $response);
 	    $this->_afterInit();
 	}
-	
+
 	protected function _beforeInit() {
 	    // Add here components, models, helpers etc that will be also loaded while extending child class
 	}
@@ -36,12 +36,12 @@ class AppController extends Controller {
             */
 		}
 	}
-	
+
     public function isAuthorized($user) {
     	$this->set('currUser', $user);
 		return Hash::get($user, 'active');
 	}
-	
+
 	public function beforeRender() {
 		$this->set('aNavBar', $this->aNavBar);
 		$this->set('currMenu', $this->currMenu);
@@ -49,7 +49,7 @@ class AppController extends Controller {
 		$this->set('currLink', $this->currLink);
 		$this->set('pageTitle', $this->pageTitle);
 	}
-	
+
 	public function setFlash($msg, $type = 'info') {
 		$this->Session->setFlash($msg, 'default', array(), $type);
 	}
@@ -67,7 +67,6 @@ class AppController extends Controller {
 	}
 
 	protected function _getCacheFilename($key, $zone = '') {
-		// fdebug(Configure::read("sitemap.$zone.dir").Configure::read("sitemap.$zone.prefix").$key."\r\n");
 		return Configure::read("sitemap.$zone.dir").Configure::read("sitemap.$zone.prefix").$key;
 	}
 
