@@ -910,3 +910,8 @@ msgstr "Редактировать заказ"
 msgid "%s order"
 msgstr "%s заказа"
 
+msgid "Discounts"
+msgstr "Скидки"
+
+msgid "Discount"
+msgstr "Скидка"

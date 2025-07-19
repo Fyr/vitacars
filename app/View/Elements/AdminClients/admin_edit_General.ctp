@@ -1,11 +1,14 @@
 <?
     $id = $this->request->data('Client.id');
 
-    echo $this->PHForm->input('Client.zone', array('options' => array('by' => 'BY', 'ru' => 'RU')));
+    echo $this->PHForm->input('Client.zone', array(
+        'options' => array('by' => 'BY', 'ru' => 'RU'),
+        'disabled' => !!$id
+    ));
     echo $this->PHForm->input('Client.group_id', array(
         'label' => array('text' => __('Client Type'), 'class' => 'control-label'),
         'options' => Client::getOptions(),
-        'readonly' => !!$id
+        'disabled' => !!$id
     ));
 
 	echo $this->PHForm->input('Client.email');
@@ -13,15 +16,20 @@
 	if ($id) {
 	    $password = $this->request->data('Client.password');
         echo $this->PHForm->input('Client.password', array(
-            'class' => 'input-medium', 'required' => false, 'value' => '', 'autocomplete' => 'off', 'readonly' => true,
-            'onfocus' => "onFocusPassword()"
+            'autocomplete' => 'off',
+            'class' => 'input-medium',
+            'required' => false,
+            'value' => '',
+            'onfocus' => 'onFocusPassword()',
+            'onblur' => 'onBlurPassword()'
         ));
         echo $this->PHForm->input('Client.password_confirm', array(
+            'autocomplete' => 'off',
             'type' => 'password',
             'required' => false,
             'value' => '',
             'class' => 'input-medium',
-            'div' => 'control-group hidden'
+            'div' => 'control-group'
         ));
     } else {
         echo $this->PHForm->input('Client.password', array('class' => 'input-medium'));
@@ -41,18 +49,26 @@
 ?>
 <script type="text/javascript">
 function onFocusPassword() {
-    $('#ClientPassword').attr('readonly', false).attr('required', true);
-    $('.control-group.hidden').removeClass('hidden');
-    $('#ClientPasswordConfirm').attr('required', true);
+    $('#ClientPassword').attr('required', true);
+    $('#ClientPasswordConfirm').attr('required', true).parent().parent().show();
 }
 
+function onBlurPassword() {
+    if (!$('#ClientPassword').val()) {
+        $('#ClientPassword').attr('required', false);
+        $('#ClientPasswordConfirm').attr('required', false).parent().parent().hide();
+    }
+}
+
+$(function () {
+    onBlurPassword();
 <?
     if ($this->request->is('put') && $password) {
 ?>
-$(function () {
     onFocusPassword();
-});
 <?
     }
 ?>
+});
+
 </script>
