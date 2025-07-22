@@ -35,6 +35,7 @@
 <style>
 .grid .grid-row td:nth-child(4) input { width: 30px !important; }
 .grid .grid-row td:nth-child(4) input.hidden { width: 0 !important; }
+.grid .grid-row td:nth-child(4) input.error { border: 1px solid #f00; }
 </style>
 
 <script>
@@ -44,8 +45,12 @@ function updateBrandDiscount(brand_id, lShow) {
         $('span', $td).html('%');
         $('input', $td).removeClass('hidden').focus();
     } else {
-        var val = $('input', $td).addClass('hidden').val().replace(',', '.');
-        $('input', $td).val(val);
+        var val = $('input', $td).val().trim().replace(',', '.');
+        if (val && isNaN(val)) {
+            $('input', $td).addClass('error').focus();
+            return;
+        }
+        $('input', $td).val(val).addClass('hidden').removeClass('error');
         $('span', $td).html(val ? val + '%' : '');
     }
 }
