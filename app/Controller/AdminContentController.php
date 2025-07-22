@@ -5,7 +5,7 @@ class AdminContentController extends AdminController {
     public $components = array('Article.PCArticle');
 	public $uses = array('Category', 'Subcategory', 'Brand', 'Form.PMForm');
     public $helpers = array('ObjectType');
-    
+
     public function index($objectType, $objectID = '') {
     	if ($objectType == 'Brand') {
     		if ( !($this->isAdmin() || AuthComponent::user('view_brands')) ) {
@@ -16,7 +16,7 @@ class AdminContentController extends AdminController {
 			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
 			return;
 		}
-    	
+
     	// $this->loadModel($objectType);
         $this->paginate = array(
 			/*
@@ -38,27 +38,26 @@ class AdminContentController extends AdminController {
         		'order' => array('Subcategory.sorting' => 'ASC')
         	),
         	'Brand' => array(
-				'conditions' => array('is_fake' => 0),
-        		'fields' => array('id', 'title', 'published')
+        		'fields' => array('id', 'title', 'published', 'is_fake')
         	),
         );
-        
+
         $data = $this->PCArticle->setModel($objectType)->index();
         $this->set('objectType', $objectType);
         $this->set('objectID', $objectID);
-        
+
         $this->currMenu = $objectType;
         if ($objectType == 'Subcategory' && $objectID) {
         	$this->set('category', $this->Category->findById($objectID));
         	$this->currMenu = 'Cetegory';
         }
-        
+
     }
-    
+
 	public function edit($id = 0, $objectType = '', $objectID = '') {
 		$this->loadModel('Media.Media');
-		
-		// Здесь работаем с моделью Article, т.к. если задавать только $id, 
+
+		// Здесь работаем с моделью Article, т.к. если задавать только $id,
 		// непонятно какую модель загружать, чтобы определить $objectType
 		$this->loadModel('Article.Article');
 		if (!$id) {
@@ -68,7 +67,7 @@ class AdminContentController extends AdminController {
 		$this->PCArticle->edit(&$id, &$lSaved);
 		$objectType = $this->request->data('Article.object_type');
 		$objectID = $this->request->data('Article.object_id');
-		
+
 		if ($objectType == 'Brand') {
     		if ( !($this->isAdmin() || AuthComponent::user('view_brands')) ) {
     			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
@@ -78,7 +77,7 @@ class AdminContentController extends AdminController {
 			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
 			return;
 		}
-		
+
 		if ($lSaved) {
 			if ($objectType == 'Subcategory') {
 				// Save form for this subcategory
@@ -110,13 +109,13 @@ class AdminContentController extends AdminController {
 			$baseRoute = array('action' => 'index', $objectType, $objectID);
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
 		}
-		
+
 		$this->currMenu = $objectType;
 		if ($objectType == 'Subcategory' && $objectID) {
         	$this->set('category', $this->Category->findById($objectID));
         	$this->currMenu = 'Category';
 		}
-		
+
 		if (in_array($objectType, array('Category', 'Subcategory', 'Brand'))) {
 			if ($id) {
 				$this->loadModel('Seo.Seo');
