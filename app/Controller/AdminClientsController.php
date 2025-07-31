@@ -28,7 +28,7 @@ class AdminClientsController extends AdminController {
         if ($this->request->is(array('post', 'put'))) {
             $this->request->data('Client.username', $this->request->data('Client.email'));
         }
-    	$this->PCArticle->setModel('Client')->edit(&$id, &$lSaved);
+    	$this->PCArticle->setModel('Client')->edit($id, $lSaved);
 		if ($lSaved) {
 		    $this->ClientBrandDiscount->deleteAll(array('client_id' => $id));
 		    $data = array();

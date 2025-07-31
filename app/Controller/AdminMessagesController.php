@@ -5,12 +5,12 @@ class AdminMessagesController extends AdminController {
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
 	public $helpers = array('Core.PHTime');
     public $uses = array('Notify', 'User', 'Message');
-    
+
     public function beforeRender() {
     	parent::beforeRender();
     	$this->set('objectType', 'Notify');
     }
-    
+
     public function index() {
 		if (!$this->isAdmin()) {
 			$this->redirect(array('controller' => 'AdminMessages', 'action' => 'messageList'));
@@ -47,14 +47,14 @@ class AdminMessagesController extends AdminController {
 			$this->setFlash(__('Error! %s', $e->getMessage()), 'error');
 		}
 	}
-    
+
     public function edit($id = 0) {
 		if (!$this->isAdmin()) {
 			$this->redirect(array('controller' => 'AdminMessages', 'action' => 'messageList'));
 			return;
 		}
 
-    	$this->PCArticle->setModel('Notify')->edit(&$id, &$lSaved);
+    	$this->PCArticle->setModel('Notify')->edit($id, $lSaved);
 		if ($lSaved) {
 			$id = $this->Notify->id;
 			if ($this->request->data('send')) {

@@ -46,7 +46,7 @@ class PCArticleComponent extends Component {
 		return $this->model()->alias.'.'.$fieldName;
 	}
 
-	public function edit($id = 0, $lSaved = false) {
+	public function edit(&$id = 0, &$lSaved = false) {
 		$aFlags = array('published', 'featured', 'active', 'show_detailnum', 'load_counters', 'view_brands', 'gpz_fullinfo', 'orders', 'paid', 'agent', 'agent2', 'completed'); // можно перечислять любые поля, даже с других моделей
 		$article = $this->model()->findById($id);
 		if ($this->_->request->is('post') || $this->_->request->is('put')) {

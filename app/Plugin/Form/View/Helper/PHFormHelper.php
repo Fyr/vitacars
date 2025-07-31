@@ -14,7 +14,7 @@ class PHFormHelper extends FormHelper {
 			'between' => '<div class="controls">',
 			'after' => '</div>'
 		);
-		
+
 		// Fix validation errors translation
 		foreach($this->validationErrors as $_model => $fields) {
 			if (is_array($fields)) {
@@ -46,12 +46,12 @@ class PHFormHelper extends FormHelper {
 		$options = array_merge(array('class' => 'btn btn-primary', 'type' => 'submit', 'div' => 'form-actions'), $options);
 		return $this->button($fieldName, $options);
 	}
-	
+
 	public function button($fieldName, $options = array()) {
 	    $options = array_merge(array('class' => 'btn', 'type' => 'button'), $options);
 		return parent::button($fieldName, $options);
 	}
-	
+
 	public function formActions(array $buttons) {
 	    $html = '<div class="form-actions">';
 	    $html.= implode(' ', $buttons);
@@ -69,13 +69,13 @@ class PHFormHelper extends FormHelper {
 	public function editor($fieldName, $options = array()) {
         $this->Html->script('vendor/ckeditor/ckeditor', array('inline' => false));
         $this->Html->css('/js/vendor/ckeditor/fixes', array('inline' => false));
-        $options = array_merge(array('class' => 'ckeditor'), $options); // 
+        $options = array_merge(array('class' => 'ckeditor'), $options); //
         // $options['class'] = 'ckeditor '.$options['class'];
-        
+
         if (isset($options['fullwidth']) && $options['fullwidth']) {
             return '<div class="control-group"><div class="clearfix"></div><div class="shadow text-center">'.$this->textarea($fieldName, $options).'</div></div>';
         }
-        
+
         return parent::input($fieldName, $options);
     }
 }

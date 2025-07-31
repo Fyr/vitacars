@@ -360,7 +360,7 @@ class AdminProductsController extends AdminController {
 		}
 
 		$old_id = $id;
-		$this->PCArticle->setModel('Product')->edit(&$id, &$lSaved);
+		$this->PCArticle->setModel('Product')->edit($id, $lSaved);
 		if ($lSaved) {
 			$product_id = $id;
 			if ($remain) {

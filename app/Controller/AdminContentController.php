@@ -64,7 +64,7 @@ class AdminContentController extends AdminController {
 			$this->request->data('Article.object_type', $objectType);
 			$this->request->data('Article.object_id', $objectID);
 		}
-		$this->PCArticle->edit(&$id, &$lSaved);
+		$this->PCArticle->edit($id, $lSaved);
 		$objectType = $this->request->data('Article.object_type');
 		$objectID = $this->request->data('Article.object_id');
 

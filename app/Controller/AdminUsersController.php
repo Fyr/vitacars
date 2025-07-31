@@ -4,7 +4,7 @@ class AdminUsersController extends AdminController {
     public $name = 'AdminUsers';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
 	public $uses = array('User', 'Form.PMFormField', 'Brand');
-    
+
     public function beforeFilter() {
 		if (!$this->isAdmin()) {
 			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
@@ -12,26 +12,26 @@ class AdminUsersController extends AdminController {
 		}
 		parent::beforeFilter();
 	}
-    
+
     public function beforeRender() {
     	parent::beforeRender();
     	$this->set('objectType', 'User');
     }
-    
+
     public function index() {
     	$this->paginate = array(
     		'fields' => array('id', 'created', 'username', 'active')
     	);
     	$this->PCTableGrid->paginate('User');
     }
-    
+
     public function edit($id = 0) {
     	if ($id) {
 			if ($this->request->is(array('put', 'post')) && !$this->request->data('User.password')) {
 				unset($this->request->data['User']['password']);
 			}
 		}
-    	$this->PCArticle->setModel('User')->edit(&$id, &$lSaved);
+    	$this->PCArticle->setModel('User')->edit($id, $lSaved);
 		if ($lSaved) {
 			$id = $this->User->id;
 			if ($id == AuthComponent::user('id')) {

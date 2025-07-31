@@ -15,7 +15,7 @@ class AdminTasksController extends AdminController {
 
 		return false;
 	}
-    
+
     public function beforeFilter() {
 		if ($this->request->action == 'task' && Hash::get($this->request->params, 'pass.0') == 'UploadCounters') {
 			if (!($this->isAdmin() || AuthComponent::user('load_counters'))) {
@@ -80,7 +80,7 @@ class AdminTasksController extends AdminController {
 		$aMainTaskOptions = $this->Task->getOptions(true);
 		$this->set(compact('data', 'aUsers', 'aTaskOptions', 'aMainTaskOptions', 'aChildTasks', 'aCached', 'aHangs'));
 	}
-    
+
     public function task($taskName) {
 		$title = $this->Task->getTitle($taskName);
 		$task = $this->Task->getActiveTask($taskName);
