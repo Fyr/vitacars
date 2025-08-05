@@ -76,8 +76,8 @@ class AdminTasksController extends AdminController {
 			}
 		}
 
-		$aTaskOptions = $this->Task->getOptions(false);
-		$aMainTaskOptions = $this->Task->getOptions(true);
+		$aTaskOptions = $this->Task->getNameOptions(false);
+		$aMainTaskOptions = $this->Task->getNameOptions(true);
 		$this->set(compact('data', 'aUsers', 'aTaskOptions', 'aMainTaskOptions', 'aChildTasks', 'aCached', 'aHangs'));
 	}
 

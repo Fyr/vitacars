@@ -159,7 +159,7 @@ class AdminController extends AppController {
 		$todayTasks = $this->Task->find('count', array(
 			'conditions' => array('Task.parent_id' => 0, 'DATE(created)' => date('Y-m-d'))
 		));
-		$aMainTaskOptions = $this->Task->getOptions(true);
+		$aMainTaskOptions = $this->Task->getNameOptions(true);
 
 		$this->loadModel('User');
 		$aUsersOnline = $this->User->find('all', array(

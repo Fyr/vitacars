@@ -11,7 +11,7 @@ class Task extends AppModel {
 
 	const TIMEOUT = 30; // сек.
 
-	public function getOptions($lMain = false) {
+	public function getNameOptions($lMain = false) {
 		if ($lMain) {
 			$aTitle = array(
 				'UploadCounters' => __('Upload counters'),
