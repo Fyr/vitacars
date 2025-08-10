@@ -84,7 +84,7 @@
     }
     $aColors = array();
 
-foreach($aRowset as &$row) {
+    foreach($aRowset as &$row) {
 		$row['Category']['title'] = $aCategories[$row['Product']['cat_id']]['title'];
 		$productMedia = (isset($aProductMedia[$row['Product']['id']])) ? array_values($aProductMedia[$row['Product']['id']]) : array();
 		$mainImg = array_shift($productMedia);
@@ -109,7 +109,7 @@ foreach($aRowset as &$row) {
     		}
     		$row['Product']['image'] = ($img) ? $this->Html->image($img) : '<img src="/img/default_product100.png" style="width: 100px; alt="" />';
     	}
-	    	
+
 		$detail_nums = explode("\n", str_replace(', ', ",\n", $row['Product']['detail_num']));
 		if (count($detail_nums) > 1) {
 			$items = 'номер(ов)';
@@ -199,7 +199,7 @@ foreach($aRowset as &$row) {
 	if ($isAdmin && Configure::read('Settings.show_fake')) {
 		/*
 		$options = array(
-			'label' => false, 'class' => 'select', 'type' => 'select', 'multiple' => true, 'div' => array('class' => 'inline multiMotors'), 
+			'label' => false, 'class' => 'select', 'type' => 'select', 'multiple' => true, 'div' => array('class' => 'inline multiMotors'),
 			'options' => $motorOptions, 'value' => (isset($motorFilterValue)) ? $motorFilterValue : null
 		);
 		*/
@@ -213,7 +213,7 @@ foreach($aRowset as &$row) {
 	if ($isAdmin) {
 		$motorOptions = $this->PHFormFields->getSelectOptions(Hash::get($motorOptions, 'PMFormField.options'));
 		$options = array(
-			'label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'div' => array('class' => 'inline multiMotors'), 
+			'label' => false, 'class' => 'multiselect', 'type' => 'select', 'multiple' => true, 'div' => array('class' => 'inline multiMotors'),
 			'options' => $motorOptions, 'value' => (isset($motorFilterValue)) ? $motorFilterValue : null
 		);
 		echo $this->PHForm->input('motor', $options);
@@ -232,7 +232,7 @@ foreach($aRowset as &$row) {
 		</div>
 		<button id="clearFilter" class="btn" type="button"><i class="icon icon-remove"></i> Очистить</button>
 	</div>
-	
+
 </div>
 <br/>
 
@@ -285,24 +285,24 @@ $(document).ready(function(){
 	hideEmptyColumns();
 
 	var tableHeadWidth = $('#grid_Product .grid thead').width();
-	
+
 	$('#grid_Product .grid thead').clone().insertAfter('#grid_Product .grid thead').addClass('duplicateHead');
 	$('#grid_Product .grid .duplicateHead').hide();
 	$('#grid_Product .grid .duplicateHead input').prop('id', '').prop('name', '').prop('class', '');
-	
+
 	$('#grid_Product .grid thead:first-child').addClass('originalHead');
 	$('#grid_Product .grid .originalHead').width(tableHeadWidth);
-	
+
 	$('#grid_Product .grid .originalHead .first th').each( function(index,element) {
 		$(this).css({"max-width":$(this).width()+"px", "min-width":$(this).width()+"px"});
 	});
-	
+
 	$(window).scroll(function() {
 		var topOfWindow = $(window).scrollTop();
 		var leftOfWindow = $(window).scrollLeft();
-		
+
 		$('#grid_Product .grid .originalHead').css("left", -leftOfWindow+40+"px");
-		
+
 		if ( topOfWindow > 154 ) {
 			$('#grid_Product .grid .duplicateHead').show();
 			$('#grid_Product .grid .originalHead').addClass('fixed');
@@ -313,7 +313,7 @@ $(document).ready(function(){
 			$('#grid_Product .grid .originalHead').removeClass('fixed');
 			$('#grid_Product .grid .originalHead .grid-filter th').css('border-bottom',"none");
 		}
-		
+
 	});
 
 	$('#motor').multiselect({
@@ -334,33 +334,33 @@ $(document).ready(function(){
 			$.cookie('brands', JSON.stringify(brandsData), {expires: 30, path: '/'});
 		}
 	});
-	
+
 	$('#filterByNumber input').keypress(function(event){
 		if (event.which == 13) {
 			event.preventDefault();
-			
+
 			// $('#grid-filter-Product-detail_num').val('*' + $('#filterByNumber input').val());
 			// submitFilter();
 			$('#bySame').click();
 		}
 	});
-	
+
 	$('#byNumber').click(function(){
 		$('#grid-filter-Product-detail_num').val('*' + $('#filterByNumber input').val());
 		submitFilter();
 	});
-	
+
 	$('#bySame').click(function(){
 		$('#grid-filter-Product-detail_num').val('~' + $('#filterByNumber input').val());
 		submitFilter();
 	});
-	
+
 	$('#clearFilter').click(function(){
 		$('#filterByNumber input').val('');
 		$('#motor').val([]);
 		submitFilter();
 	});
-	
+
 	$('.fancybox').fancybox({
 		padding: 5
 	});
@@ -416,7 +416,8 @@ function sendToPrint() {
 }
 
 function sendToPrintBrands(nonZeroAmount) {
-	$('input[name="brandID"]').val($('#brand').val().join(','));
+    var brand_ids = $('#brand').val() || [];
+	$('input[name="brandID"]').val(brand_ids.join(','));
 	$('input[name="aID"]').val('');
 	$('input[name="nonZeroAmount"]').val(nonZeroAmount);
 	$('#printXls').submit();
