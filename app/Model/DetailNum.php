@@ -16,6 +16,11 @@ class DetailNum extends AppModel {
 		return $q;
 	}
 
+	// the same as strip(), but do not cut leading zeroes for exact search!
+	public function softStrip($q) {
+	    return str_replace(array('.', '-', '/', '\\'), '', $q);
+	}
+
 	public function stripList($detail_nums) {
 		$detail_nums = explode(',', str_replace(' ', ',', str_replace(array('   ', '  ', ' '), ' ', trim($detail_nums))));
 		$numbers = array();
@@ -86,6 +91,6 @@ class DetailNum extends AppModel {
 	}
 
 	public function parseCrossNumbers($crossNumbers) {
-		// см. CreateFakeProductsTask & CrossNumParserTask	
+		// см. CreateFakeProductsTask & CrossNumParserTask
 	}
 }

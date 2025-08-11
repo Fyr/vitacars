@@ -1,4 +1,5 @@
 <?php
+$curTime = microtime(true);
 
 /**
  * The Front Controller for handling every request
@@ -117,3 +118,6 @@ $Dispatcher->dispatch(
 	new CakeRequest(),
 	new CakeResponse()
 );
+
+$timeConsumed = round(microtime(true) - $curTime,3)*1000;
+// fdebug($timeConsumed."\r\n", 'perfomance-php.log');

@@ -6,7 +6,7 @@ class AdminProductsController extends AdminController {
 
     public $name = 'AdminProducts';
     public $components = array('Auth', 'Table.PCTableGrid', 'Article.PCArticle');
-	public $uses = array('Product', 'Form.PMForm', 'Form.PMFormField', 'Form.PMFormData', 'Form.PMFormConst', 'Form.PHFormField', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media', 'Search', 'DetailNum', 'FormPrice');
+	public $uses = array('Product', 'Form.PMForm', 'Form.PMFormField', 'Form.PMFormData', 'Form.PMFormConst', 'Form.PHFormField', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media', 'Search', 'DetailNum', 'FormPrice', 'PureProduct');
     public $helpers = array('ObjectType', 'Form.PHFormFields', 'Form.PHFormData', 'Price');
 
     private $paramDetail, $aFormula, $aFieldKeys, $aBrandOptions, $aFields, $searchDetail, $skladOstatki;
@@ -122,17 +122,6 @@ class AdminProductsController extends AdminController {
         	}
         }
 
-		$brand_ids = $this->_getBrandRights();
-		if (isset($this->request->named['Product.brand_id']) && $brands = $this->request->named['Product.brand_id']) {
-			$brand_ids = array_keys($this->_getBrandOptions(explode(' ', $brands)));
-			$this->set('brandsFilterValue', $brand_ids);
-			unset($this->request->params['named']['Product.brand_id']);
-		}
-		if (!$brand_ids) {
-			$brand_ids = array(0);
-		}
-		$this->paginate['conditions']['Product.brand_id'] = $brand_ids;
-
         if (isset($this->request->named['Product.id'])) {
 			$idList = array();
 			if (strpos($this->request->named['Product.id'], ',')) {
@@ -149,13 +138,41 @@ class AdminProductsController extends AdminController {
 			}
         }
 
+        $is_fake = 0;
 		if (!Configure::read('Settings.show_fake')) {
 			$this->paginate['conditions']['Product.is_fake'] = 0;
 		} else if (isset($this->request->named['Product.is_fake'])) {
-			$this->paginate['conditions']['Product.is_fake'] = $this->request->named['Product.is_fake'];
-			$this->set('isFakeFilterValue', $this->request->named['Product.is_fake']);
+		    $is_fake = $this->request->named['Product.is_fake'];
+			$this->paginate['conditions']['Product.is_fake'] = $is_fake;
+			$this->set('isFakeFilterValue', $is_fake);
 			unset($this->request->params['named']['Product.is_fake']);
 		}
+
+        $brand_ids = $this->_getBrandRights();
+		if (isset($this->request->named['Product.brand_id']) && $brands = $this->request->named['Product.brand_id']) {
+			$brand_ids = array_keys($this->_getBrandOptions(explode(' ', $brands)));
+			$this->set('brandsFilterValue', $brand_ids);
+			unset($this->request->params['named']['Product.brand_id']);
+		}
+		if ($brand_ids) {
+		    if (!$this->searchDetail) { // disable replacing if search by brand or index page
+                // replace filtering products by brand by filtering limited amount of products filtered by brands
+                // Benefits:
+                // filtering by brand is speeded up by index 'brand_id'
+                // filtering by even big number of product IDs is speeded up by primary key
+                $products = $this->PureProduct->find('all', array(
+                    'fields' => array('id'),
+                    'conditions' => array('brand_id' => $brand_ids),
+                ));
+                $product_ids = Hash::extract($products, '{n}.PureProduct.id');
+
+                $this->paginate['conditions']['Product.id'] = $product_ids;
+            }
+        } else {
+            $brand_ids = array(0);
+            $this->paginate['conditions']['Product.brand_id'] = $brand_ids;
+        }
+
     }
 
 	public function printXls() {
@@ -219,17 +236,17 @@ class AdminProductsController extends AdminController {
 		$aWords = $this->Search->processTextRequest($_value);
 		$this->paginate['conditions']['Search.body LIKE '] = '%'.implode('%', $aWords).'%';
 		if ($this->Search->isRu($_value)) {
-			$this->paginate['order'] = 'Product.title_rus LIKE "'.$_value.'%" DESC';
+			$this->paginate['order'] = array('Product.title_rus LIKE "'.$_value.'%" DESC');
 		} else {
-			$this->paginate['order'] = 'Product.title LIKE "'.$_value.'%" DESC';
+			$this->paginate['order'] = array('Product.title LIKE "'.$_value.'%" DESC');
 		}
 	}
 
 	private function processNumber($detail_num) {
-		$_detail_num = $this->DetailNum->strip($detail_num);
+		$_detail_num = $this->DetailNum->softStrip($detail_num);
 		$q = str_replace(array('*', '~'), '', $this->request->named['Product.detail_num']);
 		$this->searchDetail = array('q' => $q, 'detail_num' => $_detail_num) ; // сохраняем оригинальный запрос
-		$product_ids = $this->DetailNum->findDetails($this->DetailNum->stripList('*'.$_detail_num.'*'), true);
+		$product_ids = $this->DetailNum->findDetails($this->DetailNum->stripList($_detail_num), true);
 		if ($this->DetailNum->isReachLimit()) {
 			$this->setFlash(__('Too many products. Try to search by more exact keyword'), 'error');
 		}
@@ -239,8 +256,8 @@ class AdminProductsController extends AdminController {
 			"Product.code = '{$detail_num}' AND Product.detail_num = '{$detail_num}' DESC",
 			"Product.code = '{$detail_num}' DESC",
 			"Product.code = '{$_detail_num}' DESC",
-			"Product.detail_num LIKE '%{$detail_num}%' DESC",
-			"Product.detail_num LIKE '%{$_detail_num}%' DESC"
+			"Product.detail_num = '{$detail_num}' DESC",
+			"Product.detail_num = '{$_detail_num}' DESC"
 		);
 		foreach ($product_ids as $id) {
 			$order[] = 'Product.id = ' . $id . ' DESC';
@@ -487,4 +504,5 @@ class AdminProductsController extends AdminController {
 		}
 		$this->redirect(array('controller' => 'AdminProduct', 'action' => 'index'));
 	}
+
 }

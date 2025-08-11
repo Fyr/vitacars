@@ -44,6 +44,7 @@ if ($noLogs || isset($_forced_from_dbo_)):
 			preg_replace('/[^A-Za-z0-9_]/', '_', uniqid(time(), true))
 		);
 		printf('<caption>(%s) %s %s took %s ms</caption>', $source, $logInfo['count'], $text, $logInfo['time']);
+		// fdebug($logInfo['time']."\r\n", 'perfomance-sql.log');
 	?>
 	<thead>
 		<tr><th>Nr</th><th>Query</th><th>Error</th><th>Affected</th><th>Num. rows</th><th>Took (ms)</th></tr>
