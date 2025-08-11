@@ -81,7 +81,7 @@ class Task extends AppModel {
 		if (TEST_ENV) {
 			fdebug('../Console/cake.bat BkgService execTask '.$task_id."\r\n", 'run.bat', false);
 		} else {
-			system("../Console/cake BkgService execTask {$task_id} < /dev/null > task.log &");
+			system("../Console/cake BkgService execTask {$task_id} >> task.log &");
 		}
 	}
 
