@@ -41,7 +41,7 @@ class AdminSiteOrdersController extends AdminController {
 		// $this->PCArticle->setModel('SiteOrder')->edit(&$id, &$lSaved);
 		$this->paginate = array(
             'SiteOrderDetails' => array(
-                'fields' => array('id', 'Product.title_rus', 'Product.code', 'qty'),
+                'fields' => array('id', 'Product.title_rus', 'Product.code', 'qty', 'price', 'discount'),
                 'conditions' => array('site_order_id' => $id)
             )
         );

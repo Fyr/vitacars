@@ -110,7 +110,7 @@ function number_format( number, decimals, dec_point, thousands_sep ) {	// Format
 		}
 		return $script;
 	}
-	
+
 	public function num2str($num, $currency = '') {
 		$currency = ($currency) ? $currency : Configure::read('Settings.price_currency');
 
@@ -197,4 +197,9 @@ function number_format( number, decimals, dec_point, thousands_sep ) {	// Format
 		if ($n==1) return $f1;
 		return $f5;
 	}
+
+    public function calcPrice($price, $discount) {
+        return $price * (100 - $discount) / 100;
+    }
+
 }
