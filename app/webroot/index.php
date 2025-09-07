@@ -1,6 +1,7 @@
 <?php
 $curTime = microtime(true);
-
+require_once('secure.php');
+(new Secure())->check();
 /**
  * The Front Controller for handling every request
  *
