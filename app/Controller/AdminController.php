@@ -217,4 +217,8 @@ class AdminController extends AppController {
 		$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
 	}
 
+    public function phpinfo() {
+        $this->layout = false;
+        phpinfo();
+    }
 }
