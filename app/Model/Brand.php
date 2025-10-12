@@ -1,11 +1,10 @@
 <?php
 App::uses('AppModel', 'Model');
-App::uses('Article', 'Article.Model');
 App::uses('Media', 'Media.Model');
 App::uses('Seo', 'Seo.Model');
-class Brand extends Article {
-	
-	var $hasOne = array(
+class Brand extends AppModel {
+
+	public $hasOne = array(
 		'Seo' => array(
 			'className' => 'Seo.Seo',
 			'foreignKey' => 'object_id',
@@ -19,6 +18,10 @@ class Brand extends Article {
 			'dependent' => true
 		)
 	);
-	
-	protected $objectType = 'Brand';
+
+	public $validate = array(
+        'title' => 'notBlank'
+    );
+
+	// public $objectType = 'Brand'; DO NOT make it available!!! You'll get bug!!!
 }

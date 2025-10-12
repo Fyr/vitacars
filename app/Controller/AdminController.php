@@ -1,5 +1,6 @@
 <?php
 App::uses('AppController', 'Controller');
+App::uses('Task', 'Model');
 class AdminController extends AppController {
 	public $name = 'Admin';
 	public $layout = 'admin';
@@ -16,7 +17,7 @@ class AdminController extends AppController {
 			// 'News' => array('label' => __('News'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'News')),
 			'Products' => array('label' => __('Products'), 'href' => '', 'submenu' => array(
 				'Category' => array('label' => __('Categories'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Category')),
-				'Brands' => array('label' => __('Brands'), 'href' => array('controller' => 'AdminContent', 'action' => 'index', 'Brand')),
+				'Brands' => array('label' => __('Brands'), 'href' => array('controller' => 'AdminBrands', 'action' => 'index')),
 				'Forms' => array('label' => __('Tech.params'), 'href' => array('controller' => 'AdminForms', 'action' => 'index')),
 				'Constants' => array('label' => __('Constants'), 'href' => array('controller' => 'AdminConst', 'action' => 'index')),
 				'Products' => array('label' => __('Products'), 'href' => array('controller' => 'AdminProducts', 'action' => 'index')),

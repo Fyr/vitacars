@@ -1,14 +1,19 @@
 <span class="descr-tabs">
     <ul class="nav nav-tabs">
-        <li id="tab-by" class="active"><a href="javascript:;">BY</a></li>
-        <li id="tab-ru"><a href="javascript:;">RU</a></li>
-        <li id="tab-ua"><a href="javascript:;">UA</a></li>
+<?
+    foreach(Configure::read('domains') as $lang) {
+?>
+        <li id="tab-<?=$lang?>"><a href="javascript:;"><?=strtoupper($lang)?></a></li>
+<?
+    }
+?>
+
     </ul>
     <br/>
 <?
     $field = (isset($field)) ? $field : 'body';
-    foreach(array('by', 'ru', 'ua') as $lang) {
-        $tab = ($lang == 'by') ? '' : '_' . $lang;
+    foreach(Configure::read('domains') as $lang) {
+        $tab = '_' . $lang;
 ?>
     <div id="descr-tab-content-<?=$lang?>" class="descr-tab-content">
 <?
@@ -31,7 +36,7 @@ function descr_activateTab(tab) {
     $('#descr-tab-content-' + tab, context).show();
 }
 $(function(){
-    descr_activateTab('by');
+    descr_activateTab('<?=Configure::read('domains')[0]?>');
     $('.descr-tabs ul.nav.nav-tabs > li').click(function(){
         var tab = $(this).prop('id').replace(/tab-/, '');
         descr_activateTab(tab);

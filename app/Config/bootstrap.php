@@ -73,7 +73,7 @@ Configure::write('import', array(
 	'db_log' => false
 ));
 
-Configure::write('domains', array('by', 'ru', 'ua', 'bg'));
+Configure::write('domains', array('by', 'ru')); // corresponds with languages
 
 Cache::config('tasks', array(
 	'engine' => 'File',
