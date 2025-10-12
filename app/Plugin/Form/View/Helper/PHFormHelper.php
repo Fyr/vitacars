@@ -5,7 +5,8 @@
  */
 App::uses('FormHelper', 'View/Helper');
 class PHFormHelper extends FormHelper {
-	// var $helpers = array('Form', 'Html');
+	public $helpers = array('Html');
+
 	public function create($model, $options = array()) {
 		$options['class'] = (isset($options['class']) && $options['class']) ? $options['class'] : 'form-horizontal';
 		$options['inputDefaults'] = (isset($options['inputDefaults']) && $options['inputDefaults']) ? $options['inputDefaults'] : array(
@@ -59,6 +60,15 @@ class PHFormHelper extends FormHelper {
         echo $html;
 	}
 
+	private function getDomainLabel($fieldName) {
+	    foreach(Configure::read('domains') as $lang) {
+	        if (strpos($fieldName, '_'.$lang) > 0) {
+	            return $this->label($fieldName, null, array('style' => 'margin-left: 20px'));
+	        }
+	    }
+	    return '';
+	}
+
 	/**
 	 * Create a input with CKEditor
 	 *
@@ -73,7 +83,11 @@ class PHFormHelper extends FormHelper {
         // $options['class'] = 'ckeditor '.$options['class'];
 
         if (isset($options['fullwidth']) && $options['fullwidth']) {
-            return '<div class="control-group"><div class="clearfix"></div><div class="shadow text-center">'.$this->textarea($fieldName, $options).'</div></div>';
+            return $this->Html->div('control-group',
+                $this->Html->div('clearfix', '')
+                .$this->getDomainLabel($fieldName)
+                .$this->Html->div('shadow text-center', $this->textarea($fieldName, $options))
+            );
         }
 
         return parent::input($fieldName, $options);
