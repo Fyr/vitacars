@@ -1,21 +1,17 @@
 <?php
 App::uses('AdminController', 'Controller');
-App::uses('Brand', 'Model');
+App::uses('Category', 'Model');
 App::uses('Seo', 'Seo.Model');
-class AdminBrandsController extends AdminController {
-    public $name = 'AdminBrands';
+class AdminCategoriesController extends AdminController {
+    public $name = 'AdminCategories';
     public $components = array('Article.PCArticle');
-	public $uses = array('Brand', 'Seo.Seo');
+	public $uses = array('Category', 'Seo.Seo');
     public $helpers = array('ObjectType');
 
-    public $objectType = 'Brand';
+    public $objectType = 'Category';
 
     public function beforeFilter() {
-        if (!$this->isAdmin() && !AuthComponent::user('view_brands')) {
-            $this->redirect(array('controller' => 'Admin', 'action' => 'index'));
-            return;
-        }
-        $this->currMenu = 'Brands';
+        $this->currMenu = 'Category';
         $this->set('objectType', $this->objectType);
         $this->PCArticle->setModel($this->objectType);
         parent::beforeFilter();
@@ -23,8 +19,10 @@ class AdminBrandsController extends AdminController {
 
     public function index() {
         $this->paginate = array(
-        	'Brand' => array(
-        		'fields' => array('id', 'title', 'published', 'is_fake')
+        	'Category' => array(
+        		'conditions' => array('is_fake' => 0),
+                'fields' => array('id', 'title', 'sorting', 'export_by', 'export_ru'),
+                'order' => array('Category.sorting' => 'ASC')
         	),
         );
         $this->PCArticle->index();
@@ -34,9 +32,16 @@ class AdminBrandsController extends AdminController {
 	    $this->request->data('Seo.object_type', $this->objectType);
 		$this->PCArticle->edit($id, $lSaved);
 		if ($lSaved) {
-            $this->_cleanCache('articles_Brand.xml');
+            $category = $this->Category->findById($id);
+            $this->_cleanCache('product_Categories.xml');
+            $this->_cleanProductsCache($category);
+
 			$baseRoute = array('action' => 'index');
 			return $this->redirect(($this->request->data('apply')) ? $baseRoute : array($id));
+		}
+
+		if (!$id) {
+		    $this->request->data('Category.sorting', '0');
 		}
 	}
 }

@@ -265,6 +265,12 @@ msgstr "Описание для .BY"
 msgid "Body Ru"
 msgstr "Описание для .RU"
 
+msgid "Export By"
+msgstr "Показ на .BY"
+
+msgid "Export Ru"
+msgstr "Показ на .RU"
+
 msgid "Published"
 msgstr "Опубликовано"
 

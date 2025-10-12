@@ -1,21 +1,29 @@
 <?
 App::uses('AppModel', 'Model');
-App::uses('Article', 'Article.Model');
-class Subcategory extends Article {
-	
-	var $belongsTo = array(
-		'Category' => array(
+class Subcategory extends AppModel {
+    public $belongsTo = array(
+        'Category' => array(
+            'foreignKey' => 'cat_id',
+            'dependent' => true
+        )
+    );
+
+    public $hasOne = array(
+		'Seo' => array(
+			'className' => 'Seo.Seo',
 			'foreignKey' => 'object_id',
+			'conditions' => array('Seo.object_type' => 'Subcategory'),
+			'dependent' => true
+		),
+		'Media' => array(
+			'className' => 'Media.Media',
+			'foreignKey' => 'object_id',
+			'conditions' => array('Media.object_type' => 'Subcategory', 'Media.main' => 1),
 			'dependent' => true
 		)
 	);
 
-	protected $objectType = 'Subcategory';
-	
-	/*
-	public $belongsTo = array(
-		'className' => 'Category',
-		'foreing'
-	);
-	*/
+	public $validate = array(
+        'title' => 'notBlank'
+    );
 }

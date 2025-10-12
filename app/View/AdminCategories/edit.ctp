@@ -1,13 +1,13 @@
 <div class="span8 offset2">
 <?
-    $id = $this->request->data('Brand.id');
+    $id = $this->request->data('Category.id');
     $title = $this->ObjectType->getTitle(($id) ? 'edit' : 'create', $objectType);
     echo $this->element('admin_title', compact('title'));
 
     echo $this->PHForm->create($objectType);
     $aTabs = array(
-        'General' => $this->element('../AdminBrands/_edit_general'),
-		'Descr' => $this->element('edit_body', array('teaser' => true)),
+        'General' => $this->element('../AdminCategories/_edit_general'),
+		'Descr' => $this->element('edit_body'),
 		'SEO' => $this->element('Seo.edit')
     );
 
