@@ -1,42 +1,42 @@
 <div class="span8 offset2">
 <?
-$this->Html->css(array('bootstrap-multiselect', '/Icons/css/icons'), array('inline' => false));
+    $this->Html->css(array('bootstrap-multiselect', '/Icons/css/icons'), array('inline' => false));
 	$this->Html->script(array('vendor/bootstrap-multiselect'), array('inline' => false));
-	
+
     $id = $this->request->data('Product.id');
     $title = $this->ObjectType->getTitle(($id) ? 'edit' : 'create', $objectType);
 
-echo $this->element('admin_title', compact('title'));
+    echo $this->element('admin_title', compact('title'));
 
 	if ($this->request->data('Product.motor')) {
 		$this->request->data('PMFormData.fk_6', $this->request->data('Product.motor'));
 	}
-	
+
     echo $this->PHForm->create('Product');
     echo $this->Form->hidden('PMFormData.id', array('value' => Hash::get($this->request->data, 'PMFormData.id')));
     echo $this->Form->hidden('Seo.id', array('value' => Hash::get($this->request->data, 'Seo.id')));
 
-$prices = array();
-foreach ($form as $i => $field) {
-    if ($field['PMFormField']['field_type'] == FieldTypes::PRICE) {
-        $prices[] = $field;
-        unset($form[$i]);
-    }
+    $prices = array();
+    foreach ($form as $i => $field) {
+        if ($field['PMFormField']['field_type'] == FieldTypes::PRICE) {
+            $prices[] = $field;
+            unset($form[$i]);
+        }
     }
 
     $aTabs = array(
-        'General' => $this->element('/AdminProduct/admin_edit_General'),
+        'General' => $this->element('../AdminProducts/_general'),
         'Descr' => $this->element('edit_body'),
-        'Featured' => $this->element('/AdminProduct/admin_edit_Featured'),
-		'SEO' => $this->element('/AdminProduct/admin_edit_Seo'),
-        'Tech-params' => $this->element('/AdminProduct/admin_edit_TechParams', compact('form', 'formValues')),
+        'Featured' => $this->element('../AdminProducts/_featured'),
+		'SEO' => $this->element('../AdminProducts/_seo'),
+        'Tech-params' => $this->element('../AdminProducts/_tech_params', compact('form', 'formValues')),
     );
 
-if ($id) {
-    $aTabs['Prices'] = $this->element('/AdminProduct/admin_edit_Prices', array('form' => $prices));
+    if ($id) {
+        $aTabs['Prices'] = $this->element('../AdminProducts/_prices', array('form' => $prices));
         $aTabs['Media'] = $this->element('Media.edit', array('object_type' => $objectType, 'object_id' => $id));
     }
-    
+
 	echo $this->element('admin_tabs', compact('aTabs'));
 	echo $this->element('Form.form_actions', array('backURL' => $this->Html->url(array('action' => 'index'))));
     echo $this->PHForm->end();

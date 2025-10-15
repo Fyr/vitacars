@@ -1,13 +1,8 @@
 <span class="descr-tabs">
-    <ul class="nav nav-tabs">
-		<li id="tab-by" class="active"><a href="javascript:;">BY</a></li>
-		<li id="tab-ru"><a href="javascript:;">RU</a></li>
-		<li id="tab-ua"><a href="javascript:;">UA</a></li>
-	</ul>
-    <br/>
-	<?
+<?
+    echo $this->element('lang_tabs');
 	$field = (isset($field)) ? $field : 'body';
-	foreach(array('by', 'ru', 'ua') as $lang) {
+	foreach(Configure::read('domains') as $lang) {
 ?>
 	<div id="descr-tab-content-<?=$lang?>" class="descr-tab-content">
 <?

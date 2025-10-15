@@ -113,7 +113,7 @@
 		$detail_nums = explode("\n", str_replace(', ', ",\n", $row['Product']['detail_num']));
 		if (count($detail_nums) > 1) {
 			$items = 'номер(ов)';
-			$row['Product']['detail_num'] = $this->element('AdminProduct/detail_nums', compact('detail_nums', 'items'));
+			$row['Product']['detail_num'] = $this->element('detail_nums', compact('detail_nums', 'items'));
 		} else {
 			$row['Product']['detail_num'] = implode('<br />', $detail_nums);
 		}
@@ -172,7 +172,7 @@
 					}
 					if (count($detail_nums) > 1) {
 						$items = 'строк(а)';
-						$row['PMFormData'][$_field] = $this->element('AdminProduct/detail_nums', compact('detail_nums', 'items'));
+						$row['PMFormData'][$_field] = $this->element('detail_nums', compact('detail_nums', 'items'));
 					} else {
 						$row['PMFormData'][$_field] = implode('<br />', $detail_nums);
 					}
