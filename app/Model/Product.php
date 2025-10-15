@@ -1,6 +1,5 @@
 <?
 App::uses('AppModel', 'Model');
-App::uses('Article', 'Article.Model');
 App::uses('Media', 'Media.Model');
 App::uses('Category', 'Model');
 App::uses('Subcategory', 'Model');
@@ -8,10 +7,10 @@ App::uses('Brand', 'Model');
 App::uses('PMFormData', 'Form.Model');
 App::uses('Seo', 'Seo.Model');
 App::uses('DetailNum', 'Model');
-class Product extends Article {
+class Product extends AppModel {
 	const NUM_DETAIL = 5;
 	const MOTOR = 6;
-	
+
 	public $belongsTo = array(
 		'Category' => array(
 			'foreignKey' => 'cat_id'
@@ -23,12 +22,12 @@ class Product extends Article {
 			'foreignKey' => 'brand_id'
 		)
 	);
-	
+
 	public $hasOne = array(
 		'Media' => array(
 			'className' => 'Media.Media',
 			'foreignKey' => 'object_id',
-			'conditions' => array('Media.media_type' => 'image', 'Media.object_type' => 'Product', 'Media.main_by' => 1),
+			'conditions' => array('Media.media_type' => 'image', 'Media.object_type' => 'Product', 'Media.main_ru' => 1),
 			'dependent' => true
 		),
 		'PMFormData' => array(
@@ -48,8 +47,8 @@ class Product extends Article {
 			'dependent' => true
 		)
 	);
-	
-	public $objectType = 'Product';
+
+	// public $objectType = 'Product';
 
 	public function afterSave($created, $options = array()) {
 		$this->DetailNum = $this->loadModel('DetailNum');
