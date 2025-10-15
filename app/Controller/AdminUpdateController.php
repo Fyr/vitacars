@@ -5,7 +5,7 @@ class AdminUpdateController extends AdminController {
     public $layout = false;
 
 	// public $components = array('Gearman.Gearman');
-    
+
     public function beforeFilter() {
 		if (!$this->isAdmin()) {
 			$this->redirect(array('controller' => 'Admin', 'action' => 'index'));
@@ -14,18 +14,18 @@ class AdminUpdateController extends AdminController {
 		parent::beforeFilter();
 		$this->autoRender = false;
 	}
-	
+	/*
 	public function update3() {
 		set_time_limit(60 * 10);
 		App::uses('Translit', 'Article.Vendor');
 		// $this->PHTranslit = new PHTranslitHelper($this->view);
-		
+
 		$this->loadModel('SiteArticle');
 		$conditions = array('object_type' => 'Product');
 		$fields = array('id', 'title_rus', 'code');
 		$page = 1;
 		$limit = 1000;
-		$order = 'SiteArticle.id'; 
+		$order = 'SiteArticle.id';
 		$count = 0;
 		$data = array();
 		while ($articles = $this->SiteArticle->find('all', compact('fields', 'conditions', 'page', 'limit', 'order'))) {
@@ -39,14 +39,14 @@ class AdminUpdateController extends AdminController {
 		}
 		exit($count.' products processed');
 	}
-	
+
 	public function update4() {
 		$this->loadModel('Form.PMFormField');
 		$this->loadModel('Form.PMFormValue');
 		$this->loadModel('Form.PMFormField');
 		$this->loadModel('Form.PMFormData');
 		$this->loadModel('SiteArticle');
-		
+
 		// пересохраняем поля, чтобы создать form_data
 		$aRowset = Hash::combine($this->PMFormField->find('all'), '{n}.FormField.id', '{n}.FormField');
 		foreach($aRowset as $formField) {
@@ -57,11 +57,11 @@ class AdminUpdateController extends AdminController {
 			$this->PMFormField->save($formField, array('forceCreate' => true));
 		}
 		echo 'Processed '.count($aRowset).' form fields<br>';
-		
+
 		$conditions = array('object_type' => 'Product');
     	$page = 1;
     	$limit = 10;
-    	$order = 'SiteArticle.id'; 
+    	$order = 'SiteArticle.id';
     	$count = array('Product' => 0, 'Param' => 0);
     	while ($articles = $this->SiteArticle->find('all', compact('conditions', 'page', 'limit', 'order'))) {
     		$page++;
@@ -75,7 +75,7 @@ class AdminUpdateController extends AdminController {
     				$count['Param']++;
     				if (isset($formData[$id])) {
     					$data['fk_'.$id] = $formData[$id];
-    					
+
     					$data['fk_'.$id] = str_replace('&nbsp;', '', $data['fk_'.$id]);
     					if ($field['field_type'] == FieldTypes::INT) {
     						$data['fk_'.$id] = intval($data['fk_'.$id]);
@@ -83,7 +83,7 @@ class AdminUpdateController extends AdminController {
     						if ($id == 10) {
     							if (trim($data['fk_'.$id]) === '') {
     								$data['fk_'.$id] = 0.01;
-    							} 
+    							}
     						}
     						$data['fk_'.$id] = floatval(str_replace(',', '.', $data['fk_'.$id]));
     					}
@@ -95,6 +95,7 @@ class AdminUpdateController extends AdminController {
     	}
 		echo 'Processed '.$count['Product'].' products, '.$count['Param'].' params <br>';
 	}
+	*/
 
 	public function update5() {
 		App::uses('Path', 'Core.Vendor');
@@ -102,7 +103,7 @@ class AdminUpdateController extends AdminController {
 		foreach($pathInfo['files'] as $file) {
 			$fullPath = Configure::read('import.folder').$file;
 			$path = explode(DS, $this->_getFilePath($file));
-			
+
 			$_path = Configure::read('import.folder').DS.$path[0];
 			if (!file_exists($_path)) {
 				mkdir($_path);
@@ -117,11 +118,11 @@ class AdminUpdateController extends AdminController {
 			}
 			rename($fullPath, $_path.DS.$file);
 		}
-		
+
 		$this->autoRender = false;
 		echo 'Processed '.count($pathInfo['files']).' files';
 	}
-	
+
 	private function _getFilePath($file) {
 		list($fileDate) = explode('_', str_replace('dlt_mgr', '', $file));
 		$path = substr($fileDate, 0, 4).DS.substr($fileDate, 4, 2).DS.substr($fileDate, 6, 2);
@@ -585,12 +586,12 @@ class AdminUpdateController extends AdminController {
 			$this->set(compact('task'));
 		} else {
 			$id = $this->Task->add(0, 'CreateFakeProducts', array(
-				'parse_brand_id' => $process_brand_id, 
+				'parse_brand_id' => $process_brand_id,
 				'allow_brands' => $aAllowedBrands
 			));
 			$this->Task->runBkg($id);
 			sleep(1);
-			$this->redirect(array('action' => 'update17')); 
+			$this->redirect(array('action' => 'update17'));
 		}
 	}
 }
