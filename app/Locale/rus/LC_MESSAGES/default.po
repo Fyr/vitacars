@@ -271,6 +271,12 @@ msgstr "Показ на .BY"
 msgid "Export Ru"
 msgstr "Показ на .RU"
 
+msgid "Tpl Product Descr By"
+msgstr "Текст для .BY"
+
+msgid "Tpl Product Descr Ru"
+msgstr "Текст для .RU"
+
 msgid "Published"
 msgstr "Опубликовано"
 

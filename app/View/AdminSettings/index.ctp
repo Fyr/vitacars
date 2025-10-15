@@ -11,8 +11,8 @@
 		'General' => $this->PHForm->input('admin_email', array('class' => 'input-large'))
 			.$this->PHForm->input('manager_emails')
 			.$this->PHForm->input('show_fake', array('label' => array('class' => 'control-label', 'text' => __('Show fake products')))),
-		'Tpl_Orders' => $this->element('AdminSettings/orders'),
-		'Tpl_ProductDescr' => $this->element('AdminSettings/products'),
+		'Tpl_Orders' => $this->element('../AdminSettings/_orders'),
+		'Tpl_ProductDescr' => $this->element('../AdminSettings/_products'),
 	);
 
 	echo $this->element('admin_tabs', compact('aTabs'));
