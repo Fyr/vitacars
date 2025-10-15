@@ -9,11 +9,12 @@ class AdminProductsController extends AdminController {
 	public $uses = array('Product', 'Form.PMForm', 'Form.PMFormField', 'Form.PMFormData', 'Form.PMFormConst', 'Form.PHFormField', 'User', 'Category', 'Subcategory', 'Brand', 'ProductRemain', 'Media.Media', 'Search', 'DetailNum', 'FormPrice', 'PureProduct');
     public $helpers = array('ObjectType', 'Form.PHFormFields', 'Form.PHFormData', 'Price');
 
+    private $objectType = 'Product';
     private $paramDetail, $aFormula, $aFieldKeys, $aBrandOptions, $aFields, $searchDetail, $skladOstatki;
 
 	public function beforeFilter() {
 		parent::beforeFilter();
-		$conditions = array('Brand.object_type' => 'Brand');
+		$conditions = array('Brand.published' => 1);
 		if (!Configure::read('Settings.show_fake')) {
 			$conditions['Brand.is_fake'] = 0;
 		}
@@ -23,7 +24,7 @@ class AdminProductsController extends AdminController {
 
     public function beforeRender() {
     	parent::beforeRender();
-    	$this->set('objectType', $this->Product->objectType);
+    	$this->set('objectType', $this->objectType);
     }
 
 	private function _getBrandOptions($brands_ids = array()) {
@@ -347,8 +348,8 @@ class AdminProductsController extends AdminController {
 
 		if (!$id) {
 			// выставляем типы для записей
-			$this->request->data('Product.object_type', $this->Product->objectType);
-			$this->request->data('Seo.object_type', $this->Product->objectType);
+			$this->request->data('Product.object_type', $this->objectType);
+			$this->request->data('Seo.object_type', $this->objectType);
 			$this->request->data('PMFormData.object_type', 'ProductParam');
 		}
 
@@ -377,7 +378,7 @@ class AdminProductsController extends AdminController {
 		}
 
 		$old_id = $id;
-		$this->PCArticle->setModel('Product')->edit($id, $lSaved);
+		$this->PCArticle->setModel($this->objectType)->edit($id, $lSaved);
 		if ($lSaved) {
 			$product_id = $id;
 			if ($remain) {
@@ -426,10 +427,10 @@ class AdminProductsController extends AdminController {
 		}
 		$this->set('form', $fieldsAvail);
 
-		$this->set('aCategories', $this->Category->getOptions('Category'));
+		$this->set('aCategories', $this->Category->getOptions());
 		$this->set('aSubcategories', $this->Subcategory->find('all', array(
-			'fields' => array('id', 'object_id', 'title', 'Category.id', 'Category.title'),
-			'order' => 'object_id'
+			'fields' => array('id', 'title', 'Category.id', 'Category.title'),
+			'order' => 'Category.id'
 		)));
 
 		$this->set('aBrandOptions', $this->aBrandOptions);

@@ -1,15 +1,15 @@
 <?php
 App::uses('Model', 'Model');
 class AppModel extends Model {
-	
+
 	protected $objectType = '', $altDbConfig = false;
-	
+
 	public function __construct($id = false, $table = null, $ds = null) {
 		$this->_beforeInit();
 	    parent::__construct($id, $table, $ds);
 	    $this->_afterInit();
 	}
-	
+
 	protected function _beforeInit() {
 	    // Add here behaviours, models etc that will be also loaded while extending child class
 		if ($this->altDbConfig) {
@@ -22,7 +22,7 @@ class AppModel extends Model {
 	protected function _afterInit() {
 	    // after construct actions here
 	}
-	
+
 	/**
 	 * Auto-add object type in find conditions
 	 *
@@ -75,7 +75,7 @@ class AppModel extends Model {
 		if (isset($this->{$modelClass}) && $this->{$modelClass}) {
 			return $this->{$modelClass};
 		}
-		
+
 		list($plugin, $modelClass) = pluginSplit($modelClass, true);
 
 		$this->{$modelClass} = ClassRegistry::init(array(
@@ -87,7 +87,7 @@ class AppModel extends Model {
 
 		return $this->{$modelClass};
 	}
-	
+
 	private function _getObjectConditions($objectType = '', $objectID = '') {
 		$conditions = array();
 		if ($objectType) {
@@ -98,20 +98,20 @@ class AppModel extends Model {
 		}
 		return compact('conditions');
 	}
-	
-	public function getOptions($objectType = '', $objectID = '') {
-		return $this->find('list', $this->_getObjectConditions($objectType, $objectID));
+
+	public function getOptions() {
+		return $this->find('list');
 	}
-	
+
 	public function getObject($objectType = '', $objectID = '') {
 		return $this->find('first', $this->_getObjectConditions($objectType, $objectID));
 	}
-	
+
 	public function getObjectList($objectType = '', $objectID = '', $order = array()) {
 		$conditions = array_values($this->_getObjectConditions($objectType, $objectID));
 		return $this->find('all', compact('conditions', 'order'));
 	}
-	
+
 	public function dateRange($field, $date1, $date2 = '') {
 		// TODO: implement for free date2
 		$conditions = array();
@@ -125,7 +125,7 @@ class AppModel extends Model {
 		}
 		return $conditions;
 	}
-	
+
 	public function dateTimeRange($field, $date1, $date2 = '') {
 		// TODO: implement for free date2
 		$date1 = date('Y-m-d H:i:s', strtotime($date1));
@@ -144,21 +144,21 @@ class AppModel extends Model {
 	public function trxBegin() {
 		$this->getDataSource()->begin();
 	}
-	
+
 	public function trxCommit() {
 		$this->getDataSource()->commit();
 	}
-	
+
 	public function trxRollback() {
 		$this->getDataSource()->rollback();
 	}
-	
+
 	public function isBot($ip = '') {
 		if (!$ip) {
 			$ip = $_SERVER['REMOTE_ADDR'];
 		}
 		$hostname = gethostbyaddr($ip);
-		return ($hostname === 'spider-'.str_replace('.', '-', $ip).'.yandex.com') 
+		return ($hostname === 'spider-'.str_replace('.', '-', $ip).'.yandex.com')
 			|| ($hostname === 'crawl-'.str_replace('.', '-', $ip).'.googlebot.com');
 	}
 
