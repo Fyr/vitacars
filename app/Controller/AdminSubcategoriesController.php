@@ -9,7 +9,7 @@ class AdminSubcategoriesController extends AdminController {
 	public $uses = array('Subcategory', 'Category', 'Seo.Seo');
     public $helpers = array('ObjectType');
 
-    public $objectType = 'Subcategory';
+    private $objectType = 'Subcategory';
 
     public function beforeFilter() {
         $this->currMenu = 'Category';

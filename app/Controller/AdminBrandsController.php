@@ -8,7 +8,7 @@ class AdminBrandsController extends AdminController {
 	public $uses = array('Brand', 'Seo.Seo');
     public $helpers = array('ObjectType');
 
-    public $objectType = 'Brand';
+    private $objectType = 'Brand';
 
     public function beforeFilter() {
         if (!$this->isAdmin() && !AuthComponent::user('view_brands')) {
