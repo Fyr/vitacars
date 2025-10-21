@@ -47,7 +47,7 @@ class Task extends AppModel {
 	}
 
 	public function getTitle($task_name) {
-		$title = Hash::get($this->getOptions(), $task_name);
+		$title = Hash::get($this->getNameOptions(), $task_name);
 		return ($title) ? $title : $task_name;
 	}
 
