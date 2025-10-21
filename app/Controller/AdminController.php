@@ -128,7 +128,7 @@ class AdminController extends AppController {
 		}
 
 		$aCount = array();
-		foreach(array('Brand', 'Category', 'Subcategory', 'Product') as $model) {
+		foreach(array('Brand', 'Category', 'Subcategory', 'PureProduct') as $model) {
 			$this->loadModel($model);
 			$aCount[$model] = $this->{$model}->find('count');
 		}

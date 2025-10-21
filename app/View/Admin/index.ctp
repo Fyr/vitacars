@@ -1,7 +1,7 @@
 <?
     $this->Html->css('/Table/css/grid', array('inline' => false));
 
-    $aTitles = array('Brand' => 'Брэндов', 'Category' => 'Категорий', 'Subcategory' => 'Подкатегорий', 'Product' => 'Продуктов');
+    $aTitles = array('Brand' => 'Брэндов', 'Category' => 'Категорий', 'Subcategory' => 'Подкатегорий', 'PureProduct' => 'Продуктов');
     $aStatusMsg = array(
         Task::CREATED => 'Запуск задачи...',
         Task::RUN => 'Выполняется...',
