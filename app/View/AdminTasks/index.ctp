@@ -156,7 +156,7 @@
                 $div = $this->Html->tag('div', implode('<br/>', $rows), array('style' => 'display: none;'));
                 $row['Task'][$field].= $this->Html->tag('span', $div, array('class' => 'detail-nums'));
             }
-            $row['Task']['task_name'].= $this->element('AdminProduct/detail_nums', compact('detail_nums', 'items'));
+            $row['Task']['task_name'].= $this->element('detail_nums', compact('detail_nums', 'items'));
         }
 
     }
