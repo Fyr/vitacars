@@ -12,10 +12,10 @@ class ProductDescrTask extends AppShell {
         $this->Settings->initData();
 
         $conditions = array();
-        $field = ($this->params['zone'] == 'by') ? 'tpl_product_descr' : 'tpl_product_descr_'.$this->params['zone'];
+        $field = 'tpl_product_descr_'.$this->params['zone'];
         $tpl = Configure::read('Settings.'.$field);
 
-        $field = ($this->params['zone'] == 'by') ? 'body' : 'body_'.$this->params['zone'];
+        $field = 'body_'.$this->params['zone'];
         if ($this->params['update'] == 1) {
             $conditions[] = "(Product.{$field} IS NULL OR Product.{$field} = '')";
         } elseif ($this->params['update'] == 2) {
