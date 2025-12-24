@@ -207,15 +207,15 @@ class AdminProductsController extends AdminController {
 			}
 
 			$ids = array_unique(Hash::extract($aRowset, '{n}.Product.cat_id'));
-			$conditions = array('Category.object_type' => 'Category', 'Category.id' => $ids);
+			$conditions = array('Category.id' => $ids);
 			$aCategories = $this->Category->find('list', compact('conditions'));
 
 			$ids = array_unique(Hash::extract($aRowset, '{n}.Product.subcat_id'));
-			$conditions = array('Subcategory.object_type' => 'Subcategory', 'Subcategory.id' => $ids);
+			$conditions = array('Subcategory.id' => $ids);
 			$aSubcategories = $this->Subcategory->find('list', compact('conditions'));
 
 			$ids = array_unique(Hash::extract($aRowset, '{n}.Product.brand_id'));
-			$conditions = array('Brand.object_type' => 'Brand', 'Brand.id' => $ids);
+			$conditions = array('Brand.id' => $ids);
 			$aBrands = $this->Brand->find('list', compact('conditions'));
 
 			$this->set(compact('aRowset', 'aCategories', 'aSubcategories', 'aBrands'));
