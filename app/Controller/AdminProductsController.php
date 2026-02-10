@@ -194,7 +194,17 @@ class AdminProductsController extends AdminController {
 					'belongsTo' => array('Category', 'Subcategory', 'Brand'),
 					'hasOne' => array('Media', 'Seo', 'Search')
 				));
-				$aRowset = $this->Product->find('all', compact('conditions'));
+
+				// reduce fields to avoid out of memory issues
+				$aParams = $this->PMFormField->getFieldsList('SubcategoryParam', '');
+				$field_rights = $this->_getRights();
+				$fields = array('cat_id', 'subcat_id', 'brand_id', 'title', 'title_rus', 'code', 'detail_num');
+				foreach($aParams as $id => $_field) {
+                    if (!$field_rights || in_array($_field['PMFormField']['id'], $field_rights)) {
+                        $fields[] = 'PMFormData.fk_'.$id;
+                    }
+                }
+				$aRowset = $this->Product->find('all', compact('conditions', 'fields'));
 			} elseif ($this->request->data('aID')) {
 				$aID = explode(',', $this->request->data('aID'));
 				// $this->paginate['fields'][] = 'Product.cat_id'; уже добавлено
