@@ -10,9 +10,9 @@
 	}
 	echo $this->PHForm->input(__('Select file'), array('class' => 'input-medium', 'type' => 'file', 'name' => 'csv_file', 'id' => 'csv_file'));
 	// echo $this->PHForm->input('set_zero', array('type' => 'checkbox', 'label' => array('text' => 'Обнулять значения полей вне списка')));
-	$this->request->data('UploadCsv.status', array('set_zero')); // изначально всегда помечен
+	$this->request->data('UploadCsv.status', array('set_zero', 'sum_equal')); // изначально всегда помечены
 	echo $this->PHForm->input('status', array('label' => false, 'multiple' => 'checkbox', 'class' => 'checkbox inline',
-		'options' => array('set_zero' => 'Обнулять вне списка')
+		'options' => array('set_zero' => 'Обнулять вне списка', 'sum_equal' => 'Суммировать по коду\номеру')
 	));
 
 	echo $this->element('admin_content_end');

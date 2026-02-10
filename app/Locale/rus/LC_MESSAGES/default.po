@@ -736,6 +736,9 @@ msgstr "Ошибка формата CSV: Слишком много значен�
 msgid "CSV format error: Less values then headers (Line %s)"
 msgstr "Ошибка формата CSV: Значений меньше чем полей в заголовке (строка N %s)"
 
+msgid "CSV format error: Non-existed counter (fk: %s)"
+msgstr "Ошибка формата CSV: ID счетчика не существует (счетчик: %s)"
+
 msgid "File does not exists `%s`"
 msgstr "Файл не существует `%s`"
 

@@ -20,8 +20,9 @@ class TaskUploadCountersComponent extends Component {
 
 			$status = $this->_->request->data('UploadCsv.status');
 			$set_zero = is_array($status) && in_array('set_zero', array_values($status));
+			$sum_equal = is_array($status) && in_array('sum_equal', array_values($status));
 
-			$params = array('csv_file' => $_file, 'fieldRights' => $this->_->_getRights(), 'set_zero' => $set_zero);
+			$params = array('csv_file' => $_file, 'fieldRights' => $this->_->_getRights(), 'set_zero' => $set_zero, 'sum_equal' => $sum_equal);
 			$id = $this->_->Task->add($user_id, 'UploadCounters', $params);
 			$this->_->Task->runBkg($id);
 			return true;

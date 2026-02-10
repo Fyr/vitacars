@@ -3,6 +3,7 @@ App::uses('Shell', 'Console');
 App::uses('AppShell', 'Console/Command');
 App::uses('CsvReader', 'Vendor');
 App::uses('CsvWriter', 'Vendor');
+App::uses('FieldTypes', 'Form.Vendor');
 
 class UploadCountersTask extends AppShell {
     public $uses = array('Product', 'Form.PMFormConst', 'Form.PMFormData', 'Form.PMFormField', 'DetailNum', 'ProductRemain');
@@ -12,7 +13,7 @@ class UploadCountersTask extends AppShell {
 
     public function execute() {
         $subtasks = $this->params['set_zero'] ? 4 : 3; // 4 subtasks
-        $this->Task->setProgress($this->id, 0, $subtasks); 
+        $this->Task->setProgress($this->id, 0, $subtasks);
         $this->Task->setStatus($this->id, Task::RUN);
 
         // Предварительная проверка на права доступа к полям
@@ -24,6 +25,16 @@ class UploadCountersTask extends AppShell {
         }
 
         $aFormFields = $this->PMFormField->getFieldsList('SubcategoryParam', '');
+        foreach($aData['keys'] as $i => $counter) {
+            if ($i === 0) {
+                continue;
+            }
+            $fk_code = str_replace('fk_', '', $counter);
+            if (!isset($aFormFields[$fk_code])) {
+                throw new Exception(__('CSV format error: Non-existed counter (fk: %s)', $fk_code));
+            }
+        }
+
         $fieldRights = $this->params['fieldRights'];
         $this->checkFieldRights($aData['keys'], array_keys($aFormFields), $fieldRights);
 
@@ -33,7 +44,7 @@ class UploadCountersTask extends AppShell {
             'belongsTo' => array('Category', 'Subcategory', 'Brand'),
             'hasOne' => array('Seo', 'Media', 'Search')
         ), false);
-        $aCounters = $this->_getCounters($this->aData['data']); // subtask 2
+        $aCounters = $this->_getCounters($this->aData['data'], $aFormFields); // subtask 2
 
         try {
             $this->Product->trxBegin();
@@ -45,8 +56,8 @@ class UploadCountersTask extends AppShell {
         }
 
         $this->Task->setData($this->id, 'xdata', array(
-            'product_ids' => $aID, 
-            'total' => count($this->aData['data']), 
+            'product_ids' => $aID,
+            'total' => count($this->aData['data']),
             'errors' => count($this->errReport),
             'error_report' => self::ERR_REPORT_FNAME
         ));
@@ -102,7 +113,7 @@ class UploadCountersTask extends AppShell {
      *
      * @param array $aData
      */
-    private function _getCounters($aData) {
+    private function _getCounters($aData, $aFormFields) {
         $subtask_id = $this->Task->add(0, 'UploadCounters_initCounters', null, $this->id);
         $this->Task->setData($this->id, 'subtask_id', $subtask_id);
         $this->Task->setProgress($subtask_id, 0, count($aData));
@@ -140,10 +151,18 @@ class UploadCountersTask extends AppShell {
                         $this->uploadLine[$object_id] = $line;
                     }
                     foreach($row as $counter => $count) {
-                        if (isset($aParams[$object_id][$counter])) {
-                            $aParams[$object_id][$counter]+= floatval($count);
+                        $fk_code = str_replace('fk_', '', $counter);
+                        $fk_field = $aFormFields[$fk_code]['PMFormField'];
+                        // summarize counters only for numeric fields
+                        if ($this->params['sum_equal'] && in_array($fk_field['field_type'], array(FieldTypes::INT, FieldTypes::FLOAT))) {
+                            if (isset($aParams[$object_id][$counter])) {
+                                $aParams[$object_id][$counter]+= floatval($count);
+                            } else {
+                                $aParams[$object_id][$counter] = floatval($count);
+                            }
                         } else {
-                            $aParams[$object_id][$counter] = floatval($count);
+                            // for all other counter types - just remember last value
+                            $aParams[$object_id][$counter] = $count;
                         }
                     }
                 }
@@ -210,13 +229,13 @@ class UploadCountersTask extends AppShell {
                 if (in_array($a1, $keys) || in_array($a2, $keys)) {
                     $a1_val = intval(Hash::get($product, 'PMFormData.'.$a1));
                     $a2_val = intval(Hash::get($product, 'PMFormData.'.$a2));
-    
+
                     $a1_new = intval((isset($counters[$a1]) && $counters[$a1]) ? $counters[$a1] : $a1_val);
                     $a2_new = intval((isset($counters[$a2]) && $counters[$a2]) ? $counters[$a2] : $a2_val);
-    
+
                     $remain = ($a1_new - $a1_val) + ($a2_new - $a2_val);
                 }
-    
+
                 $counters['id'] = $this->PMFormData->id = $product['PMFormData']['id'];
                 if (!$this->PMFormData->save($counters)) {
                     // throw new Exception(__('Product params could not be saved: %s', print_r($counters, true)));
@@ -230,13 +249,13 @@ class UploadCountersTask extends AppShell {
                     $product_id = $object_id;
                     $this->ProductRemain->clear();
                     $this->ProductRemain->save(compact('product_id', 'remain'));
-    
+
                     // скорректировать статистику за год
                     $field = 'fk_'.Configure::read(($remain > 0) ? 'Params.incomeY' : 'Params.outcomeY');
                     $this->PMFormData->saveField($field, intval($this->PMFormData->field($field)) + $remain); // уже выставлен нужный $this->PMFormData->id
                 }
 
-                $aID[] = $object_id;                
+                $aID[] = $object_id;
             } else {
                 // it seems that we have inconsistency in DB - we have search by detail_num or code and found product with non-existed ID
                 $line = $this->uploadLine[$object_id];
@@ -256,7 +275,6 @@ class UploadCountersTask extends AppShell {
         $this->Task->setStatus($subtask_id, Task::DONE);
         $this->Task->setProgress($this->id, $progress['progress'] + 1);
         $this->Task->saveStatus($this->id);
-
         if (!$this->params['set_zero']) {
             return $aID;
         }
