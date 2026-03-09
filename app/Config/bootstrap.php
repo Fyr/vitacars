@@ -51,6 +51,7 @@ Configure::write('Params', array(
 	'outcomeY' => 51,
 	'crossNumber' => 60,
 	'motor' => 6,
+	'motorTA' => 33,
 	'motorTS' => 34,
 	'x_info' => 9,
 	'discountPrice' => 18,
@@ -62,7 +63,8 @@ Configure::write('Params', array(
 ));
 
 Configure::write('Search', array(
-	'detail_nums' => true
+	'detail_nums' => true,
+	'save' => array('fk_9', 'fk_33', 'fk_34', 'fk_60')
 ));
 
 Configure::write('tmp_dir', ROOT.DS.APP_DIR.DS.'tmp'.DS);

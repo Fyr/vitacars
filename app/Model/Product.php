@@ -51,22 +51,38 @@ class Product extends AppModel {
 	// public $objectType = 'Product';
 
 	public function afterSave($created, $options = array()) {
-		$this->DetailNum = $this->loadModel('DetailNum');
+	    // load needed models if Product->save() is called from console tasks
+	    $aModels = array('Brand', 'Category', 'Subcategory', 'Search', 'DetailNum');
+	    foreach($aModels as $model) {
+            if (!$this->{$model}) {
+                $this->{$model} = $this->loadModel($model);
+            }
+		}
 
 		$subcategory = array();
 		if (isset($this->data['Product']['subcat_id']) && $this->data['Product']['subcat_id']) {
+		    if (!$this->Subcategory) {
+                $this->Subcategory = $this->loadModel('Subcategory');
+            }
 			$subcategory = $this->Subcategory->findById($this->data['Product']['subcat_id']);
 		}
 		$category = array();
 		if (isset($this->data['Product']['cat_id']) && $this->data['Product']['cat_id']) {
+		    if (!$this->Category) {
+                $this->Category = $this->loadModel('Category');
+            }
 			$category = $this->Category->findById($this->data['Product']['cat_id']);
 		}
+
+		if (!$this->Brand) {
+            $this->Brand = $this->loadModel('Brand');
+        }
 		$this->Brand->unbindModel(array(
             'hasOne' => array('Media', 'Seo')
         ));
 		$brand = $this->Brand->findById($this->data['Product']['brand_id']);
 
-		$aForm = array('fk_9', 'fk_33', 'fk_34', 'fk_60');
+		$aForm = Configure::read('Search.save');
 		$aFormData = array();
 		foreach($aForm as $e) {
 			$aFormData[$e] = '';

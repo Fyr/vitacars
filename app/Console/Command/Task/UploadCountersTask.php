@@ -10,6 +10,7 @@ class UploadCountersTask extends AppShell {
 
     const ERR_REPORT_FNAME = 'upload-counters-err-report.csv';
     private $keyField, $aData, $errReport = array(), $uploadLine = array();
+    private $isFullSave = false;
 
     public function execute() {
         $subtasks = $this->params['set_zero'] ? 4 : 3; // 4 subtasks
@@ -32,6 +33,9 @@ class UploadCountersTask extends AppShell {
             $fk_code = str_replace('fk_', '', $counter);
             if (!isset($aFormFields[$fk_code])) {
                 throw new Exception(__('CSV format error: Non-existed counter (fk: %s)', $fk_code));
+            }
+            if (in_array($counter, Configure::read('Search.save'))) {
+                $this->isFullSave = true;
             }
         }
 
@@ -222,7 +226,6 @@ class UploadCountersTask extends AppShell {
                 $this->Task->setStatus($subtask_id, Task::ABORTED);
                 throw new Exception(__('Processing was aborted by user'));
             }
-
             $product = $this->Product->findById($object_id);
             if ($product) { // product found
                 $remain = 0;
@@ -237,7 +240,34 @@ class UploadCountersTask extends AppShell {
                 }
 
                 $counters['id'] = $this->PMFormData->id = $product['PMFormData']['id'];
-                if (!$this->PMFormData->save($counters)) {
+                if ($this->isFullSave) {
+                    // prepare all data for product re-save
+                    $aProductFields = array('id', 'cat_id', 'subcat_id', 'brand_id', 'code', 'detail_num', 'motor', 'title', 'title_rus');
+                    $data = array(
+                        'Product' => array(),
+                        'PMFormData' => array()
+                    );
+
+                    // copy data needed for search
+                    foreach($aProductFields as $field) {
+                        $data['Product'][$field] = Hash::get($product, 'Product.'.$field);
+                    }
+                    // fill original form data from product
+                    foreach(Configure::read('Search.save') as $fk) {
+                        $data['PMFormData'][$fk] = Hash::get($product, 'PMFormData.'.$fk);
+                    }
+                    // copy csv data
+                    foreach($counters as $fk => $val) {
+                        $data['PMFormData'][$fk] = $val;
+                    }
+                    if (!$this->Product->save($data)) {
+                        $line = $this->uploadLine[$object_id];
+                        $this->addErrReport(
+                            $line,
+                            __('DB error! Cannot save data for product with ID=`%s` (Line %s)', array($object_id, $line + 2))
+                        );
+                    }
+                } else if (!$this->PMFormData->save($counters)) {
                     // throw new Exception(__('Product params could not be saved: %s', print_r($counters, true)));
                     $line = $this->uploadLine[$object_id];
                     $this->addErrReport(

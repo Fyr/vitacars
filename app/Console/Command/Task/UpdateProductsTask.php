@@ -33,7 +33,7 @@ class UpdateProductsTask extends AppShell
             foreach ($rowset as $row) {
                 $status = $this->Task->getStatus($this->id);
                 if ($status == Task::ABORT) {
-                    $this->PMFormData->trxCommit(); // по любому сохраняем рез-ты пересчета
+                    $this->PMFormData->trxRollback(); // по любому сохраняем рез-ты пересчета
                     throw new Exception(__('Processing was aborted by user'));
                 }
 
