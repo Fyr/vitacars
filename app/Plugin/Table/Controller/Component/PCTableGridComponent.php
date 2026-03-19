@@ -9,7 +9,7 @@ class PCTableGridComponent extends Component {
 	public $components = array('Paginator');
 
 	const LIMIT = 100;
-	
+
 	private $_;
 	private $model, $paginate = array(), $defaults = array(), $_paginate = array();
 	private $pgFilter = array();
@@ -35,7 +35,7 @@ class PCTableGridComponent extends Component {
 		if (isset($this->paginate['order'])) {
 			/*
 			if (is_array($this->paginate['order'])) {
-				
+
 			}
 			return $this->_normalizeField($this->model->alias, $this->paginate['order']);
 			*/
@@ -127,34 +127,32 @@ class PCTableGridComponent extends Component {
 		}
 	}
 
+	// used for Product paginate :(
+	public function getLimit() {
+	    $params = $this->_->request->params;
+	    return (Hash::get($params, 'named.limit')) ? Hash::get($params, 'named.limit') : self::LIMIT;
+	}
+
 	private function _initDefaults() {
 		$order = $this->_getDefaultOrder();
-		$params = $this->_->request->params;
-		$limit = (Hash::get($params, 'named.limit')) ? Hash::get($params, 'named.limit') : self::LIMIT;
+		$limit = $this->getLimit();
 		$this->paginate = Hash::merge(array('order' => $order, 'limit' => $limit), $this->paginate);
 		if (is_array($this->paginate['order'])) {
 			list($sort) = array_keys($this->paginate['order']);
 			list($direction) = array_values($this->paginate['order']);
 		} else {
-			$sort = $this->paginate['order']; 
+			$sort = $this->paginate['order'];
 			$direction;
 		}
 		$this->paginate['_defaults'] = compact('sort', 'direction', 'limit');
 	}
 
-	/*
-	private function _initConditions() {
-
-	}
-	*/
 	public function paginate($modelName, $filters = array()) {
 		$this->model = $this->_->{$modelName};
-		// fdebug($this->model);
 		$this->_init();
 		$this->_initFields();
 		$this->_initDefaults();
-		// $this->_initConditions();
-		
+
 		// $this->Paginator->settings = array($modelName => $this->paginate); // force to load our settings into Paginator
 		// $this->_->paginate = array($modelName => $this->paginate);
 		$this->_->paginate[$modelName] = $this->paginate;
@@ -209,7 +207,7 @@ class PCTableGridComponent extends Component {
 			$value = $key.' LIKE "'.str_replace('*', '%', $value).'"';
 			$key = '';
 		}
-		
+
 		// add key->value pair to filter and overload existing pair
 		if ($key) {
 			$this->pgFilter[$key] = $value;

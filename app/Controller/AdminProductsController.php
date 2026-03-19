@@ -123,8 +123,8 @@ class AdminProductsController extends AdminController {
         	}
         }
 
+        $idList = array();
         if (isset($this->request->named['Product.id'])) {
-			$idList = array();
 			if (strpos($this->request->named['Product.id'], ',')) {
 				$idList = explode(',', $this->request->named['Product.id']);
 			} elseif ($this->request->named['Product.id'] == 'list') {
@@ -150,13 +150,13 @@ class AdminProductsController extends AdminController {
 		}
 
         $brand_ids = $this->_getBrandRights();
-		if (isset($this->request->named['Product.brand_id']) && $brands = $this->request->named['Product.brand_id']) {
+		if (isset($this->request->named['Product.brand_id']) && ($brands = $this->request->named['Product.brand_id'])) {
 			$brand_ids = array_keys($this->_getBrandOptions(explode(' ', $brands)));
 			$this->set('brandsFilterValue', $brand_ids);
 			unset($this->request->params['named']['Product.brand_id']);
 		}
 		if ($brand_ids) {
-		    if (!$this->searchDetail) { // disable replacing if search by brand or index page
+		    if (!$this->searchDetail && !$idList) { // disable replacing if search by brand or index page
                 // replace filtering products by brand by filtering limited amount of products filtered by brands
                 // Benefits:
                 // filtering by brand is speeded up by index 'brand_id'
@@ -164,6 +164,7 @@ class AdminProductsController extends AdminController {
                 $products = $this->PureProduct->find('all', array(
                     'fields' => array('id'),
                     'conditions' => array('brand_id' => $brand_ids),
+                    'limit' => $this->PCTableGrid->getLimit()
                 ));
                 $product_ids = Hash::extract($products, '{n}.PureProduct.id');
 
@@ -173,7 +174,6 @@ class AdminProductsController extends AdminController {
             $brand_ids = array(0);
             $this->paginate['conditions']['Product.brand_id'] = $brand_ids;
         }
-
     }
 
 	public function printXls() {
@@ -290,6 +290,7 @@ class AdminProductsController extends AdminController {
 
     public function index() {
     	set_time_limit(60 * 5); //
+
 		$this->Product->unbindModel(array(
 			'belongsTo' => array('Category', 'Subcategory', 'Brand'),
 			'hasOne' => array('Seo', 'Media')
@@ -305,6 +306,7 @@ class AdminProductsController extends AdminController {
 				'hasOne' => array('PMFormData', 'Search')
 			), false);
 		}
+
         $aRowset = $this->PCTableGrid->paginate('Product');
 		if (!$lFlag) {
 			// добавить данные отдельным запросом
