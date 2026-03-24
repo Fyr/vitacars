@@ -461,6 +461,58 @@ class AdminProductsController extends AdminController {
 		}
 	}
 
+	public function edit2($id) {
+        if (!$this->isAdmin()) {
+            return $this->redirect(array('action' => 'index'));
+        }
+
+        $aKurs = $this->PMFormConst->findAllByIsPriceKurs(1);
+        $this->set('aKurs', $aKurs);
+        $fields = $this->PMFormField->getObjectList('SubcategoryParam', '', 'PMFormField.sort_order');
+
+        $this->PCArticle->setModel($this->objectType)->edit($id);
+
+        $fieldsAvail = array();
+        foreach($fields as $_field) {
+            $_field_id = $_field['PMFormField']['id'];
+            if ($_field['PMFormField']['field_type'] != FieldTypes::FORMULA) {
+                if ($_field['PMFormField']['field_type'] == FieldTypes::PRICE) {
+                    $_field['PMFormField'] = $this->PMFormField->unpackOptions($_field['PMFormField']);
+                }
+                $fieldsAvail[] = $_field;
+            }
+        }
+        $this->set('form', $fieldsAvail);
+
+        $this->set('aCategories', $this->Category->getOptions());
+        $this->set('aSubcategories', $this->Subcategory->find('all', array(
+            'fields' => array('id', 'title', 'Category.id', 'Category.title'),
+            'order' => 'Category.id'
+        )));
+
+        $this->set('aBrandOptions', $this->aBrandOptions);
+
+        $this->loadModel('Currency');
+        $this->set('aCurrency', $this->Currency->getOptions());
+        $this->set('xPrices', $this->FormPrice->getProductPrices($id));
+
+        $product = $this->request->data('Product');
+        $this->request->data('Product', array_merge($product, array(
+            'id' => '',
+            'title' => $product['title'].' (2)',
+            'title_rus' => $product['title_rus'].' (2)',
+            'code' => $product['code'].'-2',
+            'slug' => $product['slug'].'-2',
+        )));
+
+        $crossNum = 'fk_'.Configure::read('Params.crossNumber');
+        $this->request->data('PMFormData.id', '');
+        $this->request->data('PMFormData.'.$crossNum, '');
+        $this->request->data('Seo', array());
+
+        $this->render('edit');
+    }
+
 	public function delete($id = '')
 	{
 		ignore_user_abort(true);

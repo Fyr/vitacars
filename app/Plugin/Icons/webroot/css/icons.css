@@ -59,4 +59,6 @@
 .icon-color.icon-power-down {
 	background-image: url("/Icons/img/power_down.gif") !important;
 }
-
+.icon-color.icon-copy {
+	background-image: url("/Icons/img/copy.png") !important;
+}

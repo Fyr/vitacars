@@ -32,6 +32,14 @@
     if ($isAdmin) {
     	$actions['table']['add']['href'] = $createURL;
     	$actions['table']['add']['label'] = $createTitle;
+
+    	// add make copy of product
+    	$copyAction = array(
+            'class' => 'icon-color icon-copy',
+            'label' => 'Сделать копию продукта',
+            'href' => '/AdminProducts/edit2/{$id}',
+        );
+    	$actions['row'] = array('edit' => $actions['row']['edit'], 'copy' => $copyAction, 'delete' => $actions['row']['delete']);
     } else {
     	// unset($actions['table']);
 		unset($actions['checked']['delete']);

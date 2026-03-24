@@ -8,11 +8,17 @@
 
     echo $this->element('admin_title', compact('title'));
 
+    if ($id && $isAdmin) {
+        $url = $this->Html->url(array('controller' => 'AdminProducts', 'action' => 'edit2', $id));
+?>
+    	<a href="<?=$url?>" class="btn btn-info pull-right"><i class="icon-white icon-plus"></i> Сделать копию</a>
+<?
+    }
 	if ($this->request->data('Product.motor')) {
 		$this->request->data('PMFormData.fk_6', $this->request->data('Product.motor'));
 	}
 
-    echo $this->PHForm->create('Product');
+    echo $this->PHForm->create('Product', array('url' => array('controller' => 'AdminProducts', 'action' => 'edit', $id)));
     echo $this->Form->hidden('PMFormData.id', array('value' => Hash::get($this->request->data, 'PMFormData.id')));
     echo $this->Form->hidden('Seo.id', array('value' => Hash::get($this->request->data, 'Seo.id')));
 
