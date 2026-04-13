@@ -1,11 +1,11 @@
 <?php
 App::uses('AppModel', 'Model');
 class User extends AppModel {
-	
+
 	public $validate = array(
 		'username' => array(
 			'checkNotEmpty' => array(
-				'rule' => 'notEmpty',
+				'rule' => 'notBlank',
 				'message' => 'Field is mandatory',
 			),
 			'checkNameLen' => array(
@@ -56,7 +56,7 @@ class User extends AppModel {
 		$this->invalidate('password_confirm', 'Your password and its confirmation do not match');
 		return false;
 	}
-	
+
 	public function beforeValidate($options = array()) {
 		if (Hash::get($options, 'validate')) {
 			if (!Hash::get($this->data, 'User.password')) {

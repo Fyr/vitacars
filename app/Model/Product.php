@@ -83,6 +83,7 @@ class Product extends AppModel {
 		$brand = $this->Brand->findById($this->data['Product']['brand_id']);
 
 		$aForm = Configure::read('Search.save');
+		$fk_crossNumber = 'fk_'.Configure::read('Params.crossNumber');
 		$aFormData = array();
 		foreach($aForm as $e) {
 			$aFormData[$e] = '';
@@ -93,7 +94,7 @@ class Product extends AppModel {
 		$this->data['Search']['id'] = $this->id;
 		$this->data['Search']['body'] = mb_strtolower(implode(',', array(
 			$this->data['Product']['code'],
-			str_replace(', ', ',', $this->DetailNum->strip($this->data['Product']['detail_num']).','.$this->DetailNum->strip($aFormData['fk_60'])),
+			str_replace(', ', ',', $this->DetailNum->strip($this->data['Product']['detail_num']).','.$this->DetailNum->strip($aFormData[$fk_crossNumber])),
 			(isset($this->data['Product']['motor'])) ? $this->data['Product']['motor'] : '',
 			$aFormData['fk_34'],
 			$this->data['Product']['title'],
@@ -109,8 +110,8 @@ class Product extends AppModel {
 		$this->DetailNum->deleteAll(array('product_id' => $this->id));
 
 		$detail_nums = array();
-		if ($aFormData['fk_60']) {
-			$detail_nums = str_replace(array("\r\n", "\r", "\n"), ',', $this->data['PMFormData']['fk_60']);
+		if ($aFormData[$fk_crossNumber]) {
+			$detail_nums = str_replace(array("\r\n", "\r", "\n"), ',', $this->data['PMFormData'][$fk_crossNumber]);
 			$detail_nums = str_replace(array('   ', '  ', ' '), ',', $detail_nums);
 			$detail_nums = explode(',', $detail_nums);
 			$dns = array();
