@@ -2,6 +2,10 @@
 	$this->Html->css(array('bootstrap-multiselect'), array('inline' => false));
 	$this->Html->script(array('vendor/bootstrap-multiselect', '/Article/js/translit_utf', '/Article/js/edit_slug'), array('inline' => false));
 
+    echo $this->PHForm->input('Product.is_split_cross', array(
+        'label' => array('class' => 'control-label', 'text' => __('Split cross numbers')),
+    ));
+
 	echo $this->PHForm->input('Product.cat_id', array(
 		'label' => array('class' => 'control-label', 'text' => __('Category')),
 		'options' => $aCategories,

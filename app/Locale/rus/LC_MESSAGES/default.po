@@ -936,3 +936,6 @@ msgstr "Скидки"
 
 msgid "Discount"
 msgstr "Скидка"
+
+msgid "Split cross numbers"
+msgstr "Разбивать по кроссам"
