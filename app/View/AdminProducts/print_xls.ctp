@@ -1,4 +1,7 @@
-
+<?
+    $isSplitCross = $this->request->data('isSplitCross');
+    $fk_crossNum = 'fk_'.Configure::read('Params.crossNumber');
+?>
     <table>
         <thead>
             <tr>
@@ -15,57 +18,46 @@
             </tr>
         </thead>
         <tbody>
-<?php 
+<?php
 	$class = 'even';
 	foreach ($aRowset as $Product) {
 		$class = ($class == 'even') ? 'odd' : 'even';
 		$subcat_id = $Product['Product']['subcat_id'];
-?>
-		<tr class="row">
-			<td class="<?=$class?>"><?=$aBrands[$Product['Product']['brand_id']]?></td>
-			<td class="<?=$class?>"><?=$aCategories[$Product['Product']['cat_id']]?></td>
-			<td class="<?=$class?>"><?=(isset($aSubcategories[$subcat_id])) ? $aSubcategories[$subcat_id] : ''?></td>
-			<td class="<?=$class?>"><?=$Product['Product']['title']?></td>
-			<td class="<?=$class?>"><?=$Product['Product']['title_rus']?></td>
-			<td class="<?=$class?>">&nbsp;<?=$Product['Product']['code']?></td>
-			<td class="<?=$class?>" nowrap="nowrap">&nbsp;<?=$Product['Product']['detail_num']?></td>
-<?php
-		foreach ($aLabels as $key => $label) {
-			$_class = $class;
-			$val = Hash::get($Product, $key);
-			if ($key == 'PMFormData.fk_6') {
-				$val = implode(' ', explode(',', $val));
-			}
-			$fk = str_replace('PMFormData.fk_', '', $key);
-			$formField = $aParams[$fk]['PMFormField'];
-			$fieldType = $formField['field_type'];
-			
-			if ($fieldType == FieldTypes::FORMULA) {
-				// приводим формулу к стд.виду для Excel
-				$val = str_replace($formField['div_int'], '', $val); // убираем разделители для целой части
-				$val = floatval(str_replace($formField['div_float'], '.', $val));
-				$val = number_format($val, $formField['decimals'], ',', '');
-			} else if ($fieldType == FieldTypes::PRICE) {
-				// приводим формулу к стд.виду для Excel
-				$val = str_replace($formField['price_div_int'], '', $val); // убираем разделители для целой части
-				$val = floatval(str_replace($formField['price_div_float'], '.', $val));
-				$val = number_format($val, $formField['price_decimals'], ',', '');
-			} else if ($fieldType == FieldTypes::FLOAT) {
-				$val = number_format($val, 2, ',', '');
-			}
-			
-			if (in_array($fieldType, array(FieldTypes::INT, FieldTypes::FLOAT, FieldTypes::FORMULA, FieldTypes::PRICE))) {
-				// $_class.= ' align-right';
-			} else {
-				$val = '&nbsp;'.$val;
-			}
-?>
-			<td class="<?=$_class?>"><?=$val?></td>
-<?
-        }
-?>
-		</tr>
-<?php 
+
+		$Product['Product']['brand'] = $aBrands[$Product['Product']['brand_id']];
+		$Product['Product']['cat'] = $aCategories[$Product['Product']['cat_id']];
+		$Product['Product']['subcat'] = (isset($aSubcategories[$subcat_id])) ? $aSubcategories[$subcat_id] : '';
+
+		$crossNums = Hash::get($Product, 'PMFormData.'.$fk_crossNum);
+		if ($crossNums && is_array($crossNums)) {
+		    // output main product without cross numbers
+		    $Product['PMFormData'][$fk_crossNum] = '';
+		    echo $this->element('../AdminProducts/_print_row', compact('Product', 'class', 'aLabels', 'aParams'));
+
+            // output products with cross numbers
+		    foreach($crossNums as $dn) {
+		        // copy product
+		        $crossProduct = array(
+		            'Product' => $Product['Product'],
+		            'PMFormData' => $Product['PMFormData']
+		        );
+
+		        if (strpos($dn, ' ') > 0) { // cross number contains brand
+		            list($brand, $dn) = explode(' ', $dn);
+		            $crossProduct['Product']['brand'] = $brand;
+		            $crossProduct['Product']['cat'] = $brand;
+		            $crossProduct['Product']['subcat'] = '-';
+		        }
+                $crossProduct['Product']['code'] = $dn;
+                $crossProduct['Product']['detail_num'] = '-';
+		        echo $this->element('../AdminProducts/_print_row', array_merge(
+		            array('Product' => $crossProduct),
+		            compact('class', 'aLabels', 'aParams')
+                ));
+		    }
+		} else {
+		    echo $this->element('../AdminProducts/_print_row', compact('Product', 'class', 'aLabels', 'aParams'));
+		}
 	}
 ?>
         </tbody>

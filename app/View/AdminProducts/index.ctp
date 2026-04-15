@@ -29,6 +29,11 @@
 	$actions['checked']['print_brand_all']['icon'] = 'icon-color icon-print';
 	$actions['checked']['print_brand_all']['onclick'] = 'sendToPrintBrands();return false;';
 
+	$actions['checked']['print_cross']['href'] = $this->Html->url(array('action' => 'printXls'));
+    $actions['checked']['print_cross']['label'] = 'Печать продуктов (разбиение по кросс-номерам)';
+    $actions['checked']['print_cross']['icon'] = 'icon-color icon-print';
+    $actions['checked']['print_cross']['onclick'] = 'sendToPrintSplitCross();return false;';
+
     if ($isAdmin) {
     	$actions['table']['add']['href'] = $createURL;
     	$actions['table']['add']['label'] = $createTitle;
@@ -431,6 +436,18 @@ function sendToPrintBrands(nonZeroAmount) {
 	$('#printXls').submit();
 }
 
+function sendToPrintSplitCross() {
+    $('input[name="isSplitCross"]').val(1);
+    var checkedAll = $('.grid-chbx-checkAll:checked').length && $('.grid-chbx-row:checked').length == $('.grid-chbx-row').length;
+    if (!checkedAll) {
+        // fill aID
+        sendToPrint();
+        return;
+    }
+    $('#printXls').submit();
+    // console.log('!!!', $('input[name="aID"]').val());
+}
+
 function colorifyCells(fkColor) {
 	var fkCells = {};
 	for(fkClass in fkColor) {
@@ -477,7 +494,8 @@ function hideEmptyColumns() {
 
 </script>
 <form id="printXls" method="post" action="<?= $this->Html->url(array('controller' => 'AdminProducts', 'action' => 'printXls')) ?>">
-	<input type="hidden" name="aID" />
+	<input type="hidden" name="aID"  />
 	<input type="hidden" name="brandID" />
 	<input type="hidden" name="nonZeroAmount" />
+	<input type="hidden" name="isSplitCross" value="0" />
 </form>

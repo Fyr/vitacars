@@ -93,4 +93,28 @@ class DetailNum extends AppModel {
 	public function parseCrossNumbers($crossNumbers) {
 		// см. CreateFakeProductsTask & CrossNumParserTask
 	}
+
+	public function splitList($crossNumbers) {
+	    $dns = array();
+
+	    $detail_rows_nums = explode('|', str_replace(array("\r\n", "\r", "\n"), '|', trim($crossNumbers.'')));
+        foreach($detail_rows_nums as $detail_nums) {
+            $detail_nums = str_replace(array('   ', '  ', ' '), ',', trim(str_replace('&nbsp;', ' ', $detail_nums)));
+            $detail_nums = explode(',', $detail_nums);
+
+            $brand = '';
+            foreach($detail_nums as $dn) {
+                $dn = trim($dn.'');
+                if ($dn) {
+                    $dn = $this->softStrip($dn);
+                    if ($this->isDigitWord($dn)) {
+                        $dns[] = $brand.$dn;
+                    } else {
+                        $brand = $dn.' ';
+                    }
+                }
+            }
+        }
+        return $dns;
+	}
 }

@@ -183,8 +183,38 @@ class AdminProductsController extends AdminController {
 
 			$this->layout = 'print_xls';
 			$this->_processParams();
+			$fk_crossNumber = 'fk_'.Configure::read('Params.crossNumber');
 
-			if ($brands = $this->request->data('brandID')) {
+			// reduce fields to avoid out of memory issues
+            $aParams = $this->PMFormField->getFieldsList('SubcategoryParam', '');
+            $field_rights = $this->_getRights();
+            $fields = array('cat_id', 'subcat_id', 'brand_id', 'title', 'title_rus', 'code', 'detail_num');
+            foreach($aParams as $id => $_field) {
+                if (!$field_rights || in_array($_field['PMFormField']['id'], $field_rights)) {
+                    $fields[] = 'PMFormData.fk_'.$id;
+                }
+            }
+
+			if ($this->request->data('isSplitCross')) {
+			    $fk_crossNumber = 'fk_'.Configure::read('Params.crossNumber');
+			    $aID = $this->request->data('aID');
+			    if ($aID) {
+			        $conditions = array('Product.id' => explode(',', $aID));
+			    } else {
+			        $conditions = array('Product.is_split_cross' => 1);
+			    }
+
+			    $aRowset = $this->Product->find('all', compact('conditions', 'fields'));
+
+			    foreach($aRowset as &$row) {
+                    $crossNumber = trim($row['PMFormData'][$fk_crossNumber]);
+                    if ($crossNumber) {
+                        $row['PMFormData'][$fk_crossNumber] = $this->DetailNum->splitList($crossNumber);
+                    }
+			    }
+
+			} elseif ($brands = $this->request->data('brandID')) {
+
 				$conditions = array('brand_id' => explode(',', $brands), 'is_fake' => 0);
 				if ($this->request->data('nonZeroAmount')) {
 					$conditions['AND'] = array('OR' => $this->skladOstatki);
@@ -195,21 +225,9 @@ class AdminProductsController extends AdminController {
 					'hasOne' => array('Media', 'Seo', 'Search')
 				));
 
-				// reduce fields to avoid out of memory issues
-				$aParams = $this->PMFormField->getFieldsList('SubcategoryParam', '');
-				$field_rights = $this->_getRights();
-				$fields = array('cat_id', 'subcat_id', 'brand_id', 'title', 'title_rus', 'code', 'detail_num');
-				foreach($aParams as $id => $_field) {
-                    if (!$field_rights || in_array($_field['PMFormField']['id'], $field_rights)) {
-                        $fields[] = 'PMFormData.fk_'.$id;
-                    }
-                }
 				$aRowset = $this->Product->find('all', compact('conditions', 'fields'));
 			} elseif ($this->request->data('aID')) {
 				$aID = explode(',', $this->request->data('aID'));
-				// $this->paginate['fields'][] = 'Product.cat_id'; уже добавлено
-				$this->paginate['fields'][] = 'Product.subcat_id';
-				// $this->paginate['fields'][] = 'Product.brand_id'; уже добавлено
 				$this->paginate['conditions'] = array('Product.id' => $aID);
 				$this->paginate['order'] = 'FIELD (Product.id, ' . $this->request->data('aID') . ') ASC';
 				$this->paginate['limit'] = count($aID);
