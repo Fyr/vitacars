@@ -438,6 +438,10 @@ function sendToPrintBrands(nonZeroAmount) {
 
 function sendToPrintSplitCross() {
     $('input[name="isSplitCross"]').val(1);
+
+    var brand_ids = $('#brand').val() || [];
+    $('input[name="brandID"]').val(brand_ids.join(','));
+
     var checkedAll = $('.grid-chbx-checkAll:checked').length && $('.grid-chbx-row:checked').length == $('.grid-chbx-row').length;
     if (!checkedAll) {
         // fill aID
@@ -445,7 +449,6 @@ function sendToPrintSplitCross() {
         return;
     }
     $('#printXls').submit();
-    // console.log('!!!', $('input[name="aID"]').val());
 }
 
 function colorifyCells(fkColor) {

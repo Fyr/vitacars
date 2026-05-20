@@ -197,11 +197,15 @@ class AdminProductsController extends AdminController {
 
 			if ($this->request->data('isSplitCross')) {
 			    $fk_crossNumber = 'fk_'.Configure::read('Params.crossNumber');
-			    $aID = $this->request->data('aID');
-			    if ($aID) {
-			        $conditions = array('Product.id' => explode(',', $aID));
+			    $conditions = array();
+			    if ($aID = $this->request->data('aID')) {
+			        $conditions['Product.id'] = explode(',', $aID);
 			    } else {
-			        $conditions = array('Product.is_split_cross' => 1);
+			        $conditions['Product.is_split_cross'] = 1;
+			    }
+			    if ($brands = $this->request->data('brandID')) {
+			        $conditions['Product.brand_id'] = explode(',', $brands);
+			        $conditions['Product.is_fake'] = 0;
 			    }
 
 			    $aRowset = $this->Product->find('all', compact('conditions', 'fields'));
@@ -215,7 +219,7 @@ class AdminProductsController extends AdminController {
 
 			} elseif ($brands = $this->request->data('brandID')) {
 
-				$conditions = array('brand_id' => explode(',', $brands), 'is_fake' => 0);
+				$conditions = array('Product.brand_id' => explode(',', $brands), 'Product.is_fake' => 0);
 				if ($this->request->data('nonZeroAmount')) {
 					$conditions['AND'] = array('OR' => $this->skladOstatki);
 				}
