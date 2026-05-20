@@ -117,7 +117,7 @@ class Product extends AppModel {
 			$dns = array();
 			foreach($detail_nums as $dn) {
 				if ($this->DetailNum->isDigitWord($dn)) {
-					$dns[] = $dn;
+					$dns[] = $this->DetailNum->strip($dn);
 				}
 			}
 

@@ -275,7 +275,10 @@ class AdminProductsController extends AdminController {
 		$_detail_num = $this->DetailNum->softStrip($detail_num);
 		$q = str_replace(array('*', '~'), '', $this->request->named['Product.detail_num']);
 		$this->searchDetail = array('q' => $q, 'detail_num' => $_detail_num) ; // сохраняем оригинальный запрос
-		$product_ids = $this->DetailNum->findDetails($this->DetailNum->stripList($_detail_num), true);
+		$productList = $this->DetailNum->stripList($_detail_num);
+
+		$product_ids = $this->DetailNum->findDetails($productList, true);
+
 		if ($this->DetailNum->isReachLimit()) {
 			$this->setFlash(__('Too many products. Try to search by more exact keyword'), 'error');
 		}
